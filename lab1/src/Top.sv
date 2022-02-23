@@ -21,6 +21,9 @@ logic [15:0] counter, counter_nxt;
 // 26 bits counter for runing time
 logic [25:0] counter_run, counter_run_nxt;
 
+// random number generator
+logic [15:0] random_num_gen, random_num_gen_nxt;
+
 // ===== Output Assignments =====
 assign o_random_out = out;
 
@@ -43,7 +46,9 @@ always_comb begin
 			if (counter_run == 26'b11111111111111111111111111) begin
 				state_nxt = S_IDLE;
 			end
-			
+			random_num_gen_nxt[15] = random_num_gen[0]^random_num_gen[2]^random_num_gen[3]^random_num_gen[5];
+			random_num_gen_nxt[14:0] = random_num_gen[15:1];
+			out = random_num_gen[3:0];
 		end
 	endcase
 end
@@ -62,7 +67,9 @@ always_ff @(posedge i_clk or negedge i_rst_n) begin	//flipflop
 		state        <= state_nxt;
 		counter      <= counter_nxt;
 		counter_run  <= counter_run_nxt;
+		random_num_gen <=  random_num_gen_nxt;        
 	end
+	
 end
 
 endmodule
