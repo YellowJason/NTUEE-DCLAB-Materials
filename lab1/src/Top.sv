@@ -39,9 +39,11 @@ always_comb begin
 		end
 		S_PROC: begin
 			counter_run_nxt = counter_run + 1;
+			o_random_out_nxt = ;		//todo
 			if (counter_run == 26'b11111111111111111111111111) begin
 				state_nxt = S_IDLE;
 			end
+			
 		end
 	endcase
 end
