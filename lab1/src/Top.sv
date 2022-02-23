@@ -47,7 +47,7 @@ always_comb begin
 end
 
 // ===== Sequential Circuits =====
-always_ff @(posedge i_clk or negedge i_rst_n) begin
+always_ff @(posedge i_clk or negedge i_rst_n) begin	//flipflop
 	// reset
 	if (!i_rst_n) begin
 		out <= 4'b0;
