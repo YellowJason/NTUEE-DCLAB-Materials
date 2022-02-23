@@ -48,7 +48,46 @@ always_comb begin
 			end
 			random_num_gen_nxt[15] = random_num_gen[0]^random_num_gen[2]^random_num_gen[3]^random_num_gen[5];
 			random_num_gen_nxt[14:0] = random_num_gen[15:1];
-			out = random_num_gen[3:0];
+			if(counter_run <= 8'd13427772) begin
+				if(counter_run%7'd2685554 == 0) begin
+					out_nxt = random_num_gen[3:0];
+				end
+				else
+					out_nxt = out;
+				end
+			end
+			if(counter_run <= 8'd26855544) begin
+				if(counter_run%7'd6713886 == 0) begin
+					out_nxt = random_num_gen[3:0];
+				end
+				else
+					out_nxt = out;
+				end
+			end	
+			if(counter_run <= 8'd40283316) begin
+				if(counter_run%8'd13427772 == 0) begin
+					out_nxt = random_num_gen[3:0];
+				end
+				else
+					out_nxt = out;
+				end
+			end	
+			if(counter_run <= 8'd53711088) begin
+				if(counter_run%8'd26855544 == 0) begin
+					out_nxt = random_num_gen[3:0];
+				end
+				else
+					out_nxt = out;
+				end
+			end	
+			if(counter_run <= 8'd67138860) begin
+				if(counter_run%8'd67138860 == 0) begin
+					out_nxt = random_num_gen[3:0];
+				end
+				else
+					out_nxt = out;
+				end
+			end	
 		end
 	endcase
 end
