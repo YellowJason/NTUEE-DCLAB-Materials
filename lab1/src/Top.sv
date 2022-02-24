@@ -66,37 +66,37 @@ always_comb begin
 			random_num_gen_nxt[15] = (random_num_gen[0] ^ random_num_gen[2]) ^ (random_num_gen[3] ^ random_num_gen[5]);
 			random_num_gen_nxt[14:0] = random_num_gen[15:1];
 			if (counter_run <= step_1) begin
-				if (counter_run % 26'b00000011111111111111111111 == 0) begin
+				if (counter_run[19:0] == 20'b11111111111111111111) begin
 					out_nxt = random_num_gen[3:0];
 				end
-				else
+				else begin
 					out_nxt = out;
 				end
 			end
 			else if (counter_run <= step_2) begin
-				if (counter_run % 26'b00000111111111111111111111 == 0) begin
+				if (counter_run[20:0] == 21'b111111111111111111111) begin
 					out_nxt = random_num_gen[3:0];
 				end
-				else
+				else begin
 					out_nxt = out;
 				end
 			end	
 			else if (counter_run <= step_3) begin
-				if (counter_run % 26'b00001111111111111111111111 == 0) begin
+				if (counter_run[21:0] == 22'b1111111111111111111111) begin
 					out_nxt = random_num_gen[3:0];
 				end
-				else
+				else begin
 					out_nxt = out;
 				end
 			end	
-			if (counter_run <= counter_end) begin
-				if (counter_run % 26'b00011111111111111111111111 == 0) begin
+			else begin
+				if (counter_run[22:0] == 23'b11111111111111111111111) begin
 					out_nxt = random_num_gen[3:0];
 				end
-				else
+				else begin
 					out_nxt = out;
 				end
-			end	
+			end
 		end
 	endcase
 end
