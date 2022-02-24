@@ -38,18 +38,30 @@ always_comb begin
 				state_nxt = S_PROC;
 				out_nxt = 4'b0;
 				counter_run_nxt = 26'b0;
+				random_num_gen_nxt = random_num_gen ^ counter;
+			end
+			else begin
+				state_nxt = state;
+				out_nxt = out;
+				counter_run_nxt = 26'b0;
+				random_num_gen_nxt = random_num_gen;
 			end
 		end
 		S_PROC: begin
+			// 用一個 counter 計算取隨機數的時間
 			counter_run_nxt = counter_run + 1;
-			o_random_out_nxt = ;		//todo
+			// 跑 1.2 秒後回到 IDLE
 			if (counter_run == 26'b11111111111111111111111111) begin
 				state_nxt = S_IDLE;
 			end
-			random_num_gen_nxt[15] = random_num_gen[0]^random_num_gen[2]^random_num_gen[3]^random_num_gen[5];
+			else begin
+				state_nxt = state;
+			end
+			// Linear feedback shift register
+			random_num_gen_nxt[15] = random_num_gen[0] ^ random_num_gen[2] ^ random_num_gen[3] ^ random_num_gen[5];
 			random_num_gen_nxt[14:0] = random_num_gen[15:1];
 			if(counter_run <= 8'd13427772) begin
-				if(counter_run%7'd2685554 == 0) begin
+				if(counter_run % 7'd2685554 == 0) begin
 					out_nxt = random_num_gen[3:0];
 				end
 				else
@@ -57,7 +69,7 @@ always_comb begin
 				end
 			end
 			if(counter_run <= 8'd26855544) begin
-				if(counter_run%7'd6713886 == 0) begin
+				if(counter_run % 7'd6713886 == 0) begin
 					out_nxt = random_num_gen[3:0];
 				end
 				else
@@ -65,7 +77,7 @@ always_comb begin
 				end
 			end	
 			if(counter_run <= 8'd40283316) begin
-				if(counter_run%8'd13427772 == 0) begin
+				if(counter_run % 8'd13427772 == 0) begin
 					out_nxt = random_num_gen[3:0];
 				end
 				else
@@ -73,7 +85,7 @@ always_comb begin
 				end
 			end	
 			if(counter_run <= 8'd53711088) begin
-				if(counter_run%8'd26855544 == 0) begin
+				if(counter_run % 8'd26855544 == 0) begin
 					out_nxt = random_num_gen[3:0];
 				end
 				else
@@ -81,7 +93,7 @@ always_comb begin
 				end
 			end	
 			if(counter_run <= 8'd67138860) begin
-				if(counter_run%8'd67138860 == 0) begin
+				if(counter_run % 8'd67138860 == 0) begin
 					out_nxt = random_num_gen[3:0];
 				end
 				else
@@ -100,6 +112,7 @@ always_ff @(posedge i_clk or negedge i_rst_n) begin	//flipflop
 		state        <= S_IDLE;
 		counter		 <= 16'b0;
 		counter_run  <= 26'b0;
+		random_num_gen <=  16'b0;
 	end
 	else begin
 		out <= out_nxt;
