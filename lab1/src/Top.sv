@@ -1,9 +1,9 @@
 module Top (
 	input i_clk,
-	input i_rst_n,
-	input i_start,
-	input key2,
-	input key3,
+	input i_rst_n,	// key1 reset
+	input i_start,	// key0 start
+	input key2,		// key2 pause
+	input key3,		// key3 previous output
 	output [3:0] o_random_out
 );
 
@@ -57,7 +57,8 @@ always_comb begin
 			// 用一個 counter 計算取隨機數的時間
 			counter_run_nxt = counter_run + 1;
 			// 跑 1.2 秒後回到 IDLE
-			if (counter_run == counter_end) begin
+			// 按下 key2 直接暫停
+			if ((counter_run == counter_end) | (key2 == 1'b0)) begin
 				state_nxt = S_IDLE;
 			end
 			else begin
