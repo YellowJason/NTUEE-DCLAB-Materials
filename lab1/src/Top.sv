@@ -13,7 +13,8 @@ parameter S_PROC = 1'b1;
 
 // ===== Output Buffers =====
 logic [3:0] out, out_nxt;
-
+logic [3:0] previous, previous_nxt;
+logic [3:0] out_memory, out_memory_nxt;
 // signal when update output
 logic update, u1, u2, u3, u4;
 
@@ -39,18 +40,28 @@ always_comb begin
 	// FSM
 	case(state)
 		S_IDLE: begin
+			out_memory_nxt = out_memory;
 			// 按下 start 按鈕
 			if (i_start) begin
 				state_nxt = S_PROC;
-				out_nxt = 4'b0;
+				out_nxt = out;
 				counter_run_nxt = 15'b0;
 				random_num_gen_nxt = random_num_gen ^ counter;
+				// 記錄前一次答案
+				previous_nxt = out_memory;
 			end
 			else begin
 				state_nxt = state;
-				out_nxt = out;
+				// 按下 key3 顯示上一個答案
+				if (key3 == 1'b0) begin
+					out_nxt = previous;
+				end
+				else begin
+					out_nxt = out;
+				end
 				counter_run_nxt = 15'b0;
 				random_num_gen_nxt = random_num_gen;
+				previous_nxt = previous;
 			end
 		end
 		S_PROC: begin
@@ -60,9 +71,24 @@ always_comb begin
 			// 按下 key2 直接暫停
 			if ((counter_run == counter_end) | (key2 == 1'b0)) begin
 				state_nxt = S_IDLE;
+				if (key2 == 1'b0) begin
+					out_memory_nxt = update ? random_num_gen[3:0] : out;
+				end
+				else begin
+					out_memory_nxt = random_num_gen[3:0];
+				end
+				/*
+				if (update == 1'b1) begin
+					out_memory_nxt = random_num_gen[3:0];
+				end
+				else begin
+					out_memory_nxt = out;
+				end
+				*/
 			end
 			else begin
 				state_nxt = state;
+				out_memory_nxt = out_memory;
 			end
 			// Linear feedback shift register
 			// 將 1.2 秒分成 4 部分
@@ -122,7 +148,9 @@ always_ff @(posedge i_clk or negedge i_rst_n) begin	//flipflop
 		state        <= S_IDLE;
 		counter		 <= 16'b0;
 		counter_run  <= 26'b0;
-		random_num_gen <=  16'b0;
+		random_num_gen <= 16'b0;
+		previous	 <= 4'b0; 
+		out_memory   <= 4'b0;
 	end
 	// clock edge
 	else begin
@@ -130,7 +158,9 @@ always_ff @(posedge i_clk or negedge i_rst_n) begin	//flipflop
 		state        <= state_nxt;
 		counter      <= counter_nxt;
 		counter_run  <= counter_run_nxt;
-		random_num_gen <=  random_num_gen_nxt;        
+		random_num_gen <=  random_num_gen_nxt;
+		previous	 <= previous_nxt;
+		out_memory   <= out_memory_nxt;
 	end
 	
 end
