@@ -149,6 +149,8 @@ Debounce deb0(
 Top top0(
 	.i_clk(CLOCK_50),
 	.i_rst_n(KEY[1]),
+	.key2(KEY[2]),
+	.key3(KEY[3]),
 	.i_start(keydown),
 	.o_random_out(random_value)
 );

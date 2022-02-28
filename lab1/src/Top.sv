@@ -1,7 +1,9 @@
 module Top (
-	input        i_clk,
-	input        i_rst_n,
-	input        i_start,
+	input i_clk,
+	input i_rst_n,
+	input i_start,
+	input key2,
+	input key3,
 	output [3:0] o_random_out
 );
 
@@ -72,6 +74,8 @@ always_comb begin
 			u4 = (counter_run[14:13] == 2'b11) & (counter_run[11:0] == 12'b111111111111);
 			update = u1 | u2 | u3 | u4;
 			
+			out_nxt = update ? random_num_gen[3:0] : out;
+			/*
 			if (counter_run[14:13] == 2'b00) begin
 				if (counter_run[8:0] == 9'b111111111) begin
 					out_nxt = random_num_gen[3:0];
@@ -104,6 +108,7 @@ always_comb begin
 					out_nxt = out;
 				end
 			end
+			*/
 		end
 	endcase
 end
