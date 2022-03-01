@@ -16,7 +16,7 @@ logic [3:0] out, out_nxt;
 logic [3:0] previous, previous_nxt;
 logic [3:0] out_memory, out_memory_nxt;
 // signal when update output
-logic update, u1, u2, u3, u4;
+logic update, u1, u2, u3, u4, u5, u6;
 
 // ===== Registers & Wires =====
 logic state, state_nxt;
@@ -25,8 +25,8 @@ logic state, state_nxt;
 logic [15:0] counter, counter_nxt;
 
 // 26 bits counter for runing time
-logic [25:0] counter_run, counter_run_nxt;
-parameter counter_end = 26'b11111111111111111111111111;
+logic [26:0] counter_run, counter_run_nxt;
+parameter counter_end = 27'b111111111111111111111111111;
 
 // random number generator
 logic [15:0] random_num_gen, random_num_gen_nxt;
@@ -37,16 +37,18 @@ assign o_random_out = out;
 // ===== Combinational Circuits =====
 always_comb begin
 	counter_nxt = counter + 1'b1;
-	// 4 段變速
-	u1 = (counter_run[25:24] == 2'b00) & (counter_run[19:0] == 20'b11111111111111111111);
-	u2 = (counter_run[25:24] == 2'b01) & (counter_run[20:0] == 21'b111111111111111111111);
-	u3 = (counter_run[25:24] == 2'b10) & (counter_run[21:0] == 22'b1111111111111111111111);
-	u4 = (counter_run[25:24] == 2'b11) & (counter_run[22:0] == 23'b11111111111111111111111);
+	// 6 段變速
+	u1 = (counter_run[26:24] == 3'b000) & (counter_run[17:0] == 18'b111111111111111111);
+	u2 = (counter_run[26:24] == 3'b001) & (counter_run[18:0] == 19'b1111111111111111111);
+	u3 = (counter_run[26:24] == 3'b010) & (counter_run[19:0] == 20'b11111111111111111111);
+	u4 = (counter_run[26:24] == 3'b011) & (counter_run[20:0] == 21'b111111111111111111111);
+	u5 = (counter_run[26:25] == 2'b10 ) & (counter_run[21:0] == 22'b1111111111111111111111);
+	u6 = (counter_run[26:25] == 2'b11 ) & (counter_run[22:0] == 23'b11111111111111111111111);
 	// FSM
 	case(state)
 		S_IDLE: begin
 			out_memory_nxt = out_memory;
-			counter_run_nxt = 26'b0;
+			counter_run_nxt = 27'b0;
 			update = 1'b0;
 			// 按下 start 按鈕
 			if (i_start) begin
@@ -101,7 +103,7 @@ always_comb begin
 			random_num_gen_nxt[15] = (random_num_gen[0] ^ random_num_gen[2]) ^ (random_num_gen[3] ^ random_num_gen[5]);
 			random_num_gen_nxt[14:0] = random_num_gen[15:1];
 			// output 更新訊號
-			update = u1 | u2 | u3 | u4;
+			update = u1 | u2 | u3 | u4 | u5 | u6;
 			out_nxt = update ? random_num_gen[3:0] : out;
 			/*
 			if (counter_run[14:13] == 2'b00) begin
@@ -148,7 +150,7 @@ always_ff @(posedge i_clk or negedge i_rst_n) begin	//flipflop
 		out <= 4'b0;
 		state        <= S_IDLE;
 		counter		 <= 16'b0;
-		counter_run  <= 26'b0;
+		counter_run  <= 27'b0;
 		random_num_gen <= 16'b0;
 		previous	 <= 4'b0; 
 		out_memory   <= 4'b0;
