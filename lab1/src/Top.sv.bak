@@ -25,8 +25,8 @@ logic state, state_nxt;
 logic [15:0] counter, counter_nxt;
 
 // 26 bits counter for runing time
-logic [25:0] counter_run, counter_run_nxt;
-parameter counter_end = 26'b11111111111111111111111111;
+logic [14:0] counter_run, counter_run_nxt;
+parameter counter_end = 15'b111111111111111;
 
 // random number generator
 logic [15:0] random_num_gen, random_num_gen_nxt;
@@ -36,22 +36,16 @@ assign o_random_out = out;
 
 // ===== Combinational Circuits =====
 always_comb begin
-	counter_nxt = counter + 1'b1;
-	// 4 段變速
-	u1 = (counter_run[25:24] == 2'b00) & (counter_run[19:0] == 20'b11111111111111111111);
-	u2 = (counter_run[25:24] == 2'b01) & (counter_run[20:0] == 21'b111111111111111111111);
-	u3 = (counter_run[25:24] == 2'b10) & (counter_run[21:0] == 22'b1111111111111111111111);
-	u4 = (counter_run[25:24] == 2'b11) & (counter_run[22:0] == 23'b11111111111111111111111);
+	counter_nxt = counter + 1;
 	// FSM
 	case(state)
 		S_IDLE: begin
 			out_memory_nxt = out_memory;
-			counter_run_nxt = 26'b0;
-			update = 1'b0;
 			// 按下 start 按鈕
 			if (i_start) begin
 				state_nxt = S_PROC;
 				out_nxt = out;
+				counter_run_nxt = 15'b0;
 				random_num_gen_nxt = random_num_gen ^ counter;
 				// 記錄前一次答案
 				previous_nxt = out_memory;
@@ -65,12 +59,12 @@ always_comb begin
 				else begin
 					out_nxt = out;
 				end
+				counter_run_nxt = 15'b0;
 				random_num_gen_nxt = random_num_gen;
 				previous_nxt = previous;
 			end
 		end
 		S_PROC: begin
-			previous_nxt = previous;
 			// 用一個 counter 計算取隨機數的時間
 			counter_run_nxt = counter_run + 1;
 			// 跑 1.2 秒後回到 IDLE
@@ -101,7 +95,12 @@ always_comb begin
 			random_num_gen_nxt[15] = (random_num_gen[0] ^ random_num_gen[2]) ^ (random_num_gen[3] ^ random_num_gen[5]);
 			random_num_gen_nxt[14:0] = random_num_gen[15:1];
 			// output 更新訊號
+			u1 = (counter_run[14:13] == 2'b00) & (counter_run[8:0] == 9'b111111111);
+			u2 = (counter_run[14:13] == 2'b01) & (counter_run[9:0] == 10'b1111111111);
+			u3 = (counter_run[14:13] == 2'b10) & (counter_run[10:0] == 11'b11111111111);
+			u4 = (counter_run[14:13] == 2'b11) & (counter_run[11:0] == 12'b111111111111);
 			update = u1 | u2 | u3 | u4;
+			
 			out_nxt = update ? random_num_gen[3:0] : out;
 			/*
 			if (counter_run[14:13] == 2'b00) begin
