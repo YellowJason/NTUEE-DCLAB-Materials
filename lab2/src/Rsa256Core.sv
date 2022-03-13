@@ -26,6 +26,7 @@ logic [7:0] counter_mont, counter_mont_nxt;
 logic [7:0] counter_calc, counter_calc_nxt;
 
 always_comb begin
+	// combinational for state & counter
 	case(state)
 		S_IDLE:begin
 			// unchanged register
@@ -83,9 +84,20 @@ always_comb begin
 			end
 		end
 	endcase
+	// combinational for calculation
+	case(state)
+		S_IDLE:begin
+		end
+		S_PREP:begin
+		end
+		S_MONT:begin
+		end
+		S_CALC:begin
+		end
+	endcase
 end
 
-always_ff @(posedge i_clk or posedge i_rst) begin	//flipflop
+always_ff @(posedge i_clk or posedge i_rst) begin
 	// reset
 	if (i_rst) begin
 		state <= S_IDLE;
