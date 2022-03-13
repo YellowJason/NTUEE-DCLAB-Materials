@@ -85,9 +85,9 @@ always_comb begin
 	endcase
 end
 
-always_ff @(posedge i_clk or negedge i_rst_n) begin	//flipflop
+always_ff @(posedge i_clk or posedge i_rst) begin	//flipflop
 	// reset
-	if (!i_rst_n) begin
+	if (i_rst) begin
 		state <= S_IDLE;
 		counter_prep <= 8'b0;
 		counter_mont <= 8'b0;
