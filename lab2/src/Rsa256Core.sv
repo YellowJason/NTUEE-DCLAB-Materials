@@ -16,6 +16,10 @@ parameter S_CALC = 2'b11;
 // states
 logic [1:0] state, state_nxt;
 
+// finish signal
+logic finish, finish_nxt;
+assign o_finished = finish;
+
 // counter for module of products (needs 257 cycles)
 logic [8:0] counter_prep, counter_prep_nxt;
 
@@ -29,15 +33,24 @@ logic [7:0] counter_calc, counter_calc_nxt;
 logic [255:0] t, t_nxt;
 
 // register for answer m
-logic m, m_nxt;
+logic [255:0] m, m_nxt;
+assign o_a_pow_d = m;
 
-// selected bit
+// register for m in two Montgomery
+logic [255:0] m_mont_1, m_mont_1_nxt;
+logic [255:0] m_mont_2, m_mont_2_nxt;
+logic [256:0] sum1;
+logic [256:0] sum2;
+assign sum1 = m_mont_1 + t;
+assign sum2 = m_mont_2 + t;
+
+// select specific bits
 logic d_selected;
 logic m_selected;
 logic t_selected;
 MUX mux_d(.s(counter_calc), .data(i_d), .selected(d_selected));
-MUX mux_m(.s(counter_mont), .data(m), .selected(m_selected));
-MUX mux_t(.s(counter_mont), .data(t), .selected(t_selected));
+MUX mux_m(.s(counter_mont), .data(m),   .selected(m_selected));
+MUX mux_t(.s(counter_mont), .data(t),   .selected(t_selected));
 
 always_comb begin
 	// combinational for state & counter
@@ -47,6 +60,7 @@ always_comb begin
 			counter_prep_nxt = counter_prep;
 			counter_mont_nxt = counter_mont;
 			counter_calc_nxt = counter_calc;
+			finish_nxt = 1'b0;
 			//
 			if (i_start) begin
 				state_nxt = S_PREP;
@@ -59,6 +73,7 @@ always_comb begin
 			// unchanged register 
 			counter_mont_nxt = counter_mont;
 			counter_calc_nxt = counter_calc;
+			finish_nxt = 1'b0;
 			//
 			if (counter_prep == 9'b100000000) begin
 				state_nxt = S_MONT;
@@ -73,6 +88,7 @@ always_comb begin
 			// unchanged register 
 			counter_prep_nxt = counter_prep;
 			counter_calc_nxt = counter_calc;
+			finish_nxt = 1'b0;
 			//
 			if (counter_mont == 8'b11111111) begin
 				state_nxt = S_CALC;
@@ -91,6 +107,7 @@ always_comb begin
 			if (counter_calc == 8'b11111111) begin
 				state_nxt = S_IDLE;
 				counter_calc_nxt = 8'b0;
+				finish_nxt = 1'b1;
 			end
 			else begin
 				state_nxt = S_MONT;
@@ -98,11 +115,12 @@ always_comb begin
 			end
 		end
 	endcase
-	// select specific bits
-
 	// combinational for calculation
 	case(state)
 		S_IDLE:begin
+			m_mont_1_nxt = 256'b0;
+			m_mont_2_nxt = 256'b0;
+			m_nxt = m;
 			if (i_start) begin
 				t_nxt = i_a;
 			end
@@ -112,7 +130,10 @@ always_comb begin
 		end
 		// compute t * 2^256 mod N 
 		S_PREP:begin
-			// unchanged register
+			m_mont_1_nxt = 256'b0;
+			m_mont_2_nxt = 256'b0;
+			// set m to 1
+			m_nxt = 1;
 			// compare 2*t and N
 			if (counter_prep == 9'b100000000) begin
 				t_nxt = (t > i_n) ? (t - i_n) : t;
@@ -123,11 +144,59 @@ always_comb begin
 		end
 		S_MONT:begin
 			// unchanged register
+			m_nxt = m;
 			t_nxt = t;
+			// update m in Montgomery 1
+			if (m_selected == 1'b1) begin
+				// if m+b is odd
+				if (sum1[0] == 1) begin
+					m_mont_1_nxt = m_mont_1 + t + i_n;
+				end
+				else begin
+					m_mont_1_nxt = {1'b0, sum1[255:1]};
+				end
+			end
+			else begin
+				// if m is odd
+				if (sum1[0] == 1) begin
+					m_mont_1_nxt = m_mont_1 + i_n;
+				end
+				else begin
+					m_mont_1_nxt = {1'b0, sum1[255:1]};
+				end
+			end
+			// update m in Montgomery 2
+			if (t_selected == 1'b1) begin
+				// if m+b is odd
+				if (sum2[0] == 1) begin
+					m_mont_2_nxt = m_mont_2 + t + i_n;
+				end
+				else begin
+					m_mont_2_nxt = {1'b0, sum2[255:1]};
+				end
+			end
+			else begin
+				// if m is odd
+				if (sum2[0] == 1) begin
+					m_mont_2_nxt = m_mont_2 + i_n;
+				end
+				else begin
+					m_mont_2_nxt = {1'b0, sum2[255:1]};
+				end
+			end
 		end
 		S_CALC:begin
-			// unchanged register
-			t_nxt = t;
+			// update m & t
+			if (d_selected == 1'b1) begin
+				m_nxt = (m_mont_1 >= i_n) ? (m_mont_1 - i_n) : m_mont_1;
+			end
+			else begin
+				m_nxt = m;
+			end
+			t_nxt = (m_mont_2 >= i_n) ? (m_mont_2 - i_n) : m_mont_2;
+			// set m in two Montgomery to 0
+			m_mont_1_nxt = 256'b0;
+			m_mont_2_nxt = 256'b0;
 		end
 	endcase
 end
@@ -139,7 +208,11 @@ always_ff @(posedge i_clk or posedge i_rst) begin
 		counter_prep <= 9'b0;
 		counter_mont <= 8'b0;
 		counter_calc <= 8'b0;
+		m <= 256'b0;
 		t <= 256'b0;
+		m_mont_1 <= 256'b0;
+		m_mont_2 <= 256'b0;
+		finish <= 1'b0;
 	end
 	// clock edge
 	else begin
@@ -147,12 +220,16 @@ always_ff @(posedge i_clk or posedge i_rst) begin
 		counter_prep <= counter_prep_nxt;
 		counter_mont <= counter_mont_nxt;
 		counter_calc <= counter_calc_nxt;
+		// main m & t
+		m <= m_nxt;
 		t <= t_nxt;
+		// m in two Montgomery
+		m_mont_1 <= m_mont_1_nxt;
+		m_mont_2 <= m_mont_2_nxt;
+		// finish signal
+		finish <= finish_nxt;
 	end
 end
-// operations for RSA256 decryption
-// namely, the Montgomery algorithm
-
 endmodule
 
 module MUX(input [7:0] s, input [255:0] data, output selected);
