@@ -30,21 +30,21 @@ logic [7:0] counter_mont, counter_mont_nxt;
 logic [7:0] counter_calc, counter_calc_nxt;
 
 // register for encrypted data y
-logic [255:0] t, t_nxt;
+logic [256:0] t, t_nxt;
 
 // register for answer m
 logic [255:0] m, m_nxt;
 assign o_a_pow_d = m;
 
 // register for m in two Montgomery
-logic [255:0] m_mont_1, m_mont_1_nxt;
-logic [255:0] m_mont_2, m_mont_2_nxt;
-logic [256:0] sum1_1;
-logic [256:0] sum1_2;
-logic [256:0] sum1_3;
-logic [256:0] sum2_1;
-logic [256:0] sum2_2;
-logic [256:0] sum2_3;
+logic [256:0] m_mont_1, m_mont_1_nxt;
+logic [256:0] m_mont_2, m_mont_2_nxt;
+logic [257:0] sum1_1;
+logic [257:0] sum1_2;
+logic [257:0] sum1_3;
+logic [257:0] sum2_1;
+logic [257:0] sum2_2;
+logic [257:0] sum2_3;
 assign sum1_1 = m_mont_1 + t;
 assign sum1_2 = m_mont_1 + t + i_n;
 assign sum1_3 = m_mont_1 + i_n;
@@ -57,8 +57,8 @@ logic d_selected;
 logic m_selected;
 logic t_selected;
 MUX mux_d(.s(counter_calc), .data(i_d), .selected(d_selected));
-MUX mux_m(.s(counter_mont), .data(m),   .selected(m_selected));
-MUX mux_t(.s(counter_mont), .data(t),   .selected(t_selected));
+MUX mux_m(.s(counter_mont), .data(m[255:0]),   .selected(m_selected));
+MUX mux_t(.s(counter_mont), .data(t[255:0]),   .selected(t_selected));
 
 always_comb begin
 	// combinational for state & counter
@@ -126,11 +126,11 @@ always_comb begin
 	// combinational for calculation
 	case(state)
 		S_IDLE:begin
-			m_mont_1_nxt = 256'b0;
-			m_mont_2_nxt = 256'b0;
+			m_mont_1_nxt = 257'b0;
+			m_mont_2_nxt = 257'b0;
 			m_nxt = m;
 			if (i_start) begin
-				t_nxt = i_a;
+				t_nxt = {1'b0, i_a};
 			end
 			else begin
 				t_nxt = t;
@@ -138,8 +138,8 @@ always_comb begin
 		end
 		// compute t * 2^256 mod N 
 		S_PREP:begin
-			m_mont_1_nxt = 256'b0;
-			m_mont_2_nxt = 256'b0;
+			m_mont_1_nxt = 257'b0;
+			m_mont_2_nxt = 257'b0;
 			// set m to 1
 			m_nxt = 1;
 			// compute 2*t mod N
@@ -155,8 +155,8 @@ always_comb begin
 				if (t >= i_n) begin
 					t_nxt = {(t - i_n), 1'b0};
 				end
-				else if ({t[255:0], 1'b0} >= {1'b0, i_n}) begin
-					t_nxt = ({t[255:0], 1'b0} - {1'b0, i_n});
+				else if ({t[256:0], 1'b0} >= {2'b00, i_n}) begin
+					t_nxt = {t[256:0], 1'b0} - {2'b00, i_n};
 				end
 				else begin
 					t_nxt = {t[255:0], 1'b0};
@@ -171,53 +171,53 @@ always_comb begin
 			if (m_selected == 1'b1) begin
 				// if m+b is odd
 				if (sum1_1[0] == 1) begin
-					m_mont_1_nxt = sum1_2[256:1];
+					m_mont_1_nxt = sum1_2[257:1];
 				end
 				else begin
-					m_mont_1_nxt = sum1_1[256:1]};
+					m_mont_1_nxt = sum1_1[257:1];
 				end
 			end
 			else begin
 				// if m is odd
 				if (m_mont_1[0] == 1) begin
-					m_mont_1_nxt = sum1_3[256:1];
+					m_mont_1_nxt = sum1_3[257:1];
 				end
 				else begin
-					m_mont_1_nxt = m_mont_1[256:1]};
+					m_mont_1_nxt = {1'b0, m_mont_1[256:1]};
 				end
 			end
 			// update m in Montgomery 2
 			if (t_selected == 1'b1) begin
 				// if m+b is odd
 				if (sum2_1[0] == 1) begin
-					m_mont_2_nxt = sum2_2[256:1];
+					m_mont_2_nxt = sum2_2[257:1];
 				end
 				else begin
-					m_mont_2_nxt = sum2_1[256:1];
+					m_mont_2_nxt = sum2_1[257:1];
 				end
 			end
 			else begin
 				// if m is odd
 				if (m_mont_2[0] == 1) begin
-					m_mont_2_nxt = sum2_3[256:1];
+					m_mont_2_nxt = sum2_3[257:1];
 				end
 				else begin
-					m_mont_2_nxt = m_mont_2[256:1];
+					m_mont_2_nxt = {1'b0, m_mont_2[256:1]};
 				end
 			end
 		end
 		S_CALC:begin
 			// update m & t
 			if (d_selected == 1'b1) begin
-				m_nxt = (m_mont_1 >= i_n) ? (m_mont_1 - i_n) : m_mont_1;
+				m_nxt = (m_mont_1 >= {1'b0, i_n}) ? (m_mont_1 - i_n) : m_mont_1[255:0];
 			end
 			else begin
 				m_nxt = m;
 			end
-			t_nxt = (m_mont_2 >= i_n) ? (m_mont_2 - i_n) : m_mont_2;
+			t_nxt = (m_mont_2 >= {1'b0, i_n}) ? (m_mont_2 - i_n) : m_mont_2;
 			// set m in two Montgomery to 0
-			m_mont_1_nxt = 256'b0;
-			m_mont_2_nxt = 256'b0;
+			m_mont_1_nxt = 257'b0;
+			m_mont_2_nxt = 257'b0;
 		end
 	endcase
 end
@@ -230,9 +230,9 @@ always_ff @(posedge i_clk or posedge i_rst) begin
 		counter_mont <= 8'b0;
 		counter_calc <= 8'b0;
 		m <= 256'b0;
-		t <= 256'b0;
-		m_mont_1 <= 256'b0;
-		m_mont_2 <= 256'b0;
+		t <= 257'b0;
+		m_mont_1 <= 257'b0;
+		m_mont_2 <= 257'b0;
 		finish <= 1'b0;
 	end
 	// clock edge
