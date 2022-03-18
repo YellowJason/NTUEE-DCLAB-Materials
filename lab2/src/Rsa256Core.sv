@@ -171,38 +171,38 @@ always_comb begin
 			if (m_selected == 1'b1) begin
 				// if m+b is odd
 				if (sum1_1[0] == 1) begin
-					m_mont_1_nxt = {1'b0, sum1_2[255:1]};
+					m_mont_1_nxt = sum1_2[256:1];
 				end
 				else begin
-					m_mont_1_nxt = {1'b0, sum1_1[255:1]};
+					m_mont_1_nxt = sum1_1[256:1]};
 				end
 			end
 			else begin
 				// if m is odd
 				if (m_mont_1[0] == 1) begin
-					m_mont_1_nxt = {1'b0, sum1_3[255:1]};
+					m_mont_1_nxt = sum1_3[256:1];
 				end
 				else begin
-					m_mont_1_nxt = {1'b0, m_mont_1[255:1]};
+					m_mont_1_nxt = m_mont_1[256:1]};
 				end
 			end
 			// update m in Montgomery 2
 			if (t_selected == 1'b1) begin
 				// if m+b is odd
 				if (sum2_1[0] == 1) begin
-					m_mont_2_nxt = {1'b0, sum2_2[255:1]};
+					m_mont_2_nxt = sum2_2[256:1];
 				end
 				else begin
-					m_mont_2_nxt = {1'b0, sum2_1[255:1]};
+					m_mont_2_nxt = sum2_1[256:1];
 				end
 			end
 			else begin
 				// if m is odd
 				if (m_mont_2[0] == 1) begin
-					m_mont_2_nxt = {1'b0, sum2_3[255:1]};
+					m_mont_2_nxt = sum2_3[256:1];
 				end
 				else begin
-					m_mont_2_nxt = {1'b0, m_mont_2[255:1]};
+					m_mont_2_nxt = m_mont_2[256:1];
 				end
 			end
 		end
