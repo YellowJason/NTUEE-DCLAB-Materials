@@ -31,6 +31,8 @@ logic rsa_start_r, rsa_start_nxt;
 logic rsa_finished;
 logic [255:0] rsa_dec;
 
+parameter counter_end = 7'b0100000  //32次
+
 assign avm_address = avm_address_r;
 assign avm_read = avm_read_r;
 assign avm_write = avm_write_r;
@@ -70,6 +72,13 @@ always_comb begin
         S_GET_KEY:begin
         end
         S_GET_DATA:begin
+            bytes_counter_nxt = bytes_counter + 1;
+            if(bytes_counter == counter_end) begin
+                //此時資料全部輸入完畢，要傳到core讓core算
+                state_nxt = S_WAIT_CALCULATE;
+            end
+            else begin
+            end
         end
         S_WAIT_CALCULATE:begin
         end
