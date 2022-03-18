@@ -56,9 +56,9 @@ assign sum2_3 = m_mont_2 + i_n;
 logic d_selected;
 logic m_selected;
 logic t_selected;
-MUX mux_d(.s(counter_calc), .data(i_d), .selected(d_selected));
-MUX mux_m(.s(counter_mont), .data(m[255:0]),   .selected(m_selected));
-MUX mux_t(.s(counter_mont), .data(t[255:0]),   .selected(t_selected));
+MUX mux_d(.s(counter_calc), .data(i_d),      .selected(d_selected));
+MUX mux_m(.s(counter_mont), .data(m[255:0]), .selected(m_selected));
+MUX mux_t(.s(counter_mont), .data(t[255:0]), .selected(t_selected));
 
 always_comb begin
 	// combinational for state & counter
@@ -209,12 +209,12 @@ always_comb begin
 		S_CALC:begin
 			// update m & t
 			if (d_selected == 1'b1) begin
-				m_nxt = (m_mont_1 >= {1'b0, i_n}) ? (m_mont_1 - i_n) : m_mont_1[255:0];
+				m_nxt = (m_mont_1 >= i_n) ? (m_mont_1 - i_n) : m_mont_1[255:0];
 			end
 			else begin
 				m_nxt = m;
 			end
-			t_nxt = (m_mont_2 >= {1'b0, i_n}) ? (m_mont_2 - i_n) : m_mont_2;
+			t_nxt = (m_mont_2 >= i_n) ? (m_mont_2 - i_n) : m_mont_2;
 			// set m in two Montgomery to 0
 			m_mont_1_nxt = 257'b0;
 			m_mont_2_nxt = 257'b0;
