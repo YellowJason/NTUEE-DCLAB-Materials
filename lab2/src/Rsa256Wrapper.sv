@@ -31,8 +31,8 @@ logic rsa_start_r, rsa_start_nxt;
 logic rsa_finished;
 logic [255:0] rsa_dec;
 
-parameter counter_end = 7'b0100000  //32次
-
+parameter data_counter_end = 7'b0011111  //32次
+parameter key_counter_end = 7'b0111111  //兩次32次
 assign avm_address = avm_address_r;
 assign avm_read = avm_read_r;
 assign avm_write = avm_write_r;
@@ -70,14 +70,25 @@ always_comb begin
     // TODO
     case(state_r)
         S_GET_KEY:begin
-        end
-        S_GET_DATA:begin
-            bytes_counter_nxt = bytes_counter + 1;
-            if(bytes_counter == counter_end) begin
-                //此時資料全部輸入完畢，要傳到core讓core算
+            
+            if(bytes_counter == data_counter_end) begin
+                //此時key全部輸入完畢，要傳到core讓core算
                 state_nxt = S_WAIT_CALCULATE;
+                bytes_counter_nxt = 7'b0000000;
             end
             else begin
+                bytes_counter_nxt = bytes_counter + 1;
+            end
+        end
+        S_GET_DATA:begin
+            
+            if(bytes_counter == data_counter_end) begin
+                //此時秘密資料全部輸入完畢，要傳到core讓core算
+                state_nxt = S_WAIT_CALCULATE;
+                bytes_counter_nxt = 7'b0000000;
+            end
+            else begin
+                bytes_counter_nxt = bytes_counter + 1;
             end
         end
         S_WAIT_CALCULATE:begin
