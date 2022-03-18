@@ -39,10 +39,18 @@ assign o_a_pow_d = m;
 // register for m in two Montgomery
 logic [255:0] m_mont_1, m_mont_1_nxt;
 logic [255:0] m_mont_2, m_mont_2_nxt;
-logic [256:0] sum1;
-logic [256:0] sum2;
-assign sum1 = m_mont_1 + t;
-assign sum2 = m_mont_2 + t;
+logic [256:0] sum1_1;
+logic [256:0] sum1_2;
+logic [256:0] sum1_3;
+logic [256:0] sum2_1;
+logic [256:0] sum2_2;
+logic [256:0] sum2_3;
+assign sum1_1 = m_mont_1 + t;
+assign sum1_2 = m_mont_1 + t + i_n;
+assign sum1_3 = m_mont_1 + i_n;
+assign sum2_1 = m_mont_2 + t;
+assign sum2_2 = m_mont_2 + t + i_n;
+assign sum2_3 = m_mont_2 + i_n;
 
 // select specific bits
 logic d_selected;
@@ -134,12 +142,25 @@ always_comb begin
 			m_mont_2_nxt = 256'b0;
 			// set m to 1
 			m_nxt = 1;
-			// compare 2*t and N
+			// compute 2*t mod N
 			if (counter_prep == 9'b100000000) begin
-				t_nxt = (t > i_n) ? (t - i_n) : t;
+				if (t >= i_n) begin
+					t_nxt = (t - i_n);
+				end
+				else begin
+					t_nxt = t;
+				end
 			end
 			else begin
-				t_nxt = ({t[255:0], 1'b0} > {1'b0, i_n}) ? ({t[255:0], 1'b0} - {1'b0, i_n}) : {t[254:0], 1'b0};
+				if (t >= i_n) begin
+					t_nxt = {(t - i_n), 1'b0};
+				end
+				else if ({t[255:0], 1'b0} >= {1'b0, i_n}) begin
+					t_nxt = ({t[255:0], 1'b0} - {1'b0, i_n});
+				end
+				else begin
+					t_nxt = {t[255:0], 1'b0};
+				end
 			end
 		end
 		S_MONT:begin
@@ -149,39 +170,39 @@ always_comb begin
 			// update m in Montgomery 1
 			if (m_selected == 1'b1) begin
 				// if m+b is odd
-				if (sum1[0] == 1) begin
-					m_mont_1_nxt = m_mont_1 + t + i_n;
+				if (sum1_1[0] == 1) begin
+					m_mont_1_nxt = {1'b0, sum1_2[255:1]};
 				end
 				else begin
-					m_mont_1_nxt = {1'b0, sum1[255:1]};
+					m_mont_1_nxt = {1'b0, sum1_1[255:1]};
 				end
 			end
 			else begin
 				// if m is odd
-				if (sum1[0] == 1) begin
-					m_mont_1_nxt = m_mont_1 + i_n;
+				if (m_mont_1[0] == 1) begin
+					m_mont_1_nxt = {1'b0, sum1_3[255:1]};
 				end
 				else begin
-					m_mont_1_nxt = {1'b0, sum1[255:1]};
+					m_mont_1_nxt = {1'b0, m_mont_1[255:1]};
 				end
 			end
 			// update m in Montgomery 2
 			if (t_selected == 1'b1) begin
 				// if m+b is odd
-				if (sum2[0] == 1) begin
-					m_mont_2_nxt = m_mont_2 + t + i_n;
+				if (sum2_1[0] == 1) begin
+					m_mont_2_nxt = {1'b0, sum2_2[255:1]};
 				end
 				else begin
-					m_mont_2_nxt = {1'b0, sum2[255:1]};
+					m_mont_2_nxt = {1'b0, sum2_1[255:1]};
 				end
 			end
 			else begin
 				// if m is odd
-				if (sum2[0] == 1) begin
-					m_mont_2_nxt = m_mont_2 + i_n;
+				if (m_mont_2[0] == 1) begin
+					m_mont_2_nxt = {1'b0, sum2_3[255:1]};
 				end
 				else begin
-					m_mont_2_nxt = {1'b0, sum2[255:1]};
+					m_mont_2_nxt = {1'b0, m_mont_2[255:1]};
 				end
 			end
 		end
