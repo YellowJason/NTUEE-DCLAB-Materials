@@ -3,7 +3,7 @@ module Rsa256Wrapper (
     input         avm_clk,
     output  [4:0] avm_address,
     output        avm_read,
-    input  [31:0] avm_readdata,
+    input  [31:0] avm_readdata, //[7:0]一次讀8bit為啥事32bit
     output        avm_write,
     output [31:0] avm_writedata,
     input         avm_waitrequest
@@ -21,13 +21,13 @@ localparam S_GET_DATA = 1;
 localparam S_WAIT_CALCULATE = 2;
 localparam S_SEND_DATA = 3;
 
-logic [255:0] n_r, n_w, d_r, d_w, enc_r, enc_w, dec_r, dec_w;
-logic [1:0] state_r, state_w;
-logic [6:0] bytes_counter_r, bytes_counter_w;
-logic [4:0] avm_address_r, avm_address_w;
-logic avm_read_r, avm_read_w, avm_write_r, avm_write_w;
+logic [255:0] n_r, n_nxt, d_r, d_nxt, enc_r, enc_nxt, dec_r, dec_nxt;
+logic [1:0] state_r, state_nxt;
+logic [6:0] bytes_counter_r, bytes_counter_nxt;
+logic [4:0] avm_address_r, avm_address_nxt;
+logic avm_read_r, avm_read_nxt, avm_write_r, avm_write_nxt;
 
-logic rsa_start_r, rsa_start_w;
+logic rsa_start_r, rsa_start_nxt;
 logic rsa_finished;
 logic [255:0] rsa_dec;
 
@@ -50,22 +50,33 @@ Rsa256Core rsa256_core(
 task StartRead;
     input [4:0] addr;
     begin
-        avm_read_w = 1;
-        avm_write_w = 0;
-        avm_address_w = addr;
+        avm_read_nxt = 1;
+        avm_write_nxt = 0;
+        avm_address_nxt = addr;
     end
 endtask
 task StartWrite;
     input [4:0] addr;
     begin
-        avm_read_w = 0;
-        avm_write_w = 1;
-        avm_address_w = addr;
+        avm_read_nxt = 0;
+        avm_write_nxt = 1;
+        avm_address_nxt = addr;
     end
 endtask
 
 always_comb begin
     // TODO
+    case(state_r)
+        S_GET_KEY:begin
+        end
+        S_GET_DATA:begin
+        end
+        S_WAIT_CALCULATE:begin
+        end
+        S_SEND_DATA:begin
+        end
+    endcase
+
 end
 
 always_ff @(posedge avm_clk or posedge avm_rst) begin
@@ -81,16 +92,16 @@ always_ff @(posedge avm_clk or posedge avm_rst) begin
         bytes_counter_r <= 63;
         rsa_start_r <= 0;
     end else begin
-        n_r <= n_w;
-        d_r <= d_w;
-        enc_r <= enc_w;
-        dec_r <= dec_w;
-        avm_address_r <= avm_address_w;
-        avm_read_r <= avm_read_w;
-        avm_write_r <= avm_write_w;
-        state_r <= state_w;
-        bytes_counter_r <= bytes_counter_w;
-        rsa_start_r <= rsa_start_w;
+        n_r <= n_nxt;
+        d_r <= d_nxt;
+        enc_r <= enc_nxt;
+        dec_r <= dec_nxt;
+        avm_address_r <= avm_address_nxt;
+        avm_read_r <= avm_read_nxt;
+        avm_write_r <= avm_write_nxt;
+        state_r <= state_nxt;
+        bytes_counter_r <= bytes_counter_nxt;
+        rsa_start_r <= rsa_start_nxt;
     end
 end
 
