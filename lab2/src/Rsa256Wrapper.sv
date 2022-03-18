@@ -71,10 +71,12 @@ always_comb begin
     // TODO
     case(state_r)
         S_GET_KEY:begin
-            
+            rsa_start_nxt = 0;
+            enc_nxt = enc_r;
+            dec_nxt = dec_r;
             if(bytes_counter == data_counter_end) begin
                 //此時key全部輸入完畢，要傳到core讓core算
-                state_nxt = S_WAIT_CALCULATE;
+                state_nxt = S_GET_DATA;
                 bytes_counter_nxt = 7'b0000000;
             end
             else if(bytes_counter == key_n_counter_end) begin
@@ -87,20 +89,30 @@ always_comb begin
             end
         end
         S_GET_DATA:begin
-            
+            d_nxt = d_r;
+            dec_nxt = dec_r;
             if(bytes_counter == data_counter_end) begin
                 //此時秘密資料全部輸入完畢，要傳到core讓core算
                 state_nxt = S_WAIT_CALCULATE;
+                rsa_start_nxt = 1'b1;
                 bytes_counter_nxt = 7'b0000000;
             end
             else begin
                 enc_nxt[255:0] = {enc_r[247:0], avm_readdata[7:0]};
+                rsa_start_nxt = 0;
                 bytes_counter_nxt = bytes_counter + 1;
             end
         end
         S_WAIT_CALCULATE:begin
+            dec_nxt = dec_r;
+            rsa_start_nxt = 0;
+            enc_nxt = enc_r;
+            d_nxt = d_r;
         end
         S_SEND_DATA:begin
+            rsa_start_nxt = 0;
+            enc_nxt = enc_r;
+            d_nxt = d_r;
             if(bytes_counter == data_counter_end) begin
                 //此時解密資料全部輸入完畢
                 state_nxt = S_GET_KEY;
