@@ -1,14 +1,14 @@
 module Rsa256Wrapper (
     input         avm_rst,
     input         avm_clk,
-    output  [4:0] avm_address,   //這啥
-    output        avm_read,     //這啥
-    input  [31:0] avm_readdata, //[7:0]一次讀8bit為啥事32bit
-    output        avm_write,   //這啥
-    output [31:0] avm_writedata,    //[7:0]一次寫8bit為啥事32bit
-    input         avm_waitrequest   //這啥
+    output  [4:0] avm_address,   //wtf
+    output        avm_read,     //wtf
+    input  [31:0] avm_readdata, //wtf
+    output        avm_write,   //wtf
+    output [31:0] avm_writedata,    //wtf
+    input         avm_waitrequest   //wtf
 );
-// 以下還沒用到
+// the following not yet use
 localparam RX_BASE     = 0*4;
 localparam TX_BASE     = 1*4;
 localparam STATUS_BASE = 2*4;
@@ -33,9 +33,9 @@ logic rsa_start_r, rsa_start_nxt;
 logic rsa_finished;
 logic [255:0] rsa_dec;
 
-parameter data_counter_end = 7'b1011111  //32次
-parameter key_n_counter_end = 7'b1011111
-parameter key_nd_counter_end = 7'b1111111  //兩次32次
+parameter data_counter_end = 7'b1011111 ; //32
+parameter key_n_counter_end = 7'b1011111;
+parameter key_nd_counter_end = 7'b1111111 ; //32*2
 assign avm_address = avm_address_r;
 assign avm_read = avm_read_r;
 assign avm_write = avm_write_r;
@@ -86,16 +86,19 @@ always_comb begin
             rsa_start_nxt = 0;
             enc_nxt = enc_r;
             dec_nxt = dec_r;
+            avm_address_nxt = RX_BASE;
             if(bytes_counter_r == data_counter_end) begin
-                //此時key全部輸入完畢，要傳到core讓core算
+                //keys all input
                 state_nxt = S_GET_DATA;
                 bytes_counter_nxt = 7'd63;
             end
             else if(bytes_counter_r == key_n_counter_end) begin
+                state_nxt = S_GET_KEY;
                 d_nxt[255:0] = {d_r[247:0], avm_readdata[7:0]};
                 bytes_counter_nxt = bytes_counter_r + 1;
             end
-            else begin      //假設先讀n再讀d
+            else begin      //assume read n then read d
+                state_nxt = S_GET_KEY;
                 n_nxt[255:0] = {n_r[247:0], avm_readdata[7:0]};
                 bytes_counter_nxt = bytes_counter_r + 1;
             end
@@ -103,13 +106,15 @@ always_comb begin
         S_GET_DATA:begin
             d_nxt = d_r;
             dec_nxt = dec_r;
+            avm_address_nxt = avm_address_r;
             if(bytes_counter_r == data_counter_end) begin
-                //此時秘密資料全部輸入完畢，要傳到core讓core算
+                //secret dataall input
                 state_nxt = S_WAIT_CALCULATE;
                 rsa_start_nxt = 1'b1;
                 bytes_counter_nxt = 7'd63;
             end
             else begin
+                state_nxt = S_GET_DATA;
                 enc_nxt[255:0] = {enc_r[247:0], avm_readdata[7:0]};
                 rsa_start_nxt = 0;
                 bytes_counter_nxt = bytes_counter_r + 1;
@@ -120,6 +125,7 @@ always_comb begin
             rsa_start_nxt = 0;
             enc_nxt = enc_r;
             d_nxt = d_r;
+            state_nxt = rsa_finished ? S_QUERY_TX : S_WAIT_CALCULATE;
         end
         S_QUERY_TX:begin
             if(avm_readdata[TX_OK_BIT]) begin
@@ -136,12 +142,13 @@ always_comb begin
             enc_nxt = enc_r;
             d_nxt = d_r;
             if(bytes_counter_r == data_counter_end) begin
-                //此時解密資料全部輸入完畢
+                //decode datas all input
                 state_nxt = S_GET_KEY;
                 bytes_counter_nxt = 7'd63;
             end
             else begin
-                dec_nxt[255:0] = {dec_r[247:0], writedata[7:0]};
+                state_nxt = S_SEND_DATA;
+                dec_nxt[255:0] = {dec_r[247:0], avm_writedata[7:0]};
                 bytes_counter_nxt = bytes_counter_r + 1;
             end
         end
