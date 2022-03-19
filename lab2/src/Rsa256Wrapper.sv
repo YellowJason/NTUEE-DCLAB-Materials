@@ -1,14 +1,14 @@
 module Rsa256Wrapper (
     input         avm_rst,
     input         avm_clk,
-    output  [4:0] avm_address,   //wtf
-    output        avm_read,     //wtf
-    input  [31:0] avm_readdata, //wtf
-    output        avm_write,   //wtf
-    output [31:0] avm_writedata,    //wtf
-    input         avm_waitrequest   //wtf
+    output  [4:0] avm_address,
+    output        avm_read,
+    input  [31:0] avm_readdata,
+    output        avm_write,
+    output [31:0] avm_writedata,
+    input         avm_waitrequest
 );
-// the following not yet use
+
 localparam RX_BASE     = 0*4;
 localparam TX_BASE     = 1*4;
 localparam STATUS_BASE = 2*4;
@@ -73,13 +73,18 @@ always_comb begin
     // TODO
     case(state_r)
         S_QUERY_RX:begin
-            if(avm_readdata[RX_OK_BIT]) begin
-                state_nxt = S_GET_KEY;
-                avm_address_nxt = RX_BASE;
+            StartRead(STATUS_BASE);
+            if(!avm_waitrequest) begin
+                if(avm_readdata[RX_OK_BIT]) begin
+                    StartRead(RX_BASE);
+                    state_nxt = S_GET_KEY;
+                end
+                else begin
+                    state_nxt = S_QUERY_RX;
+                end
             end
             else begin
                 state_nxt = S_QUERY_RX;
-                avm_address_nxt = STATUS_BASE;
             end
         end
         S_GET_KEY:begin
