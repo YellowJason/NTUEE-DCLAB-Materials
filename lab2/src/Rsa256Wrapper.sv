@@ -214,16 +214,22 @@ always_comb begin
                     n_nxt = n_r;
                     d_nxt = d_r;
                     enc_nxt = enc_r;
+                    dec_nxt = {dec_r[247:0], dec_r[255:248]};
                     bytes_counter_nxt = bytes_counter_r;
                     get_key_finished_nxt = get_key_finished;
                     rsa_start_nxt = rsa_start_r;
                     state_nxt = S_QUERY_TX;
-                    dec_nxt = {dec_r[247:0], dec_r[255:248]};
                 end
             end
             else begin
-                state_nxt = state_r;
+                n_nxt = n_r;
+                d_nxt = d_r;
+                enc_nxt = enc_r;
                 dec_nxt = dec_r;
+                bytes_counter_nxt = bytes_counter_r;
+                get_key_finished_nxt = get_key_finished;
+                rsa_start_nxt = rsa_start_r;
+                state_nxt = state_r;
                 avm_address_nxt = avm_address_r;
                 avm_read_nxt = avm_read_r;
                 avm_write_nxt = avm_write_r;
