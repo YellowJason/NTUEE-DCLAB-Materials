@@ -81,13 +81,13 @@ always_comb begin
             dec_nxt = dec_r;
             get_key_finished_nxt = get_key_finished;
             rsa_start_nxt = rsa_start_r;
-            StartRead(STATUS_BASE);
             if(!avm_waitrequest & avm_readdata[RX_OK_BIT]) begin
                 StartRead(RX_BASE);
                 state_nxt = get_key_finished ? S_GET_DATA : S_GET_KEY;
                 bytes_counter_nxt = bytes_counter_r + 1;
             end
             else begin
+                StartRead(STATUS_BASE);
                 state_nxt = S_QUERY_RX;
                 bytes_counter_nxt = bytes_counter_r;
             end
@@ -97,9 +97,9 @@ always_comb begin
             dec_nxt = dec_r;
             bytes_counter_nxt = bytes_counter_r;
             rsa_start_nxt = rsa_start_r;
-            StartRead(RX_BASE);
             if(bytes_counter_r == key_d_counter_end) begin
                 // both n,d are received
+                StartRead(RX_BASE);
                 get_key_finished_nxt = 1;
                 state_nxt = S_GET_DATA;
                 n_nxt = n_r;
@@ -128,9 +128,9 @@ always_comb begin
             dec_nxt = dec_r;
             bytes_counter_nxt = bytes_counter_r;
             get_key_finished_nxt = get_key_finished;
-            StartRead(RX_BASE);
             if(bytes_counter_r == data_counter_end) begin
                 // enc data is all received
+                StartRead(RX_BASE);
                 state_nxt = S_WAIT_CALCULATE;
                 enc_nxt = enc_r;
                 rsa_start_nxt = 1'b1;
@@ -151,6 +151,9 @@ always_comb begin
             get_key_finished_nxt = get_key_finished;
             rsa_start_nxt = 0;
             state_nxt = rsa_finished ? S_QUERY_TX : S_WAIT_CALCULATE;
+            avm_address_nxt = avm_address_r;
+            avm_read_nxt = avm_read_r;
+            avm_write_nxt = avm_write_r;
         end
         S_QUERY_TX:begin
             n_nxt = n_r;
@@ -159,13 +162,13 @@ always_comb begin
             dec_nxt = dec_r;
             get_key_finished_nxt = get_key_finished;
             rsa_start_nxt = rsa_start_r;
-            StartRead(STATUS_BASE);
             if(!avm_waitrequest & avm_readdata[TX_OK_BIT]) begin
                 StartWrite(TX_BASE);
                 state_nxt = S_SEND_DATA;
                 bytes_counter_nxt = bytes_counter_r + 1;
             end
             else begin
+                StartRead(STATUS_BASE);
                 state_nxt = S_QUERY_TX;
                 bytes_counter_nxt = bytes_counter_r;
             end
@@ -177,9 +180,9 @@ always_comb begin
             bytes_counter_nxt = bytes_counter_r;
             get_key_finished_nxt = get_key_finished;
             rsa_start_nxt = rsa_start_r;
-            StartWrite(TX_BASE);
             if(bytes_counter_r == data_counter_end) begin
                 //dec data is all transmitted
+                StartWrite(TX_BASE);
                 state_nxt = S_QUERY_RX;
                 dec_nxt = dec_r;
             end
@@ -198,6 +201,9 @@ always_comb begin
             get_key_finished_nxt = get_key_finished;
             rsa_start_nxt = rsa_start_r;
             state_nxt = state_r;
+            avm_address_nxt = avm_address_r;
+            avm_read_nxt = avm_read_r;
+            avm_write_nxt = avm_write_r;
         end
     endcase
 end
