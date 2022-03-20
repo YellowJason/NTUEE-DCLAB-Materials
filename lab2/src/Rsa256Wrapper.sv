@@ -100,13 +100,15 @@ always_comb begin
             end
             else if(bytes_counter_r >= key_n_counter_end) begin
                 // n is received
-                state_nxt = S_GET_KEY;
+                StartRead(STATUS_BASE);
+                state_nxt = S_QUERY_RX;
                 d_nxt = {d_r[247:0], avm_readdata[7:0]};
                 bytes_counter_nxt = bytes_counter_r + 1;
             end
             // assume get n first then get d
             else begin
-                state_nxt = S_GET_KEY;
+                StartRead(STATUS_BASE);
+                state_nxt = S_QUERY_RX;
                 n_nxt = {n_r[247:0], avm_readdata[7:0]};
                 bytes_counter_nxt = bytes_counter_r + 1;
             end
@@ -122,6 +124,7 @@ always_comb begin
                 bytes_counter_nxt = 7'd0;
             end
             else begin
+                StartRead(STATUS_BASE);
                 state_nxt = S_GET_DATA;
                 enc_nxt = {enc_r[247:0], avm_readdata[7:0]};
                 rsa_start_nxt = 0;
