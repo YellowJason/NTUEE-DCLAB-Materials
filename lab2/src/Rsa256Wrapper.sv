@@ -221,8 +221,8 @@ always_comb begin
                 StartRead(STATUS_BASE);
                 if(bytes_counter_r == data_counter_end) begin
                     // dec data is all transmitted
-                    n_nxt = 0;
-                    d_nxt = 0;
+                    n_nxt = n_r;
+                    d_nxt = d_r;
                     enc_nxt = 0;
                     dec_nxt = 0;
                     state_nxt = S_QUERY_RX;
