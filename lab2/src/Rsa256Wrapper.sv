@@ -191,7 +191,7 @@ always_comb begin
             enc_nxt = enc_r;
             dec_nxt = rsa_dec;
             state_nxt = rsa_finished ? S_QUERY_TX : S_WAIT_CALCULATE;
-            bytes_counter_nxt = 0;
+            bytes_counter_nxt = bytes_counter_r;
             // get_key_finished_nxt = get_key_finished;
             rsa_start_nxt = 0;
             avm_address_nxt = avm_address_r;
@@ -226,7 +226,7 @@ always_comb begin
                     enc_nxt = 0;
                     dec_nxt = 0;
                     state_nxt = S_QUERY_RX;
-                    bytes_counter_nxt = 0;
+                    bytes_counter_nxt = 64;
                     // get_key_finished_nxt = 0;
                     rsa_start_nxt = 0;
                 end
