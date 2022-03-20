@@ -168,7 +168,7 @@ always_comb begin
             n_nxt = n_r;
             d_nxt = d_r;
             enc_nxt = enc_r;
-            dec_nxt = {rsa_dec[247:0], 8'b0};
+            dec_nxt = rsa_dec;
             bytes_counter_nxt = 0;
             get_key_finished_nxt = get_key_finished;
             rsa_start_nxt = 0;
