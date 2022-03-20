@@ -101,7 +101,7 @@ always_comb begin
                 if(bytes_counter_r == data_counter_end) begin
                     n_nxt = n_r;
                     d_nxt = d_r;
-                    enc_nxt = enc_r;
+                    enc_nxt = {enc_r[247:0], avm_readdata[7:0]};
                     state_nxt = S_WAIT_CALCULATE;
                     bytes_counter_nxt = 0;
                     rsa_start_nxt = 1'b1;
