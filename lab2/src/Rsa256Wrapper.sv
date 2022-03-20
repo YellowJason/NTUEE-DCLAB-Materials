@@ -196,20 +196,27 @@ always_comb begin
             end
         end
         S_SEND_DATA:begin
-            n_nxt = n_r;
-            d_nxt = d_r;
-            enc_nxt = enc_r;
-            bytes_counter_nxt = bytes_counter_r;
-            get_key_finished_nxt = get_key_finished;
-            rsa_start_nxt = rsa_start_r;
             if(!avm_waitrequest) begin
                 StartRead(STATUS_BASE);
                 if(bytes_counter_r == data_counter_end) begin
                     //dec data is all transmitted
+                    n_nxt = 0;
+                    d_nxt = 0;
+                    enc_nxt = 0;
+                    dec_nxt = 0;
+                    bytes_counter_nxt = 0;
+                    get_key_finished_nxt = 0;
+                    rsa_start_nxt = 0;
                     state_nxt = S_QUERY_RX;
-                    dec_nxt = dec_r;
+                    
                 end
                 else begin
+                    n_nxt = n_r;
+                    d_nxt = d_r;
+                    enc_nxt = enc_r;
+                    bytes_counter_nxt = bytes_counter_r;
+                    get_key_finished_nxt = get_key_finished;
+                    rsa_start_nxt = rsa_start_r;
                     state_nxt = S_QUERY_TX;
                     dec_nxt = {dec_r[247:0], dec_r[255:248]};
                 end
