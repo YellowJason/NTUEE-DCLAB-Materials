@@ -139,16 +139,15 @@ always_comb begin
             dec_nxt = dec_r;
             get_key_finished_nxt = get_key_finished;
             if(!avm_waitrequest) begin
+                StartRead(STATUS_BASE);
                 if(bytes_counter_r == data_counter_end) begin
                     // enc data is all received
-                    StartRead(RX_BASE);
                     state_nxt = S_WAIT_CALCULATE;
                     bytes_counter_nxt = 0;
                     enc_nxt = enc_r;
                     rsa_start_nxt = 1'b1;
                 end
                 else begin
-                    StartRead(STATUS_BASE);
                     state_nxt = S_QUERY_RX;
                     bytes_counter_nxt = bytes_counter_r;
                     enc_nxt = {enc_r[247:0], avm_readdata[7:0]};
