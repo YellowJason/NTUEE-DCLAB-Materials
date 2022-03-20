@@ -36,6 +36,7 @@ logic [255:0] rsa_dec;
 parameter read_d_start = 7'd33;
 parameter read_a_start = 7'd65;
 parameter data_counter_end = 7'd96;
+parameter write_data_end = 7'd31;
 // logic get_key_finished, get_key_finished_nxt;
 
 assign avm_address = avm_address_r;
@@ -219,12 +220,12 @@ always_comb begin
         S_SEND_DATA:begin
             if(!avm_waitrequest) begin
                 StartRead(STATUS_BASE);
-                if(bytes_counter_r == data_counter_end) begin
+                if(bytes_counter_r == write_data_end) begin
                     // dec data is all transmitted
                     n_nxt = n_r;
                     d_nxt = d_r;
                     enc_nxt = 0;
-                    dec_nxt = 0;
+                    dec_nxt = dec_r;
                     state_nxt = S_QUERY_RX;
                     bytes_counter_nxt = 64;
                     // get_key_finished_nxt = 0;
