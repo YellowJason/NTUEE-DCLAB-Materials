@@ -203,15 +203,14 @@ always_comb begin
             get_key_finished_nxt = get_key_finished;
             rsa_start_nxt = rsa_start_r;
             if(!avm_waitrequest) begin
+                StartRead(STATUS_BASE);
                 if(bytes_counter_r == data_counter_end) begin
                     //dec data is all transmitted
-                    StartWrite(TX_BASE);
                     state_nxt = S_QUERY_RX;
                     dec_nxt = dec_r;
                 end
                 else begin
-                    StartRead(STATUS_BASE);
-                    state_nxt = S_SEND_DATA;
+                    state_nxt = S_QUERY_TX;
                     dec_nxt = {rsa_dec[7:0], dec_r[247:0]};
                 end
             end
