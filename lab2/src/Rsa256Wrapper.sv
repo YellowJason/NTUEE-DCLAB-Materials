@@ -33,9 +33,9 @@ logic rsa_start_r, rsa_start_nxt;
 logic rsa_finished;
 logic [255:0] rsa_dec;
 
-parameter key_n_counter_end = 7'd32;
-parameter key_d_counter_end = 7'd64;
-parameter data_counter_end = 7'd96;
+parameter key_n_counter_end = 7'd33;
+parameter key_d_counter_end = 7'd65;
+parameter data_counter_end = 7'd97;
 logic get_key_finished, get_key_finished_nxt;
 
 assign avm_address = avm_address_r;
@@ -107,7 +107,7 @@ always_comb begin
                     d_nxt = d_r;
                 end
                 else if(bytes_counter_r >= key_n_counter_end) begin
-                    // n is received
+                    // n is received, start reading d 
                     StartRead(STATUS_BASE);
                     state_nxt = S_QUERY_RX;
                     get_key_finished_nxt = 0;
@@ -168,7 +168,7 @@ always_comb begin
             n_nxt = n_r;
             d_nxt = d_r;
             enc_nxt = enc_r;
-            dec_nxt = dec_r;
+            dec_nxt = {rsa_dec[247:0], 8'b0};
             bytes_counter_nxt = 0;
             get_key_finished_nxt = get_key_finished;
             rsa_start_nxt = 0;
@@ -211,7 +211,7 @@ always_comb begin
                 end
                 else begin
                     state_nxt = S_QUERY_TX;
-                    dec_nxt = {rsa_dec[7:0], dec_r[247:0]};
+                    dec_nxt = {dec_r[247:0], dec_r[255:248]};
                 end
             end
             else begin
