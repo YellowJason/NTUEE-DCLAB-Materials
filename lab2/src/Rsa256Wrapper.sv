@@ -98,26 +98,22 @@ always_comb begin
             bytes_counter_nxt = bytes_counter_r;
             rsa_start_nxt = rsa_start_r;
             if(!avm_waitrequest) begin
+                StartRead(STATUS_BASE);
+                state_nxt = S_QUERY_RX;
                 if(bytes_counter_r == key_d_counter_end) begin
                     // both n,d are received
-                    StartRead(RX_BASE);
-                    state_nxt = S_GET_DATA;
                     get_key_finished_nxt = 1;
                     n_nxt = n_r;
                     d_nxt = d_r;
                 end
                 else if(bytes_counter_r >= key_n_counter_end) begin
                     // n is received, start reading d 
-                    StartRead(STATUS_BASE);
-                    state_nxt = S_QUERY_RX;
                     get_key_finished_nxt = 0;
                     n_nxt = n_r;
                     d_nxt = {d_r[247:0], avm_readdata[7:0]};
                 end
                 // assume get n first then get d
                 else begin
-                    StartRead(STATUS_BASE);
-                    state_nxt = S_QUERY_RX;
                     get_key_finished_nxt = 0;
                     n_nxt = {n_r[247:0], avm_readdata[7:0]};
                     d_nxt = d_r;
