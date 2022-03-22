@@ -56,9 +56,9 @@ assign sum2_3 = m_mont_2 + i_n;
 logic d_selected;
 logic m_selected;
 logic t_selected;
-MUX mux_d(.s(counter_calc), .data(i_d),      .selected(d_selected));
-MUX mux_m(.s(counter_mont), .data(m[255:0]), .selected(m_selected));
-MUX mux_t(.s(counter_mont), .data(t[255:0]), .selected(t_selected));
+MUX256 mux_d(.s(counter_calc), .data(i_d),      .selected(d_selected));
+MUX256 mux_m(.s(counter_mont), .data(m[255:0]), .selected(m_selected));
+MUX256 mux_t(.s(counter_mont), .data(t[255:0]), .selected(t_selected));
 
 always_comb begin
 	// combinational for state & counter
@@ -254,7 +254,7 @@ always_ff @(posedge i_clk or posedge i_rst) begin
 end
 endmodule
 
-module MUX(input [7:0] s, input [255:0] data, output selected);
+module MUX256(input [7:0] s, input [255:0] data, output selected);
 	assign selected = 
 	(s == 8'b00000000) ? data[0] :
 	(s == 8'b00000001) ? data[1] :
