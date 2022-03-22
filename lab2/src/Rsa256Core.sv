@@ -120,6 +120,7 @@ always_comb begin
 			else begin
 				state_nxt = S_MONT;
 				counter_calc_nxt = counter_calc + 1;
+				finish_nxt = 1'b0;
 			end
 		end
 	endcase
