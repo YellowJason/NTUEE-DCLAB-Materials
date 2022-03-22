@@ -16,15 +16,20 @@ fp_key = open('key.bin', 'rb')
 fp_enc = open('enc.bin', 'rb')
 fp_dec = open('dec.bin', 'wb')
 assert fp_key and fp_enc and fp_dec
+print("Open file success")
 
 key = fp_key.read(64)
 enc = fp_enc.read()
 assert len(enc) % 32 == 0
+print("Data read success")
 
 s.write(key)
 for i in range(0, len(enc), 32):
+    print(f"Start write {i}")
     s.write(enc[i:i+32])
+    print(f"Start read {i}")
     dec = s.read(31)
+    print(dec)
     fp_dec.write(dec)
 
 fp_key.close()
