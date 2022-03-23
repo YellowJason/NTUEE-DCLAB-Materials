@@ -25,9 +25,7 @@ print("Data read success")
 
 s.write(key)
 for i in range(0, len(enc), 32):
-    print(f"Start write {i}")
     s.write(enc[i:i+32])
-    print(f"Start read {i}")
     dec = s.read(31)
     print(dec)
     fp_dec.write(dec)

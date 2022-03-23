@@ -102,6 +102,8 @@ always_comb begin
                     state_nxt = S_WAIT_CALCULATE;
                     bytes_counter_nxt = 0;
                     rsa_start_nxt = 1'b1;
+                    // stop reading when calculate
+                    avm_read_nxt = 0;
                 end
                 // read a in cycles 65~95
                 else if(bytes_counter_r >= read_a_start) begin
@@ -152,9 +154,9 @@ always_comb begin
             dec_nxt = rsa_dec;
             state_nxt = rsa_finished ? S_QUERY_TX : S_WAIT_CALCULATE;
             bytes_counter_nxt = bytes_counter_r;
-            rsa_start_nxt = 0;
+            rsa_start_nxt = 1'b0;
             avm_address_nxt = avm_address_r;
-            avm_read_nxt = avm_read_r;
+            avm_read_nxt = rsa_finished ? 1'b1 : avm_read_r;
             avm_write_nxt = avm_write_r;
         end
         S_QUERY_TX:begin
