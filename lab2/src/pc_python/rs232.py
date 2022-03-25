@@ -13,7 +13,9 @@ s = Serial(
     rtscts=False
 )
 fp_key = open('key.bin', 'rb')
-fp_enc = open('enc.bin', 'rb')
+enc_l = ['cipher_20220325.bin', 'golden/enc1.bin', 'golden/enc2.bin', 'golden/enc3.bin']
+
+fp_enc = open('cipher_20220325.bin', 'rb')
 fp_dec = open('dec.bin', 'wb')
 assert fp_key and fp_enc and fp_dec
 print("Open file success")
