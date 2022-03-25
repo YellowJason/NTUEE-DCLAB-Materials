@@ -27,7 +27,7 @@ s.write(key)
 for i in range(0, len(enc), 32):
     s.write(enc[i:i+32])
     dec = s.read(31)
-    print(dec)
+    print(str(dec, encoding = "utf-8"), end = "")
     fp_dec.write(dec)
 
 fp_key.close()
