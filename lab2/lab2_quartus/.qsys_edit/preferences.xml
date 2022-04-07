@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<preferences>
+ <debug showDebugMenu="0" />
+ <systemtable filter="All Interfaces">
+  <columns>
+   <connections preferredWidth="95" />
+   <irq preferredWidth="34" />
+  </columns>
+ </systemtable>
+ <library
+   expandedCategories="Library/University Program/Communications,Library/Interface Protocols,Library/Interface Protocols/Serial,Library/University Program,Library,Project" />
+ <window width="1938" height="1048" x="-9" y="-9" />
+ <generation path="rsa_qsys" />
+</preferences>

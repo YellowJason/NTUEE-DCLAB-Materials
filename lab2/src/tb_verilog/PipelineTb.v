@@ -171,8 +171,9 @@ always @(posedge clk or negedge rst_n) begin
 		end
 		dat_r <= dat_w;
 		received <= received + 1;
+		$display("[%m] (Simulated/Expected) %x / %x", dat, dat_r);
 		if (^dat === 1'bx || dat_r !== dat) begin
-			$display("[%m] (Simulated/Expected) %x / %x", dat, dat_r);
+			// $display("[%m] (Simulated/Expected) %x / %x", dat, dat_r);
 			if (error == MAX_ERR) begin
 				$display("%m max error (%d) reached", MAX_ERR);
 				$display("+====================+");
