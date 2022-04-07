@@ -135,6 +135,15 @@ always_comb begin
 			oen_nxt = 1'b1;
 			fin_nxt = 1'b1;
 		end
+		default: begin
+			counter_data_nxt = counter_data;
+			counter_tran_nxt = counter_tran;
+			state_nxt = state;
+			sda_nxt = sda;
+			scl_nxt = scl;
+			oen_nxt = oen;
+			fin_nxt = fin;
+		end
 	endcase
 end
 

@@ -86,7 +86,8 @@ I2cInitializer init0(
 
 // === AudDSP ===
 // responsible for DSP operations including fast play and slow play at different speed
-// in other words, determine which data addr to be fetch for player 
+// in other words, determine which data addr to be fetch for player
+// fetch data from SRAM and send it to player (according to selected speed)
 AudDSP dsp0(
 	.i_rst_n(i_rst_n),
 	.i_clk(),
