@@ -1,9 +1,9 @@
 module Top (
 	input i_rst_n,
 	input i_clk,
-	input i_key_0,
-	input i_key_1,
-	input i_key_2,
+	input i_key_0,	//record / pause
+	input i_key_1,	//play / pause
+	input i_key_2,	//stop
 	// input [3:0] i_speed, // design how user can decide mode on your own
 	
 	// AudDSP and SRAM
@@ -61,7 +61,7 @@ logic i_i2c_finished, i_i2c_start;
 logic i_en_audplayer;
 logic i_recorder_pause, i_recorder_start, i_recorder_stop;
 logic i_AUD_CLK;
-logic i_play_pause, i_play_start, i_play_stop,i_play_fast, i_play_slow_0, i_play_slow_1;
+logic i_play_pause, i_play_start, i_play_stop;
 logic [2:0] i_play_speed;
 
 assign io_I2C_SDAT = (i2c_oen) ? i2c_sdat : 1'bz;
@@ -95,18 +95,33 @@ I2cInitializer init0(
 // responsible for DSP operations including fast play and slow play at different speed
 // in other words, determine which data addr to be fetch for player
 // fetch data from SRAM and send it to player (according to selected speed)
+// AudDSP dsp0(
+// 	.i_rst_n(i_rst_n),
+// 	.i_clk(i_AUD_CLK),
+// 	.i_start(i_play_start),
+// 	.i_pause(i_play_pause),
+// 	.i_stop(i_play_stop),
+// 	.i_speed(i_play_speed),
+// 	.i_fast(i_play_fast),
+// 	.i_slow_0(i_play_slow_0), // constant interpolation
+// 	.i_slow_1(i_play_slow_1), // linear interpolation
+// 	.i_daclrck(i_AUD_DACLRCK),
+// 	.i_sram_data(data_play),
+// 	.o_dac_data(dac_data),
+// 	.o_sram_addr(addr_play)
+// );
+
 AudDSP dsp0(
-	.i_rst_n(i_rst_n),
+    .i_rst_n(i_rst_n),
 	.i_clk(i_AUD_CLK),
 	.i_start(i_play_start),
 	.i_pause(i_play_pause),
 	.i_stop(i_play_stop),
-	.i_speed(i_play_speed),
-	.i_fast(i_play_fast),
-	.i_slow_0(i_play_slow_0), // constant interpolation
-	.i_slow_1(i_play_slow_1), // linear interpolation
-	.i_daclrck(i_AUD_DACLRCK),
-	.i_sram_data(data_play),
+	.i_speed(i_play_speed),    // 0 -> 1*speed, 7 -> 8*speed
+    .mode(),       // 4 mode
+    .i_daclrck(i_AUD_DACLRCK),
+    .i_last_mem(),
+    .i_sram_data(data_play),
 	.o_dac_data(dac_data),
 	.o_sram_addr(addr_play)
 );
@@ -140,7 +155,13 @@ always_comb begin
 	// design your control here
 	case(state) begin
 		S_IDLE: begin
-
+			if(i_key_0) begin
+				i_recorder_start = 1'b1;
+				state_nxt = S_RECD;
+			end
+			if(i_key_1) begin
+				state_nxt = S_PLAY;
+			end
 		end
 
 		S_I2C: begin
