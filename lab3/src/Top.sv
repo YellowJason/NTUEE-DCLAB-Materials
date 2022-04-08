@@ -53,9 +53,16 @@ parameter S_RECD_PAUSE = 3;
 parameter S_PLAY       = 4;
 parameter S_PLAY_PAUSE = 5;
 
+logic [2:0] state, state_nxt;
 logic i2c_oen, i2c_sdat;
 logic [19:0] addr_record, addr_play;
 logic [15:0] data_record, data_play, dac_data;
+logic i_i2c_finished, i_i2c_start;
+logic i_en_audplayer;
+logic i_recorder_pause, i_recorder_start, i_recorder_stop;
+logic i_AUD_CLK;
+logic i_play_pause, i_play_start, i_play_stop,i_play_fast, i_play_slow_0, i_play_slow_1;
+logic [2:0] i_play_speed;
 
 assign io_I2C_SDAT = (i2c_oen) ? i2c_sdat : 1'bz;
 
@@ -77,8 +84,8 @@ assign o_SRAM_UB_N = 1'b0;
 I2cInitializer init0(
 	.i_rst_n(i_rst_n),
 	.i_clk(i_clk_100K),
-	.i_start(),
-	.o_finished(),
+	.i_start(i_i2c_start),
+	.o_finished(i_i2c_finished),
 	.o_sclk(o_I2C_SCLK),
 	.o_sdat(i2c_sdat),
 	.o_oen(i2c_oen) // you are outputing (you are not outputing only when you are "ack"ing.)
@@ -90,14 +97,14 @@ I2cInitializer init0(
 // fetch data from SRAM and send it to player (according to selected speed)
 AudDSP dsp0(
 	.i_rst_n(i_rst_n),
-	.i_clk(),
-	.i_start(),
-	.i_pause(),
-	.i_stop(),
-	.i_speed(),
-	.i_fast(),
-	.i_slow_0(), // constant interpolation
-	.i_slow_1(), // linear interpolation
+	.i_clk(i_AUD_CLK),
+	.i_start(i_play_start),
+	.i_pause(i_play_pause),
+	.i_stop(i_play_stop),
+	.i_speed(i_play_speed),
+	.i_fast(i_play_fast),
+	.i_slow_0(i_play_slow_0), // constant interpolation
+	.i_slow_1(i_play_slow_1), // linear interpolation
 	.i_daclrck(i_AUD_DACLRCK),
 	.i_sram_data(data_play),
 	.o_dac_data(dac_data),
@@ -110,7 +117,7 @@ AudPlayer player0(
 	.i_rst_n(i_rst_n),
 	.i_bclk(i_AUD_BCLK),
 	.i_daclrck(i_AUD_DACLRCK),
-	.i_en(), // enable AudPlayer only when playing audio, work with AudDSP
+	.i_en(i_en_audplayer), // enable AudPlayer only when playing audio, work with AudDSP
 	.i_dac_data(dac_data), //dac_data
 	.o_aud_dacdat(o_AUD_DACDAT)
 );
@@ -121,9 +128,9 @@ AudRecorder recorder0(
 	.i_rst_n(i_rst_n), 
 	.i_clk(i_AUD_BCLK),
 	.i_lrc(i_AUD_ADCLRCK),
-	.i_start(),
-	.i_pause(),
-	.i_stop(),
+	.i_start(i_recorder_start),
+	.i_pause(i_recorder_pause),
+	.i_stop(i_recorder_stop),
 	.i_data(i_AUD_ADCDAT),
 	.o_address(addr_record),
 	.o_data(data_record),
@@ -131,6 +138,35 @@ AudRecorder recorder0(
 
 always_comb begin
 	// design your control here
+	case(state) begin
+		S_IDLE: begin
+
+		end
+
+		S_I2C: begin
+			i_i2c_start = 1'b1;
+			if(i_i2c_finished) begin
+				i_i2c_start = 1'b0;
+				state_nxt = S_IDLE;
+			end
+		end
+
+		S_RECD: begin
+
+		end
+
+		S_RECD_PAUSE: begin
+
+		end
+
+		S_PLAY: begin
+
+		end
+
+		S_PLAY_PAUSE: begin
+
+		end
+	endcase
 end
 
 always_ff @(posedge i_AUD_BCLK or posedge i_rst_n) begin

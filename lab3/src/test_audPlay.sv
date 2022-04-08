@@ -2,7 +2,7 @@
 
 module tb;
     // address and rw
-    localparam audio_dat = 16'b1010101010101011;
+    localparam audio_dat = 16'b1010101010101010;
     localparam audio_dat2 = 16'b1110111110101111;
     // reg and data
 
@@ -16,7 +16,13 @@ module tb;
     logic [15:0] data_record;
 
 	initial clk = 0;
-	always #HCLK clk = ~clk;
+	always #HCLK clk = ~clk;    //every 5 ns clk -> -clk
+    initial i_AUD_DACLRCK = 1'b1;
+    always begin  
+        #(30*CLK);
+        i_AUD_DACLRCK = ~i_AUD_DACLRCK;
+        #CLK;
+    end
 
     AudPlayer player0(
         .i_rst_n(rst),
@@ -32,7 +38,7 @@ module tb;
 		$fsdbDumpvars;
         $display("reset...");
         rst = 1;
-		#(2*CLK)
+		#(2*CLK)        // 2 cycle 
 		rst = 0;
 		#(2*CLK)
         rst=1;
@@ -40,17 +46,17 @@ module tb;
         $display("start...");
         en = 1;
 
-        i_AUD_DACLRCK = 1'b1;
-        #(4*CLK)
-        i_AUD_DACLRCK = 1'b0;
-        #CLK
-        for (int i = 0; i < 16; i = i + 1) begin
-            @(posedge clk)
+        // i_AUD_DACLRCK = 1'b1;
+        // #(30*CLK)
+        // i_AUD_DACLRCK = 1'b0;
+        // #CLK
+        for (int i = 0; i < 30; i = i + 1) begin
+            @(negedge clk)
             $display("DAC= %1d", o_AUD_DACDAT);
         end
         #CLK
         i_AUD_DACLRCK = 1'b1;
-        #(25*CLK)
+        #(100*CLK)
 
         // @(posedge fin)
         $display("finish");
