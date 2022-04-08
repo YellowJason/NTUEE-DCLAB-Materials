@@ -50,7 +50,7 @@ module tb;
         // #(30*CLK)
         // i_AUD_DACLRCK = 1'b0;
         // #CLK
-        for (int i = 0; i < 16; i = i + 1) begin
+        for (int i = 0; i < 30; i = i + 1) begin
             @(negedge clk)
             $display("DAC= %1d", o_AUD_DACDAT);
         end
