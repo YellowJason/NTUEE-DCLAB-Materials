@@ -56,7 +56,7 @@ always_comb begin
             rec_data_nxt = {rec_data[14:0], i_data};
         end
         FINISH:begin
-            state_nxt = (i_pause || i_stop) ? IDLE : WAIT_NEGEDGE;
+            state_nxt = (i_pause || i_stop || (~rec_addr == 20'b0)) ? IDLE : WAIT_NEGEDGE;
             bit_counter_nxt = bit_counter;
             addr_counter_nxt = i_stop ? addr_counter : addr_counter+1;
             rec_addr_nxt = i_stop ? 20'd0 : rec_addr+1;
