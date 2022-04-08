@@ -2,8 +2,9 @@
 
 module tb;
     // address and rw
-    localparam audio_dat = 16'b1010101010101010;
+    localparam audio_dat1 = 16'b1010101010101010;
     localparam audio_dat2 = 16'b1110111110101111;
+    localparam audio_dat3 = 16'b1010111110101111;
     // reg and data
 
 	localparam CLK = 10;
@@ -24,12 +25,21 @@ module tb;
         #CLK;
     end
 
+    initial begin
+        data_record = audio_dat1;
+        #(60*CLK)
+        data_record = audio_dat2;
+        #(60*CLK)
+        data_record = audio_dat3;
+        
+    end
+
     AudPlayer player0(
         .i_rst_n(rst),
         .i_bclk(clk),
         .i_daclrck(i_AUD_DACLRCK),
         .i_en(en), // enable AudPlayer only when playing audio, work with AudDSP
-        .i_dac_data(audio_dat), //dac_data
+        .i_dac_data(data_record), //dac_data
         .o_aud_dacdat(o_AUD_DACDAT)
     );
 
@@ -56,7 +66,7 @@ module tb;
         end
         #CLK
         i_AUD_DACLRCK = 1'b1;
-        #(100*CLK)
+        #(200*CLK)
 
         // @(posedge fin)
         $display("finish");
