@@ -44,13 +44,13 @@ assign data = {Reset, AAPC, DAPC, PDC, DAIF, SC, AC};
 logic [7:0] counter_data, counter_data_nxt;
 
 // count if transmit 8 bits data
-logic [2:0] counter_tran, counter_tran_nxt;
+logic [3:0] counter_tran, counter_tran_nxt;
 
 always_comb begin
 	case(state)
 		S_IDLE: begin
 			counter_data_nxt = 8'b0;
-			counter_tran_nxt = 3'b0;
+			counter_tran_nxt = 4'b0;
 			if (i_start) begin
 				state_nxt = S_STAR;
 				sda_nxt = 1'b1;
@@ -77,15 +77,24 @@ always_comb begin
 		S_PRE1: begin
 			counter_data_nxt = counter_data;
 			counter_tran_nxt = counter_tran;
-			state_nxt = S_PRE2;
+			// transmit 8 bits
+			if (counter_tran == 4'd8) begin
+				state_nxt = S_WAIT;
+				oen_nxt = 1'b0;
+				scl_nxt = 1'b1;
+			end
+			else begin
+				state_nxt = S_PRE2;
+				oen_nxt = oen;
+				scl_nxt = 1'b0;
+			end
+			// transmit all datas
 			if (counter_data == 8'd168) begin
 				sda_nxt = 1'b0;
 			end
 			else begin
 				sda_nxt = data[167-counter_data];
 			end
-			scl_nxt = 1'b0;
-			oen_nxt = oen;
 			fin_nxt = 1'b0;
 		end
 		S_PRE2: begin
@@ -105,24 +114,18 @@ always_comb begin
 		S_TRAN: begin
 			counter_data_nxt = counter_data + 1;
 			counter_tran_nxt = counter_tran + 1;
-			if (counter_tran == 3'd7) begin
-				state_nxt = S_WAIT;
-				oen_nxt = 1'b0;
-			end
-			else begin
-				state_nxt = S_PRE1;
-				oen_nxt = 1'b1;
-			end
+			state_nxt = S_PRE1;
+			oen_nxt = 1'b1;
 			sda_nxt = sda;
 			scl_nxt = 1'b0;
 			fin_nxt = 1'b0;
 		end
 		S_WAIT: begin
 			counter_data_nxt = counter_data;
-			counter_tran_nxt = counter_tran;
+			counter_tran_nxt = 4'b0;
 			state_nxt = S_PRE1;
 			sda_nxt = sda;
-			scl_nxt = scl;
+			scl_nxt = 1'b0;
 			oen_nxt = 1'b1;
 			fin_nxt = 1'b0;
 		end
@@ -147,7 +150,7 @@ always_comb begin
 	endcase
 end
 
-always_ff @(posedge i_clk or negedge i_rst_n) begin
+always_ff @(negedge i_clk or negedge i_rst_n) begin
 	if (!i_rst_n) begin
 		counter_data <= 8'b0;
 		counter_tran <= 3'b0;

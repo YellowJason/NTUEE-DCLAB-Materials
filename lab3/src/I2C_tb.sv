@@ -5,6 +5,7 @@ module tb;
 	localparam HCLK = CLK/2;
 
     logic rst, clk, start, finishwd, sclk, sdat, oen;
+    logic [7:0] num;
 
 	initial clk = 0;
 	always #HCLK clk = ~clk;
@@ -34,14 +35,32 @@ module tb;
         start = 0;
         @(posedge finished)
         $display("I2C Initialize finish");
-		#(10*CLK)
+		#(1*CLK)
         $finish;
 	end
-
+    
     initial begin
 		#(10000*CLK)
 		$display("Too slow, abort.");
 		$finish;
 	end
+    
+    parameter iter = 10000;
+    initial begin
+        num = 0;
+        #72
+        repeat (iter) begin
+            #CLK
+            if (sclk) begin
+                if (oen) begin
+                    $display("num=%3d, dat=%0b", num, sdat);
+                    num = num + 1;
+                end
+                else begin
+                    $display("wait acknowledge");
+                end
+            end
+        end
+    end
 
 endmodule
