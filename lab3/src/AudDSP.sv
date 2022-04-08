@@ -112,6 +112,8 @@ always_comb begin
         S_CALC: begin
             // hold until next engedge daclrck
             if ((daclrck==1) && (daclrck_nxt==0)) state_nxt = S_FETCH0;
+            else if (i_pause)                     state_nxt = S_PAUS;
+            else if (i_stop)                      state_nxt = S_IDLE;
             else                                  state_nxt = S_CALC;
             case(mode)
                 NORM:  dac_data_nxt = data_current;
@@ -130,22 +132,10 @@ always_comb begin
                 slow_counter_nxt = slow_counter + 1;
             end
         end
-        S_WAIT_LRC: begin
-            if ((daclrck==1) && (daclrck_nxt==0)) state_nxt = S_FETCH0;
-            else                                  state_nxt = S_WAIT_LRC;
-            sram_addr_nxt = sram_addr;
-            data_current_nxt = data_current;
-            data_next_nxt = data_next;
-            dac_data_nxt = dac_data;
-            slow_counter_nxt = slow_counter;
-        end
         S_PAUS: begin
-            if (i_start) begin
-                state_nxt = S_FETCH0;
-            end
-            else begin
-                state_nxt = S_PAUS;
-            end
+            if (i_start)     state_nxt = S_CALC;
+            else if (i_stop) state_nxt = S_IDLE;
+            else             state_nxt = S_PAUS;
             sram_addr_nxt = sram_addr;
             data_current_nxt = data_current;
             data_next_nxt = data_next;

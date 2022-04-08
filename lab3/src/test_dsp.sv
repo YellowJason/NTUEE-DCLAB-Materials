@@ -58,13 +58,34 @@ module tb;
         start = 1;
         #(CLK)
         start = 0;
-        
-        #(100000*CLK)
+
+        // pause
+        #(300*CLK)
+        pause = 1;
+        #CLK
+        pause = 0;
+
+        #(100*CLK)
+        start = 1;
+        #CLK
+        start = 0;
+
+        #(1000*CLK)
+        stop = 1;
+        #CLK
+        stop = 0;
+
+        #(200*CLK)
+        start = 1;
+        #CLK
+        start = 0;
+
+        #(10000*CLK)
         $finish;
 	end
 
     initial begin
-		#(500000*CLK)
+		#(50000*CLK)
 		$display("Too slow, abort.");
 		$finish;
 	end
