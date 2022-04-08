@@ -118,9 +118,9 @@ AudDSP dsp0(
 	.i_pause(i_play_pause),
 	.i_stop(i_play_stop),
 	.i_speed(i_play_speed),    // 0 -> 1*speed, 7 -> 8*speed
-    .mode(),       // 4 mode
+    .mode(),       // 4 mode [1:0]
     .i_daclrck(i_AUD_DACLRCK),
-    .i_last_mem(),
+    .i_last_mem(),		//[19:0]
     .i_sram_data(data_play),
 	.o_dac_data(dac_data),
 	.o_sram_addr(addr_play)
