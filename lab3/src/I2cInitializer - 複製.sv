@@ -53,7 +53,7 @@ always_comb begin
 			counter_tran_nxt = 4'b0;
 			if (i_start) begin
 				state_nxt = S_STAR;
-				sda_nxt = 1'b0;
+				sda_nxt = 1'b1;
 				scl_nxt = 1'b1;
 				oen_nxt = 1'b1;
 			end
@@ -69,8 +69,8 @@ always_comb begin
 			counter_data_nxt = counter_data;
 			counter_tran_nxt = counter_tran;
 			state_nxt = S_PRE1;
-			sda_nxt = data[167];
-			scl_nxt = 1'b0;
+			sda_nxt = 1'b0;
+			scl_nxt = 1'b1;
 			oen_nxt = oen;
 			fin_nxt = 1'b0;
 		end
@@ -82,24 +82,21 @@ always_comb begin
 				state_nxt = S_WAIT;
 				oen_nxt = 1'b0;
 				scl_nxt = 1'b1;
-				sda_nxt = sda;
+			end
+			else begin
+				state_nxt = S_PRE2;
+				oen_nxt = oen;
+				scl_nxt = 1'b0;
 			end
 			// transmit all datas
-			else if (counter_data == 8'd168) begin
-				state_nxt = S_FINI;
-				oen_nxt = 1'b1;
-				scl_nxt = 1'b1;
+			if (counter_data == 8'd168) begin
 				sda_nxt = 1'b0;
 			end
 			else begin
-				state_nxt = S_TRAN;
-				oen_nxt = oen;
-				scl_nxt = 1'b1;
-				sda_nxt = sda;
+				sda_nxt = data[167-counter_data];
 			end
 			fin_nxt = 1'b0;
 		end
-		/*
 		S_PRE2: begin
 			counter_data_nxt = counter_data;
 			counter_tran_nxt = counter_tran;
@@ -114,13 +111,12 @@ always_comb begin
 			oen_nxt = oen;
 			fin_nxt = 1'b0;
 		end
-		*/
 		S_TRAN: begin
 			counter_data_nxt = counter_data + 1;
 			counter_tran_nxt = counter_tran + 1;
 			state_nxt = S_PRE1;
-			oen_nxt = 1'b1; 
-			sda_nxt = (counter_data == 167) ? 1'b0 : data[167-counter_data-1];
+			oen_nxt = 1'b1;
+			sda_nxt = sda;
 			scl_nxt = 1'b0;
 			fin_nxt = 1'b0;
 		end
@@ -136,7 +132,7 @@ always_comb begin
 		S_FINI: begin
 			counter_data_nxt = 8'b0;
 			counter_tran_nxt = 3'b0;
-			state_nxt = S_FINI;
+			state_nxt = S_IDLE;
 			sda_nxt = 1'b1;
 			scl_nxt = 1'b1;
 			oen_nxt = 1'b1;

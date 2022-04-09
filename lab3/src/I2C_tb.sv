@@ -1,4 +1,4 @@
-`timescale 1ns/100ps
+`timescale 1us/100ps
 
 module tb;
 	localparam CLK = 10;
@@ -25,17 +25,15 @@ module tb;
 		$fsdbDumpvars;
         $display("I2C Initialize start");
         rst = 1;
+        start = 0;
 		#(2*CLK)
 		rst = 0;
 		#(2*CLK)
         rst=1;
-        #CLK
         start = 1;
-        #CLK
-        start = 0;
         @(posedge finished)
         $display("I2C Initialize finish");
-		#(1*CLK)
+		#(10*CLK)
         $finish;
 	end
     
@@ -48,7 +46,7 @@ module tb;
     parameter iter = 10000;
     initial begin
         num = 0;
-        #72
+        #55
         repeat (iter) begin
             #CLK
             if (sclk) begin

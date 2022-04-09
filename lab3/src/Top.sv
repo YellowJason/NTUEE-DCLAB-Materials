@@ -27,11 +27,13 @@ module Top (
 	inout  i_AUD_ADCLRCK,
 	inout  i_AUD_BCLK,
 	inout  i_AUD_DACLRCK,
-	output o_AUD_DACDAT
+	output o_AUD_DACDAT,
 
 	// SEVENDECODER (optional display)
 	// output [5:0] o_record_time,
-	output [5:0] o_play_time,
+	output [3:0] hex0,
+	output [3:0] hex1,
+	output [3:0] hex2
 
 	// LCD (optional display)
 	// input        i_clk_800k,
@@ -48,15 +50,14 @@ module Top (
 );
 
 // design the FSM and states as you like
-parameter S_IDLE       = 0;
-parameter S_I2C        = 1;
-parameter S_RECD       = 2;
+parameter S_IDLE       = 2'd0;
+parameter S_I2C        = 2'd1;
+parameter S_RECD       = 2'd2;
 //parameter S_RECD_PAUSE = 3;
-parameter S_PLAY       = 3;
+parameter S_PLAY       = 2'd3;
 //parameter S_PLAY_PAUSE = 5;
 
 logic [1:0] state, state_nxt;
-assign o_play_time = state;
 logic i2c_oen, i2c_sdat;								// I2C transmit line
 logic [19:0] addr_record, addr_play;					// sram address
 logic [15:0] data_record, data_play, dac_data;			// for: recorder, DSP, player
@@ -67,11 +68,11 @@ assign i_AUD_CLK = i_AUD_BCLK;							// same clock as WM8731
 logic [19:0] last_addr, last_addr_nxt, last_addr_temp;	// last data address	
 assign io_I2C_SDAT = (i2c_oen) ? i2c_sdat : 1'bz;
 
-assign o_SRAM_ADDR = (state_r == S_RECD) ? addr_record : addr_play;
-assign io_SRAM_DQ  = (state_r == S_RECD) ? data_record : 16'dz; // sram_dq as output
-assign data_play   = (state_r != S_RECD) ? io_SRAM_DQ : 16'd0; // sram_dq as input
+assign o_SRAM_ADDR = (state == S_RECD) ? addr_record : addr_play;
+assign io_SRAM_DQ  = (state == S_RECD) ? data_record : 16'dz; // sram_dq as output
+assign data_play   = (state != S_RECD) ? io_SRAM_DQ : 16'd0; // sram_dq as input
 
-assign o_SRAM_WE_N = (state_r == S_RECD) ? 1'b0 : 1'b1;
+assign o_SRAM_WE_N = (state == S_RECD) ? 1'b0 : 1'b1;
 assign o_SRAM_CE_N = 1'b0;
 assign o_SRAM_OE_N = 1'b0;
 assign o_SRAM_LB_N = 1'b0;
@@ -160,7 +161,7 @@ always_comb begin
 	i_en_audplayer = 1'b0;
 	last_addr_nxt = last_addr;
 
-	case(state) begin
+	case(state)
 		S_IDLE: begin
 			if(i_start) begin
 				state_nxt = i_rec_play ? S_RECD : S_PLAY;
@@ -202,14 +203,47 @@ always_comb begin
 	endcase
 end
 
-always_ff @(posedge i_AUD_BCLK or posedge i_rst_n) begin
+always_ff @(negedge i_clk or negedge i_rst_n) begin
 	if (!i_rst_n) begin
-		state <= I2C;
+		state <= S_I2C;
 		last_addr <= 20'b0;
 	end
 	else begin
 		state <= state_nxt;
 		last_addr <= last_addr_nxt;
+	end
+end
+
+//////////////////////////// debug ////////////////////////////
+logic [25:0] counter_12m, counter_100k, counter_aud;
+assign hex0 = counter_12m[25:22];
+assign hex1 = counter_aud[25:22];
+assign hex2 = counter_100k[25:22];
+
+always_ff @(negedge i_clk or negedge i_rst_n) begin
+	if (!i_rst_n) begin
+		counter_12m <= 26'b0;
+	end
+	else begin
+		counter_12m <= counter_12m + 1;
+	end
+end
+
+always_ff @(negedge i_AUD_BCLK or negedge i_rst_n) begin
+	if (!i_rst_n) begin
+		counter_aud <= 26'b0;
+	end
+	else begin
+		counter_aud <= counter_aud + 1;
+	end
+end
+
+always_ff @(negedge i_clk_100K or negedge i_rst_n) begin
+	if (!i_rst_n) begin
+		counter_100k <= 26'b0;
+	end
+	else begin
+		counter_100k <= counter_100k + 1;
 	end
 end
 
