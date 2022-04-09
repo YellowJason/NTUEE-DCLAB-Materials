@@ -1,10 +1,12 @@
 module Top (
-	input i_rst_n,
+	input i_rst_n,		// key 3
 	input i_clk,
-	input i_key_0,	//record / pause
-	input i_key_1,	//play / pause
-	input i_key_2,	//stop
-	// input [3:0] i_speed, // design how user can decide mode on your own
+	input i_start,		// key 0
+	input i_pause,		// key 1
+	input i_stop,		// key 2
+	input i_rec_play,	// SW[0]
+	input [1:0] i_mode,	// SW[2:1]
+	input [3:0] i_speed,// SW[5:3]
 	
 	// AudDSP and SRAM
 	output [19:0] o_SRAM_ADDR,
@@ -49,24 +51,22 @@ module Top (
 parameter S_IDLE       = 0;
 parameter S_I2C        = 1;
 parameter S_RECD       = 2;
-parameter S_RECD_PAUSE = 3;
-parameter S_PLAY       = 4;
-parameter S_PLAY_PAUSE = 5;
+//parameter S_RECD_PAUSE = 3;
+parameter S_PLAY       = 3;
+//parameter S_PLAY_PAUSE = 5;
 
-logic [2:0] state, state_nxt;
-logic i2c_oen, i2c_sdat;
-logic [19:0] addr_record, addr_play;
-logic [15:0] data_record, data_play, dac_data;
-logic i_i2c_finished, i_i2c_start;
-logic i_en_audplayer;
-logic i_recorder_pause, i_recorder_start, i_recorder_stop;
-logic i_AUD_CLK;
-logic i_play_pause, i_play_start, i_play_stop;
-logic [2:0] i_play_speed;
-
+logic [1:0] state, state_nxt;
+logic i2c_oen, i2c_sdat;								// I2C transmit line
+logic [19:0] addr_record, addr_play;					// sram address
+logic [15:0] data_record, data_play, dac_data;			// for: recorder, DSP, player
+logic o_i2c_finished, i_i2c_start;						// I2C control signal
+logic i_en_audplayer;									// player enable
+logic i_AUD_CLK;										// clock for DSP
+assign i_AUD_CLK = i_AUD_BCLK;							// same clock as WM8731
+logic [19:0] last_addr, last_addr_nxt, last_addr_temp;	// last data address	
 assign io_I2C_SDAT = (i2c_oen) ? i2c_sdat : 1'bz;
 
-assign o_SRAM_ADDR = (state_r == S_RECD) ? addr_record : addr_play[19:0];
+assign o_SRAM_ADDR = (state_r == S_RECD) ? addr_record : addr_play;
 assign io_SRAM_DQ  = (state_r == S_RECD) ? data_record : 16'dz; // sram_dq as output
 assign data_play   = (state_r != S_RECD) ? io_SRAM_DQ : 16'd0; // sram_dq as input
 
@@ -85,7 +85,7 @@ I2cInitializer init0(
 	.i_rst_n(i_rst_n),
 	.i_clk(i_clk_100K),
 	.i_start(i_i2c_start),
-	.o_finished(i_i2c_finished),
+	.o_finished(o_i2c_finished),
 	.o_sclk(o_I2C_SCLK),
 	.o_sdat(i2c_sdat),
 	.o_oen(i2c_oen) // you are outputing (you are not outputing only when you are "ack"ing.)
@@ -114,13 +114,13 @@ I2cInitializer init0(
 AudDSP dsp0(
     .i_rst_n(i_rst_n),
 	.i_clk(i_AUD_CLK),
-	.i_start(i_play_start),
-	.i_pause(i_play_pause),
-	.i_stop(i_play_stop),
-	.i_speed(i_play_speed),    // 0 -> 1*speed, 7 -> 8*speed
-    .mode(),       // 4 mode [1:0]
+	.i_start(i_start),
+	.i_pause(i_pause),
+	.i_stop(i_stop),
+	.i_speed(i_speed),			// 0 -> 1*speed, 7 -> 8*speed
+    .mode(i_mode),      		// 4 mode [1:0]
     .i_daclrck(i_AUD_DACLRCK),
-    .i_last_mem(),		//[19:0]
+    .i_last_mem(last_addr),		//[19:0]
     .i_sram_data(data_play),
 	.o_dac_data(dac_data),
 	.o_sram_addr(addr_play)
@@ -143,59 +143,72 @@ AudRecorder recorder0(
 	.i_rst_n(i_rst_n), 
 	.i_clk(i_AUD_BCLK),
 	.i_lrc(i_AUD_ADCLRCK),
-	.i_start(i_recorder_start),
-	.i_pause(i_recorder_pause),
-	.i_stop(i_recorder_stop),
+	.i_start(i_start),
+	.i_pause(i_pause),
+	.i_stop(i_stop),
 	.i_data(i_AUD_ADCDAT),
 	.o_address(addr_record),
 	.o_data(data_record),
+	.o_addr_counter(last_addr_temp)
 );
 
 always_comb begin
 	// design your control here
+	// default
+	i_i2c_start = 1'b0;
+	i_en_audplayer = 1'b0;
+	last_addr_nxt = last_addr;
+
 	case(state) begin
 		S_IDLE: begin
-			if(i_key_0) begin
-				i_recorder_start = 1'b1;
-				state_nxt = S_RECD;
+			if(i_start) begin
+				state_nxt = i_rec_play ? S_RECD : S_PLAY;
 			end
-			if(i_key_1) begin
-				state_nxt = S_PLAY;
-			end
-		end
-
-		S_I2C: begin
-			i_i2c_start = 1'b1;
-			if(i_i2c_finished) begin
-				i_i2c_start = 1'b0;
+			else begin
 				state_nxt = S_IDLE;
 			end
 		end
-
+		S_I2C: begin
+			if (o_i2c_finished) begin
+				i_i2c_start = 1'b0;
+				state_nxt = S_IDLE;
+			end
+			else begin
+				i_i2c_start = 1'b1;
+				state_nxt = S_I2C;
+			end
+		end
 		S_RECD: begin
-
+			if (i_stop || (~addr_record == 20'b0)) begin
+				state_nxt = S_IDLE;
+				last_addr_nxt = last_addr_temp;
+			end
+			else begin
+				state_nxt = S_RECD;
+				last_addr_nxt = last_addr;
+			end
 		end
-
-		S_RECD_PAUSE: begin
-
-		end
-
 		S_PLAY: begin
-
-		end
-
-		S_PLAY_PAUSE: begin
-
+			if (i_stop || (addr_play == last_addr)) begin
+				state_nxt = S_IDLE;
+				i_en_audplayer = 1'b0;
+			end
+			else begin
+				state_nxt = S_PLAY;
+				i_en_audplayer = 1'b1;
+			end
 		end
 	endcase
 end
 
 always_ff @(posedge i_AUD_BCLK or posedge i_rst_n) begin
 	if (!i_rst_n) begin
-		
+		state <= I2C;
+		last_addr <= 20'b0;
 	end
 	else begin
-		
+		state <= state_nxt;
+		last_addr <= last_addr_nxt;
 	end
 end
 
