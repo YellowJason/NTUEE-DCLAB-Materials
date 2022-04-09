@@ -31,7 +31,7 @@ module Top (
 
 	// SEVENDECODER (optional display)
 	// output [5:0] o_record_time,
-	// output [5:0] o_play_time,
+	output [5:0] o_play_time,
 
 	// LCD (optional display)
 	// input        i_clk_800k,
@@ -56,6 +56,7 @@ parameter S_PLAY       = 3;
 //parameter S_PLAY_PAUSE = 5;
 
 logic [1:0] state, state_nxt;
+assign o_play_time = state;
 logic i2c_oen, i2c_sdat;								// I2C transmit line
 logic [19:0] addr_record, addr_play;					// sram address
 logic [15:0] data_record, data_play, dac_data;			// for: recorder, DSP, player
