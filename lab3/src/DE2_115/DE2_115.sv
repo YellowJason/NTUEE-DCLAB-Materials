@@ -138,9 +138,10 @@ module DE2_115 (
 
 logic key0down, key1down, key2down, key3down;
 logic CLK_12M, CLK_100K, CLK_800K;
-logic [3:0] aaa, bbb, ccc;
+logic [3:0] aaa, bbb, ccc, ddd;
 
 assign AUD_XCK = CLK_12M;
+assign AUD_BCLK = 1'bz;
 
 Altpll pll0( // generate with qsys, please follow lab2 tutorials
 	.clk_clk(CLOCK_50),
@@ -191,7 +192,7 @@ Top top0(
 	.o_SRAM_UB_N(SRAM_UB_N),
 	
 	// I2C
-	.i_clk_100k(CLK_100K),
+	.i_clk_2(CLK_100K),
 	.o_I2C_SCLK(I2C_SCLK),
 	.io_I2C_SDAT(I2C_SDAT),
 	
@@ -206,7 +207,8 @@ Top top0(
 	// .o_record_time(recd_time),
 	.hex0(aaa),
 	.hex1(bbb),
-	.hex2(ccc)
+	.hex2(ccc),
+	.hex3(ddd)
 	// LCD (optional display)
 	// .i_clk_800k(CLK_800K),
 	// .o_LCD_DATA(LCD_DATA), // [7:0]
@@ -239,6 +241,12 @@ SevenHexDecoder seven_dec2(
  	.o_seven_one(HEX4)
 );
 
+SevenHexDecoder seven_dec3(
+	.i_hex(ddd),
+ 	.o_seven_ten(HEX7),
+ 	.o_seven_one(HEX6)
+);
+
 // SevenHexDecoder seven_dec1(
 // 	.i_num(recd_time),
 // 	.o_seven_ten(HEX5),
@@ -252,7 +260,7 @@ SevenHexDecoder seven_dec2(
 //assign HEX3 = '1;
 //assign HEX4 = '1;
 //assign HEX5 = '1;
-assign HEX6 = '1;
-assign HEX7 = '1;
+//assign HEX6 = '1;
+//assign HEX7 = '1;
 
 endmodule

@@ -18,14 +18,14 @@ module Top (
 	output        o_SRAM_UB_N,
 	
 	// I2C
-	input  i_clk_100k,
+	input  i_clk_2,
 	output o_I2C_SCLK,
 	inout  io_I2C_SDAT,
 	
 	// AudPlayer
 	input  i_AUD_ADCDAT,
 	inout  i_AUD_ADCLRCK,
-	inout  i_AUD_BCLK,
+	input  i_AUD_BCLK,
 	inout  i_AUD_DACLRCK,
 	output o_AUD_DACDAT,
 
@@ -33,7 +33,8 @@ module Top (
 	// output [5:0] o_record_time,
 	output [3:0] hex0,
 	output [3:0] hex1,
-	output [3:0] hex2
+	output [3:0] hex2,
+	output [3:0] hex3
 
 	// LCD (optional display)
 	// input        i_clk_800k,
@@ -85,7 +86,7 @@ assign o_SRAM_UB_N = 1'b0;
 // sequentially sent out settings to initialize WM8731 with I2C protocal
 I2cInitializer init0(
 	.i_rst_n(i_rst_n),
-	.i_clk(i_clk_100K),
+	.i_clk(i_clk_2),
 	.i_start(i_i2c_start),
 	.o_finished(o_i2c_finished),
 	.o_sclk(o_I2C_SCLK),
@@ -215,14 +216,15 @@ always_ff @(negedge i_clk or negedge i_rst_n) begin
 end
 
 //////////////////////////// debug ////////////////////////////
-logic [25:0] counter_12m, counter_100k, counter_aud;
-assign hex0 = counter_12m[25:22];
-assign hex1 = counter_aud[25:22];
-assign hex2 = counter_100k[25:22];
+logic [23:0] counter_12m, counter_100k, counter_aud;
+assign hex0 = counter_12m[23:20];
+assign hex1 = counter_100k[23:20];
+assign hex2 = counter_aud[23:20];
+assign hex3 = state;
 
 always_ff @(negedge i_clk or negedge i_rst_n) begin
 	if (!i_rst_n) begin
-		counter_12m <= 26'b0;
+		counter_12m <= 24'b0;
 	end
 	else begin
 		counter_12m <= counter_12m + 1;
@@ -231,16 +233,16 @@ end
 
 always_ff @(negedge i_AUD_BCLK or negedge i_rst_n) begin
 	if (!i_rst_n) begin
-		counter_aud <= 26'b0;
+		counter_aud <= 24'b0;
 	end
 	else begin
 		counter_aud <= counter_aud + 1;
 	end
 end
 
-always_ff @(negedge i_clk_100K or negedge i_rst_n) begin
+always_ff @(negedge i_clk_2 or negedge i_rst_n) begin
 	if (!i_rst_n) begin
-		counter_100k <= 26'b0;
+		counter_100k <= 24'b0;
 	end
 	else begin
 		counter_100k <= counter_100k + 1;
