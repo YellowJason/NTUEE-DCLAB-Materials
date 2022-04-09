@@ -111,10 +111,10 @@ always_comb begin
         end
         S_CALC: begin
             // hold until next engedge daclrck
-            if ((daclrck==1) && (daclrck_nxt==0)) state_nxt = S_FETCH0;
-            else if (i_pause)                     state_nxt = S_PAUS;
-            else if (i_stop)                      state_nxt = S_IDLE;
-            else                                  state_nxt = S_CALC;
+            if ((daclrck==1) && (daclrck_nxt==0))         state_nxt = S_FETCH0;
+            else if (i_pause)                             state_nxt = S_PAUS;
+            else if (i_stop || (sram_addr == i_last_mem)) state_nxt = S_IDLE;
+            else                                          state_nxt = S_CALC;
             case(mode)
                 NORM:  dac_data_nxt = data_current;
                 FAST:  dac_data_nxt = data_current;
