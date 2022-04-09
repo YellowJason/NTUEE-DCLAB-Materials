@@ -20,8 +20,8 @@ module tb;
 	always #HCLK clk = ~clk;    //every 5 ns clk -> -clk
     initial i_AUD_DACLRCK = 1'b1;
     always begin  
-        #(30*CLK);
-        i_AUD_DACLRCK = ~i_AUD_DACLRCK;
+        #(30*CLK);          //after 30 clk 
+        i_AUD_DACLRCK = ~i_AUD_DACLRCK;     //aud clock turn into negative
         #CLK;
     end
 
@@ -60,7 +60,7 @@ module tb;
         // #(30*CLK)
         // i_AUD_DACLRCK = 1'b0;
         // #CLK
-        for (int i = 0; i < 30; i = i + 1) begin
+        for (int i = 0; i < 90; i = i + 1) begin
             @(negedge clk)
             $display("DAC= %1d", o_AUD_DACDAT);
         end
