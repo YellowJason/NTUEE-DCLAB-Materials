@@ -4,8 +4,9 @@ module tb;
 	localparam CLK = 10;
 	localparam HCLK = CLK/2;
 
-    logic rst, clk, start, finishwd, sclk, sdat, oen;
+    logic rst, clk, start, finishwd, sclk, oen;
     logic [7:0] num;
+    wire sdat;
 
 	initial clk = 0;
 	always #HCLK clk = ~clk;

@@ -59,7 +59,7 @@ parameter S_PLAY       = 2'd3;
 //parameter S_PLAY_PAUSE = 5;
 
 logic [1:0] state, state_nxt;
-logic i2c_oen, i2c_sdat;								// I2C transmit line
+wire i2c_oen, i2c_sdat;									// I2C transmit line
 logic [19:0] addr_record, addr_play;					// sram address
 logic [15:0] data_record, data_play, dac_data;			// for: recorder, DSP, player
 logic o_i2c_finished, i_i2c_start;						// I2C control signal
