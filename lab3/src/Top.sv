@@ -25,7 +25,7 @@ module Top (
 	// AudPlayer
 	input  i_AUD_ADCDAT,
 	inout  i_AUD_ADCLRCK,
-	input  i_AUD_BCLK,
+	inout  i_AUD_BCLK,
 	inout  i_AUD_DACLRCK,
 	output o_AUD_DACDAT,
 
