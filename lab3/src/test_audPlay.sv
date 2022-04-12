@@ -65,7 +65,7 @@ module tb;
             $display("DAC= %1d", o_AUD_DACDAT);
         end
         #CLK
-        i_AUD_DACLRCK = 1'b1;
+        // i_AUD_DACLRCK = 1'b1;
         #(200*CLK)
 
         // @(posedge fin)
