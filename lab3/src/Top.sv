@@ -226,40 +226,40 @@ assign o_ledr = (state == S_RECD) ? vol_reco :
 				(state == S_PLAY) ? vol_play : 18'b0;
 
 always_comb begin
-	if (!data_record[15]) begin
-		vol_reco = {data_record[14:10] == 31, data_record[14:10] >= 29, data_record[14:10] >= 27, 
-					data_record[14:10] >= 25, data_record[14:10] >= 23, data_record[14:10] >= 21, 
-					data_record[14:10] >= 19, data_record[14:10] >= 17, data_record[14:10] >= 15, 
-					data_record[14:10] >= 13, data_record[14:10] >= 11, data_record[14:10] >=  9, 
-					data_record[14:10] >=  7, data_record[14:10] >=  6, data_record[14:10] >=  5, 
-					data_record[14:10] >=  4, data_record[14:10] >=  3, data_record[14:10] >=  2};
+	if (~data_record[15]) begin
+		vol_reco = {data_record[14:10] == 5'd31, data_record[14:10] >= 5'd29, data_record[14:10] >= 5'd27,
+					data_record[14:10] >= 5'd25, data_record[14:10] >= 5'd23, data_record[14:10] >= 5'd21,
+					data_record[14:10] >= 5'd19, data_record[14:10] >= 5'd17, data_record[14:10] >= 5'd15,
+					data_record[14:10] >=  5'd3, data_record[14:10] >= 5'd11, data_record[14:10] >=  5'd9,
+					data_record[14:10] >=  5'd7, data_record[14:10] >=  5'd6, data_record[14:10] >=  5'd5,
+					data_record[14:10] >=  5'd4, data_record[14:10] >=  5'd3, data_record[14:10] >=  5'd2};
 	end
 	else begin
-		vol_reco = {data_record[14:10] ==  0, data_record[14:10] <=  2, data_record[14:10] <=  4,
-					data_record[14:10] <=  6, data_record[14:10] <=  8, data_record[14:10] <= 10,
-                    data_record[14:10] <= 12, data_record[14:10] <= 14, data_record[14:10] <= 16,
-					data_record[14:10] <= 18, data_record[14:10] <= 20, data_record[14:10] <= 22, 
-                    data_record[14:10] <= 24, data_record[14:10] <= 25, data_record[14:10] <= 26,
-					data_record[14:10] <= 27, data_record[14:10] <= 28, data_record[14:10] <= 29};
+		vol_reco = {data_record[14:10] ==  5'd0, data_record[14:10] <=  5'd2, data_record[14:10] <=  5'd4,
+					data_record[14:10] <=  5'd6, data_record[14:10] <=  5'd8, data_record[14:10] <= 5'd10,
+                    data_record[14:10] <= 5'd12, data_record[14:10] <= 5'd14, data_record[14:10] <= 5'd16,
+					data_record[14:10] <= 5'd18, data_record[14:10] <= 5'd20, data_record[14:10] <= 5'd22, 
+                    data_record[14:10] <= 5'd24, data_record[14:10] <= 5'd25, data_record[14:10] <= 5'd26,
+					data_record[14:10] <= 5'd27, data_record[14:10] <= 5'd28, data_record[14:10] <= 5'd29};
 	end
 end
 
 always_comb begin
-	if (!data_record[15]) begin
-		vol_play = {dac_data[14:10] == 31, dac_data[14:10] >= 29, dac_data[14:10] >= 27, 
-					dac_data[14:10] >= 25, dac_data[14:10] >= 23, dac_data[14:10] >= 21, 
-					dac_data[14:10] >= 19, dac_data[14:10] >= 17, dac_data[14:10] >= 15, 
-					dac_data[14:10] >= 13, dac_data[14:10] >= 11, dac_data[14:10] >=  9, 
-					dac_data[14:10] >=  7, dac_data[14:10] >=  6, dac_data[14:10] >=  5, 
-					dac_data[14:10] >=  4, dac_data[14:10] >=  3, dac_data[14:10] >=  2};
+	if (~dac_data[15]) begin
+		vol_play = {dac_data[14:10] == 5'd31, dac_data[14:10] >= 5'd29, dac_data[14:10] >= 5'd27, 
+					dac_data[14:10] >= 5'd25, dac_data[14:10] >= 5'd23, dac_data[14:10] >= 5'd21, 
+					dac_data[14:10] >= 5'd19, dac_data[14:10] >= 5'd17, dac_data[14:10] >= 5'd15, 
+					dac_data[14:10] >= 5'd13, dac_data[14:10] >= 5'd11, dac_data[14:10] >=  5'd9, 
+					dac_data[14:10] >=  5'd7, dac_data[14:10] >=  5'd6, dac_data[14:10] >=  5'd5, 
+					dac_data[14:10] >=  5'd4, dac_data[14:10] >=  5'd3, dac_data[14:10] >=  5'd2};
 	end
 	else begin
-		vol_play = {dac_data[14:10] ==  0, dac_data[14:10] <=  2, dac_data[14:10] <=  4,
-					dac_data[14:10] <=  6, dac_data[14:10] <=  8, dac_data[14:10] <= 10,
-                    dac_data[14:10] <= 12, dac_data[14:10] <= 14, dac_data[14:10] <= 16,
-					dac_data[14:10] <= 18, dac_data[14:10] <= 20, dac_data[14:10] <= 22, 
-                    dac_data[14:10] <= 24, dac_data[14:10] <= 25, dac_data[14:10] <= 26,
-					dac_data[14:10] <= 27, dac_data[14:10] <= 28, dac_data[14:10] <= 29};
+		vol_play = {dac_data[14:10] ==  5'd0, dac_data[14:10] <=  5'd2, dac_data[14:10] <=  5'd4,
+					dac_data[14:10] <=  5'd6, dac_data[14:10] <=  5'd8, dac_data[14:10] <= 5'd10,
+                    dac_data[14:10] <= 5'd12, dac_data[14:10] <= 5'd14, dac_data[14:10] <= 5'd16,
+					dac_data[14:10] <= 5'd18, dac_data[14:10] <= 5'd20, dac_data[14:10] <= 5'd22,
+                    dac_data[14:10] <= 5'd24, dac_data[14:10] <= 5'd25, dac_data[14:10] <= 5'd26,
+					dac_data[14:10] <= 5'd27, dac_data[14:10] <= 5'd28, dac_data[14:10] <= 5'd29};
 	end
 end
 //////////////////////////// debug ////////////////////////////
