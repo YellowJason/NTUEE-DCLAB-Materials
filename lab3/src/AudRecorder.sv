@@ -36,23 +36,23 @@ always_comb begin
 	case(state)
         IDLE:begin
             state_nxt = i_start ? WAIT_NEGEDGE : state;
-            bit_counter_nxt = i_start ? 4'd0 : bit_counter;
-            addr_counter_nxt = i_start ? 20'd0 : addr_counter;
-            rec_addr_nxt = i_start ? 20'd0 : rec_addr;
-            rec_data_nxt = i_start ? 16'd0 : rec_data;
-        end
-        WAIT_NEGEDGE:begin
-            state_nxt = (lrc && !lrc_nxt) ? RECORDING : state; // handle left channel
             bit_counter_nxt = bit_counter;
-            addr_counter_nxt = addr_counter;
+            addr_counter_nxt = i_start ? 20'd0 : addr_counter;
             rec_addr_nxt = rec_addr;
             rec_data_nxt = rec_data;
         end
+        WAIT_NEGEDGE:begin
+            state_nxt = i_stop ? IDLE : (lrc && !lrc_nxt) ? RECORDING : state; // handle left channel
+            bit_counter_nxt = bit_counter;
+            addr_counter_nxt = addr_counter;
+            rec_addr_nxt = i_stop ? 20'd0 : rec_addr;
+            rec_data_nxt = rec_data;
+        end
         RECORDING:begin
-            state_nxt = (bit_counter == bit_counter_end) ? FINISH : state;
+            state_nxt = i_stop ? IDLE : (bit_counter == bit_counter_end) ? FINISH : state;
             bit_counter_nxt = (bit_counter == bit_counter_end) ? 4'd0 : bit_counter+1;
             addr_counter_nxt = addr_counter;
-            rec_addr_nxt = rec_addr;
+            rec_addr_nxt =  i_stop ? 20'd0 : rec_addr;
             rec_data_nxt = {rec_data[14:0], i_data};
         end
         FINISH:begin
