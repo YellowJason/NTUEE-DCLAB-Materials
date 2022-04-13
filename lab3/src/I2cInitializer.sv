@@ -30,6 +30,7 @@ assign o_oen = oen;
 assign o_finished = fin;
 
 // All datas need to transmit
+/*
 parameter Reset = 24'b0011_0100_000_1111_0_0000_0000;
 parameter AAPC  = 24'b0011_0100_000_0100_0_0001_0101;
 parameter DAPC  = 24'b0011_0100_000_0101_0_0000_0000;
@@ -39,6 +40,20 @@ parameter SC    = 24'b0011_0100_000_1000_0_0001_1001;
 parameter AC    = 24'b0011_0100_000_1001_0_0000_0001;
 logic [167:0] data;
 assign data = {Reset, AAPC, DAPC, PDC, DAIF, SC, AC};
+*/
+logic [239:0] data;
+assign data = {
+    24'b00110100_000_1001_0_0000_0001,
+    24'b00110100_000_1000_0_0001_1001,
+    24'b00110100_000_0111_0_0100_0010,
+    24'b00110100_000_0110_0_0000_0000,
+    24'b00110100_000_0101_0_0000_0000,
+    24'b00110100_000_0100_0_0001_0101,
+    24'b00110100_000_0011_0_0111_1001,
+    24'b00110100_000_0010_0_0111_1001,
+    24'b00110100_000_0001_0_1001_0111,
+    24'b00110100_000_0000_0_1001_0111
+};
 
 // count which data should be transmit
 logic [7:0] counter_data, counter_data_nxt;
@@ -74,7 +89,7 @@ always_comb begin
 			counter_tran_nxt = counter_tran;
 			counter_temp_nxt = 2'b0;
 			state_nxt = S_PRE1;
-			sda_nxt = data[167];
+			sda_nxt = data[239];
 			scl_nxt = 1'b0;
 			oen_nxt = oen;
 			fin_nxt = 1'b0;
@@ -91,7 +106,7 @@ always_comb begin
 				sda_nxt = sda;
 			end
 			// transmit all datas
-			else if (counter_data == 8'd168) begin
+			else if (counter_data == 8'd240) begin
 				state_nxt = S_FINI;
 				oen_nxt = 1'b1;
 				scl_nxt = 1'b1;
@@ -126,7 +141,7 @@ always_comb begin
 			counter_temp_nxt = 2'b0;
 			state_nxt = S_PRE1;
 			oen_nxt = 1'b1; 
-			sda_nxt = (counter_data == 167) ? 1'b0 : data[167-counter_data-1];
+			sda_nxt = (counter_data == 239) ? 1'b0 : data[239-counter_data-1];
 			scl_nxt = 1'b0;
 			fin_nxt = 1'b0;
 		end
@@ -137,7 +152,7 @@ always_comb begin
 			oen_nxt = 1'b1;
 			fin_nxt = 1'b0;
 			// restart after 24'b transmitted
-			if ((counter_data % 7'd24 == 0) & (counter_data != 8'd168)) begin
+			if ((counter_data % 7'd24 == 0) & (counter_data != 8'd240)) begin
 				state_nxt = S_TEMP;
 				sda_nxt = 1'b0;
 				scl_nxt = 1'b1;

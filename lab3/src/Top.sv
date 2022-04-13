@@ -165,7 +165,7 @@ always_comb begin
 	case(state)
 		S_IDLE: begin
 			if(i_start) begin
-				state_nxt = i_rec_play ? S_RECD : S_PLAY;
+				state_nxt = i_rec_play ? S_PLAY : S_RECD;
 			end
 			else begin
 				state_nxt = S_IDLE;
