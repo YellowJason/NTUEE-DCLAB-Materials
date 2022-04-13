@@ -30,11 +30,10 @@ module Top (
 	output o_AUD_DACDAT,
 
 	// SEVENDECODER (optional display)
-	// output [5:0] o_record_time,
 	output [4:0] hex0,
 	output [4:0] hex1,
 	output [4:0] hex2,
-	output [4:0] hex3
+	output [4:0] hex3,
 
 	// LCD (optional display)
 	// input        i_clk_800k,
@@ -47,7 +46,7 @@ module Top (
 
 	// LED
 	// output  [8:0] o_ledg,
-	// output [17:0] o_ledr
+	output [17:0] o_ledr
 );
 
 // design the FSM and states as you like
@@ -219,6 +218,50 @@ assign hex0 = (state == S_RECD) ? addr_record[19:15] :
 assign hex1 = 5'b0;
 assign hex2 = i_speed + 1;
 assign hex3 = state;
+
+// LED volume
+logic [17:0] vol_reco;
+logic [17:0] vol_play;
+assign o_ledr = (state == S_RECD) ? vol_reco :
+				(state == S_PLAY) ? vol_play : 18'b0;
+
+always_comb begin
+	if (!data_record[15]) begin
+		vol_reco = {data_record[14:10] == 31, data_record[14:10] >= 29, data_record[14:10] >= 27, 
+					data_record[14:10] >= 25, data_record[14:10] >= 23, data_record[14:10] >= 21, 
+					data_record[14:10] >= 19, data_record[14:10] >= 17, data_record[14:10] >= 15, 
+					data_record[14:10] >= 13, data_record[14:10] >= 11, data_record[14:10] >=  9, 
+					data_record[14:10] >=  7, data_record[14:10] >=  6, data_record[14:10] >=  5, 
+					data_record[14:10] >=  4, data_record[14:10] >=  3, data_record[14:10] >=  2};
+	end
+	else begin
+		vol_reco = {data_record[14:10] ==  0, data_record[14:10] <=  2, data_record[14:10] <=  4,
+					data_record[14:10] <=  6, data_record[14:10] <=  8, data_record[14:10] <= 10,
+                    data_record[14:10] <= 12, data_record[14:10] <= 14, data_record[14:10] <= 16,
+					data_record[14:10] <= 18, data_record[14:10] <= 20, data_record[14:10] <= 22, 
+                    data_record[14:10] <= 24, data_record[14:10] <= 25, data_record[14:10] <= 26,
+					data_record[14:10] <= 27, data_record[14:10] <= 28, data_record[14:10] <= 29};
+	end
+end
+
+always_comb begin
+	if (!data_record[15]) begin
+		vol_play = {dac_data[14:10] == 31, dac_data[14:10] >= 29, dac_data[14:10] >= 27, 
+					dac_data[14:10] >= 25, dac_data[14:10] >= 23, dac_data[14:10] >= 21, 
+					dac_data[14:10] >= 19, dac_data[14:10] >= 17, dac_data[14:10] >= 15, 
+					dac_data[14:10] >= 13, dac_data[14:10] >= 11, dac_data[14:10] >=  9, 
+					dac_data[14:10] >=  7, dac_data[14:10] >=  6, dac_data[14:10] >=  5, 
+					dac_data[14:10] >=  4, dac_data[14:10] >=  3, dac_data[14:10] >=  2};
+	end
+	else begin
+		vol_play = {dac_data[14:10] ==  0, dac_data[14:10] <=  2, dac_data[14:10] <=  4,
+					dac_data[14:10] <=  6, dac_data[14:10] <=  8, dac_data[14:10] <= 10,
+                    dac_data[14:10] <= 12, dac_data[14:10] <= 14, dac_data[14:10] <= 16,
+					dac_data[14:10] <= 18, dac_data[14:10] <= 20, dac_data[14:10] <= 22, 
+                    dac_data[14:10] <= 24, dac_data[14:10] <= 25, dac_data[14:10] <= 26,
+					dac_data[14:10] <= 27, dac_data[14:10] <= 28, dac_data[14:10] <= 29};
+	end
+end
 //////////////////////////// debug ////////////////////////////
 /*
 logic [23:0] counter_12m, counter_100k, counter_aud;

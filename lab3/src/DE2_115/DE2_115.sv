@@ -208,7 +208,7 @@ Top top0(
 	.hex0(aaa),
 	.hex1(bbb),
 	.hex2(ccc),
-	.hex3(ddd)
+	.hex3(ddd),
 	// LCD (optional display)
 	// .i_clk_800k(CLK_800K),
 	// .o_LCD_DATA(LCD_DATA), // [7:0]
@@ -220,7 +220,7 @@ Top top0(
 
 	// LED
 	// .o_ledg(LEDG), // [8:0]
-	// .o_ledr(LEDR) // [17:0]
+	.o_ledr(LEDR) // [17:0]
 );
 
 SevenHexDecoder seven_dec0(
