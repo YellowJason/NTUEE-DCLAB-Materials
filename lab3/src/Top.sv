@@ -111,7 +111,9 @@ I2cInitializer init0(
 // 	.o_sram_addr(addr_play)
 // );
 logic start_play;
+logic stop_play;
 assign start_play = (i_start & i_rec_play);
+//assign stop_play = (i_stop & i_rec_play);
 
 AudDSP dsp0(
     .i_rst_n(i_rst_n),
@@ -142,7 +144,9 @@ AudPlayer player0(
 // === AudRecorder ===
 // receive data from WM8731 with I2S protocal and save to SRAM
 logic start_rec;
+logic stop_rec;
 assign start_rec = (i_start & !i_rec_play);
+//assign stop_rec = (i_stop & !i_rec_play);
 
 AudRecorder recorder0(
 	.i_rst_n(i_rst_n), 
