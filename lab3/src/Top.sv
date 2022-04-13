@@ -31,10 +31,10 @@ module Top (
 
 	// SEVENDECODER (optional display)
 	// output [5:0] o_record_time,
-	output [3:0] hex0,
-	output [3:0] hex1,
-	output [3:0] hex2,
-	output [3:0] hex3
+	output [4:0] hex0,
+	output [4:0] hex1,
+	output [4:0] hex2,
+	output [4:0] hex3
 
 	// LCD (optional display)
 	// input        i_clk_800k,
@@ -54,9 +54,7 @@ module Top (
 parameter S_IDLE       = 2'd0;
 parameter S_I2C        = 2'd1;
 parameter S_RECD       = 2'd2;
-//parameter S_RECD_PAUSE = 3;
 parameter S_PLAY       = 2'd3;
-//parameter S_PLAY_PAUSE = 5;
 
 logic [1:0] state, state_nxt;
 wire i2c_oen, i2c_sdat;									// I2C transmit line
@@ -215,7 +213,14 @@ always_ff @(negedge i_clk or negedge i_rst_n) begin
 	end
 end
 
+// Seven hex decoder
+assign hex0 = (state == S_RECD) ? addr_record[19:15] :
+			  (state == S_PLAY) ? addr_play[19:15] : 5'b0;
+assign hex1 = 5'b0;
+assign hex2 = i_speed + 1;
+assign hex3 = state;
 //////////////////////////// debug ////////////////////////////
+/*
 logic [23:0] counter_12m, counter_100k, counter_aud;
 assign hex0 = counter_12m[23:20];
 assign hex1 = counter_100k[23:20];
@@ -248,5 +253,5 @@ always_ff @(negedge i_clk_2 or negedge i_rst_n) begin
 		counter_100k <= counter_100k + 1;
 	end
 end
-
+*/
 endmodule

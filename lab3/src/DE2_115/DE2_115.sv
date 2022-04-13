@@ -138,7 +138,7 @@ module DE2_115 (
 
 logic key0down, key1down, key2down, key3down;
 logic CLK_12M, CLK_100K, CLK_800K;
-logic [3:0] aaa, bbb, ccc, ddd;
+logic [4:0] aaa, bbb, ccc, ddd;
 
 assign AUD_XCK = CLK_12M;
 assign AUD_BCLK = 1'bz;
