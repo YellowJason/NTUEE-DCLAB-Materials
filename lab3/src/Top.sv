@@ -190,7 +190,7 @@ always_comb begin
 			end
 		end
 		S_PLAY: begin
-			if (i_stop || (addr_play == last_addr)) begin
+			if (i_stop || (addr_play >= last_addr)) begin
 				state_nxt = S_IDLE;
 				i_en_audplayer = 1'b0;
 			end
