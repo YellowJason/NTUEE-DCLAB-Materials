@@ -4,9 +4,9 @@ module Top (
 	input i_start,		// key 0
 	input i_pause,		// key 1
 	input i_stop,		// key 2
-	input i_rec_play,	// SW[0]
-	input [1:0] i_mode,	// SW[2:1]
-	input [3:0] i_speed,// SW[5:3]
+	input i_rec_play,	// SW[0]	0:record, 1:play
+	input [1:0] i_mode,	// SW[2:1]	00:normal , 10:fast, 01:slow_0, 11:slow_1
+	input [3:0] i_speed,// SW[5:3]	1~8 times speed
 	
 	// AudDSP and SRAM
 	output [19:0] o_SRAM_ADDR,

@@ -15,8 +15,8 @@ module AudDSP(
 
 // 4 playing mode
 parameter NORM  = 2'b00;
-parameter FAST  = 2'b01;
-parameter SLOW0 = 2'b10;
+parameter FAST  = 2'b10;
+parameter SLOW0 = 2'b01;
 parameter SLOW1 = 2'b11;
 
 // 6 states
