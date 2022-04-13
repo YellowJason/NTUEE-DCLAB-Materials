@@ -31,15 +31,18 @@ assign o_address = rec_addr;
 assign o_data = rec_data;
 assign o_addr_counter = addr_counter;
 
+logic stop_reg, stop_reg_nxt;
+
 always_comb begin
     lrc_nxt = i_lrc;
 	case(state)
         IDLE:begin
             state_nxt = i_start ? WAIT_NEGEDGE : state;
             bit_counter_nxt = bit_counter;
-            addr_counter_nxt = addr_counter;
+            addr_counter_nxt = i_start ? 20'b0 : addr_counter;
             rec_addr_nxt = rec_addr;
             rec_data_nxt = rec_data;
+            stop_reg_nxt = i_stop ? 1'b1 : stop_reg;
         end
         WAIT_NEGEDGE:begin
             state_nxt = (lrc && !lrc_nxt) ? RECORDING : state; // handle left channel
@@ -47,6 +50,7 @@ always_comb begin
             addr_counter_nxt = addr_counter;
             rec_addr_nxt = rec_addr;
             rec_data_nxt = rec_data;
+            stop_reg_nxt = i_stop ? 1'b1 : stop_reg;
         end
         RECORDING:begin
             state_nxt = (bit_counter == bit_counter_end) ? FINISH : state;
@@ -54,13 +58,15 @@ always_comb begin
             addr_counter_nxt = addr_counter;
             rec_addr_nxt = rec_addr;
             rec_data_nxt = {rec_data[14:0], i_data};
+            stop_reg_nxt = i_stop ? 1'b1 : stop_reg;
         end
         FINISH:begin
-            state_nxt = (i_pause || i_stop || (~rec_addr == 20'b0)) ? IDLE : WAIT_NEGEDGE;
+            state_nxt = (i_pause || stop_reg || (~rec_addr == 20'b0)) ? IDLE : WAIT_NEGEDGE;
             bit_counter_nxt = bit_counter;
-            addr_counter_nxt = i_stop ? addr_counter : addr_counter+1;
-            rec_addr_nxt = i_stop ? 20'd0 : rec_addr+1;
+            addr_counter_nxt = stop_reg ? addr_counter : addr_counter+1;
+            rec_addr_nxt = stop_reg ? 20'd0 : rec_addr+1;
             rec_data_nxt = 16'd0;
+            stop_reg_nxt = stop_reg ? 1'b0 : stop_reg;
         end
     endcase
 end
@@ -73,6 +79,7 @@ always_ff @(posedge i_clk or negedge i_rst_n) begin
         rec_addr <= 20'd0;
         rec_data <= 16'd0;
 		lrc <= 1'b0;
+        stop_reg <= 1'b0;
 	end
 	else begin
         state <= state_nxt;
@@ -81,6 +88,7 @@ always_ff @(posedge i_clk or negedge i_rst_n) begin
         rec_addr <= rec_addr_nxt;
         rec_data <= rec_data_nxt;
 		lrc <= lrc_nxt;
+        stop_reg <= stop_reg_nxt;
 	end
 end
 

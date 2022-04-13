@@ -110,11 +110,13 @@ I2cInitializer init0(
 // 	.o_dac_data(dac_data),
 // 	.o_sram_addr(addr_play)
 // );
+logic start_play;
+assign start_play = (i_start & i_rec_play);
 
 AudDSP dsp0(
     .i_rst_n(i_rst_n),
 	.i_clk(i_AUD_CLK),
-	.i_start(i_start),
+	.i_start(start_play),
 	.i_pause(i_pause),
 	.i_stop(i_stop),
 	.i_speed(i_speed),			// 0 -> 1*speed, 7 -> 8*speed
@@ -139,11 +141,14 @@ AudPlayer player0(
 
 // === AudRecorder ===
 // receive data from WM8731 with I2S protocal and save to SRAM
+logic start_rec;
+assign start_rec = (i_start & !i_rec_play);
+
 AudRecorder recorder0(
 	.i_rst_n(i_rst_n), 
 	.i_clk(i_AUD_BCLK),
 	.i_lrc(i_AUD_ADCLRCK),
-	.i_start(i_start),
+	.i_start(start_rec),
 	.i_pause(i_pause),
 	.i_stop(i_stop),
 	.i_data(i_AUD_ADCDAT),
@@ -213,9 +218,8 @@ always_ff @(negedge i_clk or negedge i_rst_n) begin
 end
 
 // Seven hex decoder
-assign hex0 = (state == S_RECD) ? addr_record[19:15] :
-			  (state == S_PLAY) ? addr_play[19:15] : 5'b0;
-assign hex1 = 5'b0;
+assign hex0 = addr_play[19:15];
+assign hex1 = addr_record[19:15];
 assign hex2 = i_speed + 1;
 assign hex3 = state;
 
