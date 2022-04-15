@@ -19,12 +19,12 @@ parameter FAST  = 2'b10;
 parameter SLOW0 = 2'b01;
 parameter SLOW1 = 2'b11;
 
-// 6 states
+// 5 states
 parameter S_IDLE     = 3'b000;
 parameter S_FETCH0   = 3'b001;  // fetch current data
 parameter S_FETCH1   = 3'b010;  // fetch next data
 parameter S_CALC     = 3'b011;  // calculate dac_data according to speed
-parameter S_WAIT_LRC = 3'b100;  // waiting posedge daclrck, then back to FETCH0
+parameter S_WAIT_LRC = 3'b100;  // waiting posedge daclrck, then back to FETCH0 (didn't use)
 parameter S_PAUS     = 3'b101;
 
 logic [2:0] state, state_nxt;
@@ -110,7 +110,7 @@ always_comb begin
             slow_counter_nxt = slow_counter;
         end
         S_CALC: begin
-            // hold until next engedge daclrck
+            // hold until next negedge daclrck
             if ((daclrck==1) && (daclrck_nxt==0))         state_nxt = S_FETCH0;
             else if (i_pause)                             state_nxt = S_PAUS;
             else if (i_stop || (sram_addr >= i_last_mem)) state_nxt = S_IDLE;
