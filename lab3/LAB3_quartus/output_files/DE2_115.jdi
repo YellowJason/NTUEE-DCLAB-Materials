@@ -1,0 +1,16 @@
+<sld_project_info>
+  <project>
+    <hash md5_digest_80b="ff46c505ea172ee3f036"/>
+  </project>
+  <file_info>
+    <file device="EP4CE115F29C7" path="DE2_115.sof" usercode="0xFFFFFFFF"/>
+  </file_info>
+  <sld_infos>
+    <sld_info hpath="Altpll:pll0" name="pll0">
+      <assignment_values>
+        <assignment_value text="QSYS_NAME Altpll HAS_SOPCINFO 1 GENERATION_ID 1649494910"/>
+      </assignment_values>
+      <parameters/>
+    </sld_info>
+  </sld_infos>
+</sld_project_info>
