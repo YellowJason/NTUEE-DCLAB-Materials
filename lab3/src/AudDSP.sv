@@ -24,8 +24,8 @@ parameter S_IDLE     = 3'b000;
 parameter S_FETCH0   = 3'b001;  // fetch current data
 parameter S_FETCH1   = 3'b010;  // fetch next data
 parameter S_CALC     = 3'b011;  // calculate dac_data according to speed
-parameter S_WAIT_LRC = 3'b100;  // waiting posedge daclrck, then back to FETCH0 (didn't use)
-parameter S_PAUS     = 3'b101;
+//parameter S_WAIT_LRC = 3'b100;  // waiting posedge daclrck, then back to FETCH0 (didn't use)
+parameter S_PAUS     = 3'b100;
 
 logic [2:0] state, state_nxt;
 
