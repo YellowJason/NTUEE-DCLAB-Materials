@@ -170,7 +170,7 @@ Keyboard keyboard0(
 );
 
 assign ddd = 4'b0;
-assign ddd = 4'b0;
+assign ccc = 4'b0;
 // 7 hex decoder
 SevenHexDecoder seven_dec0(
 	.i_hex(aaa),
