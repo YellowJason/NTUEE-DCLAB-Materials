@@ -1,190 +1,184 @@
-module vga_driver
-(
-    input                   I_clk   , // 系统50MHz时钟
-    input                   I_rst_n , // 系统复位
-    output   reg   [4:0]    O_red   , // VGA红色分量
-    output   reg   [5:0]    O_green , // VGA绿色分量
-    output   reg   [4:0]    O_blue  , // VGA蓝色分量
-    output                  O_hs    , // VGA行同步信号
-    output                  O_vs      // VGA场同步信号
+/************************************************************************
+ * Author        : Wen Chunyang
+ * Email         : 1494640955@qq.com
+ * Create time   : 2018-04-08 16:57
+ * Last modified : 2018-04-08 16:57
+ * Filename      : vga.v
+ * Description   : 
+ * *********************************************************************/
+module  vga(
+        input                   clk                     ,
+        input                   rst_n                   ,
+        //vga
+        output     [ 7: 0]   vga_r                   ,
+        output     [ 7: 0]   vga_g                   ,
+        output     [ 7: 0]   vga_b                   ,
+        output              vga_hs                  ,
+        output              vga_vs                  ,
+        output             vga_blank               ,
+        output              vga_sync                ,
+        output              vga_clk 
 );
+//=====================================================================\
+// ********** Define Parameter and Internal Signals *************
+//=====================================================================/
+//ADV7123 t输出延迟=t6+t8=7.5+15=22.5ns
+// 640*480@60Hz fclk=25MHz,Tclk=40ns,20ns>7.5ns,所以数据不需要提前一个时钟输出,按正常时序即可
+parameter   LinePeriod      =       800                         ;
+parameter   H_SyncPulse     =       96                          ;
+parameter   H_BackPorch     =       48                          ;
+parameter   H_ActivePix     =       640                         ;
+parameter   H_FrontPorch    =       16                          ;
+parameter   Hde_start       =       H_SyncPulse + H_BackPorch   ; 
+parameter   Hde_end         =       Hde_start + H_ActivePix     ; 
 
-// 分辨率为640*480时行时序各个参数定义
-parameter       C_H_SYNC_PULSE      =   96  , 
-                C_H_BACK_PORCH      =   48  ,
-                C_H_ACTIVE_TIME     =   640 ,
-                C_H_FRONT_PORCH     =   16  ,
-                C_H_LINE_PERIOD     =   800 ;
+parameter   FramePeriod     =       525                         ;
+parameter   V_SyncPulse     =       2                           ;
+parameter   V_BackPorch     =       33                          ;
+parameter   V_ActivePix     =       480                         ;
+parameter   V_FrontPorch    =       10                          ;
+parameter   Vde_start       =       V_SyncPulse + V_BackPorch   ; 
+parameter   Vde_end         =       Vde_start + V_ActivePix     ; 
 
-// 分辨率为640*480时场时序各个参数定义               
-parameter       C_V_SYNC_PULSE      =   2   , 
-                C_V_BACK_PORCH      =   33  ,
-                C_V_ACTIVE_TIME     =   480 ,
-                C_V_FRONT_PORCH     =   10  ,
-                C_V_FRAME_PERIOD    =   525 ;
-                
-parameter       C_COLOR_BAR_WIDTH   =   C_H_ACTIVE_TIME / 8  ;  
-
-reg [11:0]      R_h_cnt         ; // 行时序计数器
-reg [11:0]      R_v_cnt         ; // 列时序计数器
-reg             R_clk_25M       ;
-
-wire            W_active_flag   ; // 激活标志，当这个信号为1时RGB的数据可以显示在屏幕上
-
-//////////////////////////////////////////////////////////////////
-//功能： 产生25MHz的像素时钟
-//////////////////////////////////////////////////////////////////
-always @(posedge I_clk or negedge I_rst_n)
-begin
-    if(!I_rst_n)
-        R_clk_25M   <=  1'b0        ;
-    else
-        R_clk_25M   <=  ~R_clk_25M  ;     
-end
-//////////////////////////////////////////////////////////////////
-
-//////////////////////////////////////////////////////////////////
-// 功能：产生行时序
-//////////////////////////////////////////////////////////////////
-always @(posedge R_clk_25M or negedge I_rst_n)
-begin
-    if(!I_rst_n)
-        R_h_cnt <=  12'd0   ;
-    else if(R_h_cnt == C_H_LINE_PERIOD - 1'b1)
-        R_h_cnt <=  12'd0   ;
-    else
-        R_h_cnt <=  R_h_cnt + 1'b1  ;                
-end                
-
-assign O_hs =   (R_h_cnt < C_H_SYNC_PULSE) ? 1'b0 : 1'b1    ; 
-//////////////////////////////////////////////////////////////////
-
-//////////////////////////////////////////////////////////////////
-// 功能：产生场时序
-//////////////////////////////////////////////////////////////////
-always @(posedge R_clk_25M or negedge I_rst_n)
-begin
-    if(!I_rst_n)
-        R_v_cnt <=  12'd0   ;
-    else if(R_v_cnt == C_V_FRAME_PERIOD - 1'b1)
-        R_v_cnt <=  12'd0   ;
-    else if(R_h_cnt == C_H_LINE_PERIOD - 1'b1)
-        R_v_cnt <=  R_v_cnt + 1'b1  ;
-    else
-        R_v_cnt <=  R_v_cnt ;                        
-end                
-
-assign O_vs =   (R_v_cnt < C_V_SYNC_PULSE) ? 1'b0 : 1'b1    ; 
-//////////////////////////////////////////////////////////////////  
-
-assign W_active_flag =  (R_h_cnt >= (C_H_SYNC_PULSE + C_H_BACK_PORCH                  ))  &&
-                        (R_h_cnt <= (C_H_SYNC_PULSE + C_H_BACK_PORCH + C_H_ACTIVE_TIME))  && 
-                        (R_v_cnt >= (C_V_SYNC_PULSE + C_V_BACK_PORCH                  ))  &&
-                        (R_v_cnt <= (C_V_SYNC_PULSE + C_V_BACK_PORCH + C_V_ACTIVE_TIME))  ;                     
-
-//////////////////////////////////////////////////////////////////
-// 功能：把显示器屏幕分成8个纵列，每个纵列的宽度是80
-//////////////////////////////////////////////////////////////////
-always @(posedge R_clk_25M or negedge I_rst_n)
-begin
-    if(!I_rst_n) 
-        begin
-            O_red   <=  5'b00000    ;
-            O_green <=  6'b000000   ;
-            O_blue  <=  5'b00000    ; 
-        end
-    else if(W_active_flag)     
-        begin
-            if(R_h_cnt < (C_H_SYNC_PULSE + C_H_BACK_PORCH + C_COLOR_BAR_WIDTH)) // 红色彩条
-                begin
-                    O_red   <=  5'b11111    ; // 红色彩条把红色分量全部给1，绿色和蓝色给0
-                    O_green <=  6'b000000   ;
-                    O_blue  <=  5'b00000    ;
-                end
-            else if(R_h_cnt < (C_H_SYNC_PULSE + C_H_BACK_PORCH + C_COLOR_BAR_WIDTH*2)) // 绿色彩条
-                begin
-                    O_red   <=  5'b00000    ;
-                    O_green <=  6'b111111   ; // 绿色彩条把绿色分量全部给1，红色和蓝色分量给0
-                    O_blue  <=  5'b00000    ;
-                end 
-            else if(R_h_cnt < (C_H_SYNC_PULSE + C_H_BACK_PORCH + C_COLOR_BAR_WIDTH*3)) // 蓝色彩条
-                begin
-                    O_red   <=  5'b00000    ;
-                    O_green <=  6'b000000   ;
-                    O_blue  <=  5'b11111    ; // 蓝色彩条把蓝色分量全部给1，红色和绿分量给0
-                end 
-            else if(R_h_cnt < (C_H_SYNC_PULSE + C_H_BACK_PORCH + C_COLOR_BAR_WIDTH*4)) // 白色彩条
-                begin
-                    O_red   <=  5'b11111    ; // 白色彩条是有红绿蓝三基色混合而成
-                    O_green <=  6'b111111   ; // 所以白色彩条要把红绿蓝三个分量全部给1
-                    O_blue  <=  5'b11111    ;
-                end 
-            else if(R_h_cnt < (C_H_SYNC_PULSE + C_H_BACK_PORCH + C_COLOR_BAR_WIDTH*5)) // 黑色彩条
-                begin
-                    O_red   <=  5'b00000    ; // 黑色彩条就是把红绿蓝所有分量全部给0
-                    O_green <=  6'b000000   ;
-                    O_blue  <=  5'b00000    ;
-                end 
-            else if(R_h_cnt < (C_H_SYNC_PULSE + C_H_BACK_PORCH + C_COLOR_BAR_WIDTH*6)) // 黄色彩条
-                begin
-                    O_red   <=  5'b11111    ; // 黄色彩条是有红绿两种颜色混合而成
-                    O_green <=  6'b111111   ; // 所以黄色彩条要把红绿两个分量给1
-                    O_blue  <=  5'b00000    ; // 蓝色分量给0
-                end 
-            else if(R_h_cnt < (C_H_SYNC_PULSE + C_H_BACK_PORCH + C_COLOR_BAR_WIDTH*7)) // 紫色彩条
-                begin
-                    O_red   <=  5'b11111    ; // 紫色彩条是有红蓝两种颜色混合而成
-                    O_green <=  6'b000000   ; // 所以紫色彩条要把红蓝两个分量给1
-                    O_blue  <=  5'b11111    ; // 绿色分量给0
-                end 
-            else                              // 青色彩条
-                begin
-                    O_red   <=  5'b00000    ; // 青色彩条是由蓝绿两种颜色混合而成
-                    O_green <=  6'b111111   ; // 所以青色彩条要把蓝绿两个分量给1
-                    O_blue  <=  5'b11111    ; // 红色分量给0
-                end                   
-        end
-    else
-        begin
-            O_red   <=  5'b00000    ;
-            O_green <=  6'b000000   ;
-            O_blue  <=  5'b00000    ; 
-        end           
-end
 /*
-////////////////////////////////////////////////////////////////
-// 功能：产生黑白相间的格子图案
-////////////////////////////////////////////////////////////////
-always @(posedge R_clk_25M or negedge I_rst_n)
-begin
-    if(!I_rst_n) 
-        begin
-            O_red   <=  5'b00000    ;
-            O_green <=  6'b000000   ;
-            O_blue  <=  5'b00000    ; 
-        end
-    else if(W_active_flag)     
-        begin
-            if((R_h_cnt[4]==1'b1) ^ (R_v_cnt[4]==1'b1))
-                begin
-                    O_red   <=  5'b00000    ;
-                    O_green <=  6'b000000   ;
-                    O_blue  <=  5'b00000    ;
-                end
-            else
-                begin
-                    O_red   <=  5'b11111    ;
-                    O_green <=  6'b111111   ;
-                    O_blue  <=  5'b11111    ;
-                end                   
-        end
-    else
-        begin
-            O_red   <=  5'b00000    ;
-            O_green <=  6'b000000   ;
-            O_blue  <=  5'b00000    ; 
-        end           
-end
+// 1024*768@60Hz fclk=65MHz,Tclk=15.38ns,Tclk/2约等于7.5ns,所以数据要提前一个时钟输出,从而使数据对齐，具体是否需要提前移动一个时钟，还是以实际测试为准
+parameter   LinePeriod      =       1344                        ;
+parameter   H_SyncPulse     =       136                         ;
+parameter   H_BackPorch     =       160                         ;
+parameter   H_ActivePix     =       1024                        ;
+parameter   H_FrontPorch    =       24                          ;
+parameter   Hde_start       =       H_SyncPulse + H_BackPorch -1;//提前一个周期发送数据，从而使数据对齐 
+parameter   Hde_end         =       Hde_start + H_ActivePix     ;//注意Hde_start已经提前了一个周期，所以这里就不能再减一了，否则就相当于减二了 
+parameter   FramePeriod     =       806                         ;
+parameter   V_SyncPulse     =       6                           ;
+parameter   V_BackPorch     =       29                          ;
+parameter   V_ActivePix     =       768                         ;
+parameter   V_FrontPorch    =       3                           ;
+parameter   Vde_start       =       V_SyncPulse + V_BackPorch   ; 
+parameter   Vde_end         =       Vde_start + V_ActivePix     ; 
 */
+
+parameter   Red_Wide        =       20                          ;
+parameter   Green_block     =       100                         ;
+
+
+logic                             hsync                           ;
+logic                             vsync                           ;
+
+logic   [10: 0]                 h_cnt                           ;
+logic                            add_h_cnt                       ;
+logic                            end_h_cnt                       ;
+
+logic   [ 9: 0]                 v_cnt                           ;
+logic                           add_v_cnt                       ; 
+logic                           end_v_cnt                       ;
+
+logic                           red_area                        ;
+logic                           green_area                      ; 
+logic                           blue_area                       ; 
+logic                           valid_area                      ; 
+//======================================================================
+// ***************      Main    Code    ****************
+//======================================================================
+assign  vga_sync    =       1'b0;
+assign  vga_blank   =       vga_hs & vga_vs;
+assign  vga_hs      =       hsync;
+assign  vga_vs      =       vsync;
+assign  vga_clk     =       ~clk;
+
+always_ff @(posedge clk or negedge rst_n)begin
+    if(!rst_n)begin
+        h_cnt <= 0;
+    end
+    else if(add_h_cnt)begin
+        if(end_h_cnt)
+            h_cnt <= 0;
+        else
+            h_cnt <= h_cnt + 1;
+    end
+end
+
+assign add_h_cnt     =       1'b1;
+assign end_h_cnt     =       add_h_cnt && h_cnt== LinePeriod-1;
+
+always_ff @(posedge clk or negedge rst_n)begin 
+    if(!rst_n)begin
+        v_cnt <= 0;
+    end
+    else if(add_v_cnt)begin
+        if(end_v_cnt)
+            v_cnt <= 0;
+        else
+            v_cnt <= v_cnt + 1;
+    end
+end
+
+assign add_v_cnt     =       end_h_cnt;
+assign end_v_cnt     =       add_v_cnt && v_cnt== FramePeriod-1;
+
+//hsync
+always_ff  @(posedge clk or negedge rst_n)begin
+    if(rst_n==1'b0)begin
+        hsync   <=      1'b0;
+    end
+    else if(add_h_cnt && h_cnt == H_SyncPulse-1)begin
+        hsync   <=      1'b1;
+    end
+    else if(end_h_cnt)begin
+        hsync   <=      1'b0;
+    end
+end
+
+//vsync
+always_ff  @(posedge clk or negedge rst_n)begin
+    if(rst_n==1'b0)begin
+        vsync   <=      1'b0;
+    end
+    else if(add_v_cnt && v_cnt == V_SyncPulse-1)begin
+        vsync   <=      1'b1;
+    end
+    else if(end_v_cnt)begin
+        vsync   <=      1'b0;
+    end
+end
+
+assign  valid_area  =   (h_cnt >= Hde_start - 1 && h_cnt < Hde_end - 1 && v_cnt >= Vde_start && v_cnt < Vde_end);//v_cnt是多周期的，所以不用提前  
+
+
+assign  red_area    =   (h_cnt >= Hde_start -1 && h_cnt < Hde_start - 1 + Red_Wide) || (h_cnt >= Hde_end - 1 - 20 && h_cnt < Hde_end - 1) || (v_cnt >= Vde_start && v_cnt < Vde_start + Red_Wide) || (v_cnt >= Vde_end - 20 && v_cnt < Vde_end);
+
+
+assign  green_area  =   (h_cnt >= Hde_start - 1 + 270 && h_cnt < Hde_start -1 + 370) && (v_cnt >= Vde_start + 190 && v_cnt < Vde_start + 290);
+
+always_ff  @(posedge clk or negedge rst_n)begin
+    if(rst_n==1'b0)begin
+        vga_r   <=      8'h0;
+        vga_g   <=      8'h0;
+        vga_b   <=      8'h0;
+    end
+    else if(valid_area)
+        if(red_area)begin
+            vga_r   <=      8'hff;
+            vga_g   <=      8'h0;
+            vga_b   <=      8'h0;
+        end
+        else if(green_area)begin
+            vga_r   <=      8'h0;
+            vga_g   <=      8'hff;
+            vga_b   <=      8'h0;
+        end
+        else begin
+            vga_r   <=      8'hff;
+            vga_g   <=      8'hff;
+            vga_b   <=      8'hff;
+        end
+    else begin
+            vga_r   <=      8'h0;
+            vga_g   <=      8'h0;
+            vga_b   <=      8'h0;
+    end
+end
+
+
 
 endmodule

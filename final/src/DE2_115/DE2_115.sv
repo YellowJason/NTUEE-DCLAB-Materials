@@ -160,6 +160,7 @@ Debounce deb2(
 );
 
 // keyboard
+/*
 Keyboard keyboard0(
     .i_clk(CLOCK_50),
     .i_rst_n(KEY[3]),
@@ -167,6 +168,19 @@ Keyboard keyboard0(
     .i_ps2_clk(PS2_CLK),
     .o_num1(aaa),
     .o_num2(bbb)
+);
+*/
+vga vga0(
+	.clk(CLOCK_50),
+	.rst_n(KEY[3]),
+	.vga_r(VGA_R),
+	.vga_g(VGA_G),
+	.vga_b(VGA_B),
+	.vga_hs(VGA_HS),
+	.vga_vs(VGA_VS),
+	.vga_blank(VGA_BLANK_N) ,
+	.vga_sync(VGA_SYNC_N) ,
+	.vga_clk(VGA_CLK)
 );
 
 assign ddd = 4'b0;
