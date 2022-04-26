@@ -160,6 +160,7 @@ Debounce deb2(
 );
 
 // keyboard
+/*
 Keyboard keyboard0(
     .i_clk(CLOCK_50),
     .i_rst_n(KEY[3]),
@@ -168,9 +169,30 @@ Keyboard keyboard0(
     .o_num1(aaa),
     .o_num2(bbb)
 );
+*/
+logic CLK_25M, CLK_65M;
+altpll altpll0(
+		.altpll_0_c0_clk(CLK_25M), // 25MHz
+		.altpll_0_c1_clk(CLK_65M), // 65MHZ
+		.clk_clk(CLOCK_50),
+		.reset_reset_n(KEY[3])
+	);
+
+vga vga0(
+	.clk(CLK_25M),
+	.rst_n(KEY[3]),
+	.vga_r(VGA_R),
+	.vga_g(VGA_G),
+	.vga_b(VGA_B),
+	.vga_hs(VGA_HS),
+	.vga_vs(VGA_VS),
+	.vga_blank(VGA_BLANK_N) ,
+	.vga_sync(VGA_SYNC_N) ,
+	.vga_clk(VGA_CLK)
+);
 
 assign ddd = 4'b0;
-assign ddd = 4'b0;
+assign ccc = 4'b0;
 // 7 hex decoder
 SevenHexDecoder seven_dec0(
 	.i_hex(aaa),
