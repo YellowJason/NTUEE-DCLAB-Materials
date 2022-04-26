@@ -170,8 +170,16 @@ Keyboard keyboard0(
     .o_num2(bbb)
 );
 */
+logic CLK_25M, CLK_65M;
+altpll altpll0(
+		.altpll_0_c0_clk(CLK_25M), // 25MHz
+		.altpll_0_c1_clk(CLK_65M), // 65MHZ
+		.clk_clk(CLOCK_50),
+		.reset_reset_n(KEY[3])
+	);
+
 vga vga0(
-	.clk(CLOCK_50),
+	.clk(CLK_25M),
 	.rst_n(KEY[3]),
 	.vga_r(VGA_R),
 	.vga_g(VGA_G),

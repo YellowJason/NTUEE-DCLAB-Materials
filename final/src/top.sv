@@ -9,24 +9,24 @@
 module  top(
         input                   CLOCK_50                ,
         //ADC
-        output  wire            VGA_CLK                 ,
-        output  wire            VGA_SYNC_N              ,
-        output  wire            VGA_BLANK_N             ,
+        output             VGA_CLK                 ,
+        output              VGA_SYNC_N              ,
+        output             VGA_BLANK_N             ,
         //VGA               
-        output  wire            VGA_HS                  ,
-        output  wire            VGA_VS                  ,
-        output  wire  [ 7: 0]   VGA_R                   ,
-        output  wire  [ 7: 0]   VGA_G                   ,
-        output  wire  [ 7: 0]   VGA_B                   
+        output              VGA_HS                  ,
+        output              VGA_VS                  ,
+        output    [ 7: 0]   VGA_R                   ,
+        output    [ 7: 0]   VGA_G                   ,
+        output    [ 7: 0]   VGA_B                   
 );
 //=====================================================================\
 // ********** Define Parameter and Internal Signals *************
 //=====================================================================/
-wire                            rst_n                           ; 
-wire                            clk_25m                         ;
-wire                            clk_65m                         ; 
-wire                            clk_130m                        ; 
-wire                            clk                             ; 
+logic                            rst_n                           ; 
+logic                            clk_25m                         ;
+logic                            clk_65m                         ; 
+logic                            clk_130m                        ; 
+logic                            clk                             ; 
 //======================================================================
 // ***************      Main    Code    ****************
 //======================================================================
