@@ -16,6 +16,7 @@ module tb;
     logic [19:0] addr;
     logic [15:0] data_record;
     logic [19:0] addr_counter;
+    logic [15:0] hold_data;
 
 	initial clk = 1;
 	always #HCLK clk = ~clk;
@@ -30,7 +31,8 @@ module tb;
         .i_data(i_AUD_ADCDAT),
         .o_address(addr),
         .o_data(data_record),
-        .o_addr_counter(addr_counter)
+        .o_addr_counter(addr_counter),
+        .o_hold_data(hold_data)
     );
 
 	initial begin

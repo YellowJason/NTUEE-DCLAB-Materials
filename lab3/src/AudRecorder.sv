@@ -12,6 +12,7 @@ module AudRecorder (
 	output [15:0] o_data,
     output [19:0] o_addr_counter // output total used memory use
 );
+// output [15:0] o_hold_data // used by LED
 
 localparam IDLE         = 2'b00;
 localparam WAIT_NEGEDGE = 2'b01; // wait and check if negative edge of LRC occur
@@ -24,12 +25,14 @@ logic [19:0] addr_counter, addr_counter_nxt;
 logic [19:0] rec_addr, rec_addr_nxt;
 logic [15:0] rec_data, rec_data_nxt;
 logic lrc, lrc_nxt;
+logic [15:0] hold_data, hold_data_nxt;
 
 parameter bit_counter_end = 4'd15;
 
 assign o_address = rec_addr;
 assign o_data = rec_data;
 assign o_addr_counter = addr_counter;
+// assign o_hold_data = hold_data;
 
 logic stop_reg, stop_reg_nxt;
 
@@ -43,6 +46,7 @@ always_comb begin
             rec_addr_nxt = rec_addr;
             rec_data_nxt = rec_data;
             stop_reg_nxt = i_stop ? 1'b1 : stop_reg;
+            hold_data_nxt = hold_data;
         end
         WAIT_NEGEDGE:begin
             state_nxt = (lrc && !lrc_nxt) ? RECORDING : state; // handle left channel
@@ -51,6 +55,7 @@ always_comb begin
             rec_addr_nxt = rec_addr;
             rec_data_nxt = rec_data;
             stop_reg_nxt = i_stop ? 1'b1 : stop_reg;
+            hold_data_nxt = hold_data;
         end
         RECORDING:begin
             state_nxt = (bit_counter == bit_counter_end) ? FINISH : state;
@@ -59,6 +64,7 @@ always_comb begin
             rec_addr_nxt = rec_addr;
             rec_data_nxt = {rec_data[14:0], i_data};
             stop_reg_nxt = i_stop ? 1'b1 : stop_reg;
+            hold_data_nxt = hold_data;
         end
         FINISH:begin
             state_nxt = (i_pause || stop_reg || (~rec_addr == 20'b0)) ? IDLE : WAIT_NEGEDGE;
@@ -67,6 +73,7 @@ always_comb begin
             rec_addr_nxt = stop_reg ? 20'd0 : rec_addr+1;
             rec_data_nxt = 16'd0;
             stop_reg_nxt = stop_reg ? 1'b0 : stop_reg;
+            hold_data_nxt = rec_data;
         end
     endcase
 end
@@ -80,6 +87,7 @@ always_ff @(posedge i_clk or negedge i_rst_n) begin
         rec_data <= 16'd0;
 		lrc <= 1'b0;
         stop_reg <= 1'b0;
+        hold_data <= 16'd0;
 	end
 	else begin
         state <= state_nxt;
@@ -89,6 +97,7 @@ always_ff @(posedge i_clk or negedge i_rst_n) begin
         rec_data <= rec_data_nxt;
 		lrc <= lrc_nxt;
         stop_reg <= stop_reg_nxt;
+        hold_data <= hold_data_nxt;
 	end
 end
 
