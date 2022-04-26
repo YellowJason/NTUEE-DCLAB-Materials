@@ -1,0 +1,38 @@
+
+State Machine - |DE2_115|Top:top0|state
+Name state.S_PLAY state.S_RECD state.S_IDLE state.S_I2C 
+state.S_I2C 0 0 0 0 
+state.S_IDLE 0 0 1 1 
+state.S_RECD 0 1 0 1 
+state.S_PLAY 1 0 0 1 
+
+State Machine - |DE2_115|Top:top0|AudRecorder:recorder0|state
+Name state.FINISH state.RECORDING state.WAIT_NEGEDGE state.IDLE 
+state.IDLE 0 0 0 0 
+state.WAIT_NEGEDGE 0 0 1 1 
+state.RECORDING 0 1 0 1 
+state.FINISH 1 0 0 1 
+
+State Machine - |DE2_115|Top:top0|AudPlayer:player0|state
+Name state.S_IDLE state.S_WAIT state.S_PLAY 
+state.S_IDLE 0 0 0 
+state.S_PLAY 1 0 1 
+state.S_WAIT 1 1 0 
+
+State Machine - |DE2_115|Top:top0|AudDSP:dsp0|state
+Name state.S_CALC state.S_FETCH1 state.S_FETCH0 state.S_IDLE state.S_PAUS 
+state.S_IDLE 0 0 0 0 0 
+state.S_FETCH0 0 0 1 1 0 
+state.S_FETCH1 0 1 0 1 0 
+state.S_CALC 1 0 0 1 0 
+state.S_PAUS 0 0 0 1 1 
+
+State Machine - |DE2_115|Top:top0|I2cInitializer:init0|state
+Name state.S_FINI state.S_WAIT state.S_TRAN state.S_TEMP state.S_PRE1 state.S_STAR state.S_IDLE 
+state.S_IDLE 0 0 0 0 0 0 0 
+state.S_STAR 0 0 0 0 0 1 1 
+state.S_PRE1 0 0 0 0 1 0 1 
+state.S_TEMP 0 0 0 1 0 0 1 
+state.S_TRAN 0 0 1 0 0 0 1 
+state.S_WAIT 0 1 0 0 0 0 1 
+state.S_FINI 1 0 0 0 0 0 1 
