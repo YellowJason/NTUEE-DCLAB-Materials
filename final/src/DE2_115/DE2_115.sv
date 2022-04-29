@@ -170,13 +170,14 @@ Keyboard keyboard0(
     .o_num2(bbb)
 );
 */
-// logic CLK_25M, CLK_65M;
-// altpll altpll0(
-// 		.altpll_0_c0_clk(CLK_25M), // 25MHz
-// 		.altpll_0_c1_clk(CLK_65M), // 65MHZ
-// 		.clk_clk(CLOCK_50),
-// 		.reset_reset_n(KEY[3])
-// 	);
+
+logic CLK_25M, CLK_65M;
+altpll (
+		.altpll_25_clk(CLK_25M), // altpll_25.clk
+		.altpll_65_clk(CLK_65M), // altpll_65.clk
+		.clk_clk(CLOCK_50),       //       clk.clk
+		.reset_reset_n(KEY[3])  //     reset.reset_n
+	);
 
 // vga vga0(
 // 	.clk(CLK_25M),
@@ -191,38 +192,35 @@ Keyboard keyboard0(
 // 	.vga_clk(VGA_CLK)
 // );
 
-assign ddd = 4'b0;
-//assign ccc = 4'b0;
-
 //-----------------------------------------------------------------
-logic [23:0] counter_CLK_25M, counter_CLK_65M, counter_CLOCK_50;
-assign aaa = counter_CLK_25M[23:20];
-assign bbb = counter_CLK_65M[23:20];
-assign ccc = counter_CLOCK_50[23:20];
+logic [25:0] counter_CLK_25M, counter_CLK_65M, counter_CLOCK_50;
 
+assign aaa = counter_CLK_25M[25:22];
+assign bbb = counter_CLK_65M[25:22];
+assign ccc = counter_CLOCK_50[25:22];
+assign ddd = 4'b0;
 
+always_ff @(negedge CLK_25M or negedge KEY[3]) begin
+	if (!KEY[3]) begin
+		counter_CLK_25M <= 26'b0;
+	end
+	else begin
+		counter_CLK_25M <= counter_CLK_25M + 1;
+	end
+end
 
-// always_ff @(negedge CLK_25M or negedge KEY[3]) begin
-// 	if (!KEY[3]) begin
-// 		counter_CLK_25M <= 24'b0;
-// 	end
-// 	else begin
-// 		counter_CLK_25M <= counter_CLK_25M + 1;
-// 	end
-// end
-
-// always_ff @(negedge CLK_65M or negedge KEY[3]) begin
-// 	if (!KEY[3]) begin
-// 		counter_CLK_65M <= 24'b0;
-// 	end
-// 	else begin
-// 		counter_CLK_65M <= counter_CLK_65M + 1;
-// 	end
-// end
+always_ff @(negedge CLK_65M or negedge KEY[3]) begin
+	if (!KEY[3]) begin
+		counter_CLK_65M <= 26'b0;
+	end
+	else begin
+		counter_CLK_65M <= counter_CLK_65M + 1;
+	end
+end
 
 always_ff @(negedge CLOCK_50 or negedge KEY[3]) begin
 	if (!KEY[3]) begin
-		counter_CLOCK_50 <= 24'b0;
+		counter_CLOCK_50 <= 26'b0;
 	end
 	else begin
 		counter_CLOCK_50 <= counter_CLOCK_50 + 1;
@@ -251,8 +249,6 @@ SevenHexDecoder seven_dec3(
  	.o_seven_ten(HEX7),
  	.o_seven_one(HEX6)
 );
-
-
 
 //comment those are use for display
 //assign HEX0 = '1;
