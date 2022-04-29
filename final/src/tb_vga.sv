@@ -23,7 +23,7 @@ module tb;
         .o_vga_sync(vga_sync),
         .o_vga_clk(vga_clk)
     );
-    
+
 	initial begin
         $fsdbDumpfile("vga.fsdb");
 		$fsdbDumpvars;
@@ -33,7 +33,7 @@ module tb;
 		#(2*CLK)
         rst_n = 1;
 
-        #(500*CLK)
+        #(25000000*CLK)
         $display("vga simulation finish");
         $finish;
 	end
