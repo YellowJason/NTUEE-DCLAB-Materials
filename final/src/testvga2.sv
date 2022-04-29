@@ -29,13 +29,13 @@ logic [9:0] vcnt;
 assign vga_clk = ~clk;
 
 // output buffer
-logic [7:0] vga_r,
-logic [7:0] vga_g,
-logic [7:0] vga_b,
-logic vga_hs,
-logic vga_vs,
-logic vga_blank,
-logic vga_sync,
+logic [7:0] vga_r;
+logic [7:0] vga_g;
+logic [7:0] vga_b;
+logic vga_hs;
+logic vga_vs;
+logic vga_blank;
+logic vga_sync;
 assign o_vga_r = vga_r;
 assign o_vga_g = vga_g;
 assign o_vga_b = vga_b;

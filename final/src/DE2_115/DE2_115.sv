@@ -173,11 +173,11 @@ Keyboard keyboard0(
 
 logic CLK_25M, CLK_65M;
 altpll (
-		.altpll_25_clk(CLK_25M), // altpll_25.clk
-		.altpll_65_clk(CLK_65M), // altpll_65.clk
-		.clk_clk(CLOCK_50),       //       clk.clk
-		.reset_reset_n(KEY[3])  //     reset.reset_n
-	);
+	.altpll_25_clk(CLK_25M), // altpll_25.clk
+	.altpll_65_clk(CLK_65M), // altpll_65.clk
+	.clk_clk(CLOCK_50),      // clk.clk
+	.reset_reset_n(KEY[3])   // reset.reset_n
+);
 
 vga vga0(
 	.clk(CLK_25M),
