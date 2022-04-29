@@ -179,30 +179,30 @@ altpll (
 		.reset_reset_n(KEY[3])  //     reset.reset_n
 	);
 
-// vga vga0(
-// 	.clk(CLK_25M),
-// 	.rst_n(KEY[3]),
-// 	.vga_r(VGA_R),
-// 	.vga_g(VGA_G),
-// 	.vga_b(VGA_B),
-// 	.vga_hs(VGA_HS),
-// 	.vga_vs(VGA_VS),
-// 	.vga_blank(VGA_BLANK_N) ,
-// 	.vga_sync(VGA_SYNC_N) ,
-// 	.vga_clk(VGA_CLK)
-// );
+vga vga0(
+	.clk(CLK_25M),
+	.rst_n(KEY[3]),
+	.o_vga_r(VGA_R),
+	.o_vga_g(VGA_G),
+	.o_vga_b(VGA_B),
+	.o_vga_hs(VGA_HS),
+	.o_vga_vs(VGA_VS),
+	.o_vga_blank(VGA_BLANK_N),
+	.o_vga_sync(VGA_SYNC_N),
+	.o_vga_clk(VGA_CLK)
+);
 
 //-----------------------------------------------------------------
-logic [25:0] counter_CLK_25M, counter_CLK_65M, counter_CLOCK_50;
+logic [26:0] counter_CLK_25M, counter_CLK_65M, counter_CLOCK_50;
 
-assign aaa = counter_CLK_25M[25:22];
-assign bbb = counter_CLK_65M[25:22];
-assign ccc = counter_CLOCK_50[25:22];
+assign aaa = counter_CLK_25M[26:23];
+assign bbb = counter_CLOCK_50[26:23];
+assign ccc = counter_CLK_65M[26:23];
 assign ddd = 4'b0;
 
 always_ff @(negedge CLK_25M or negedge KEY[3]) begin
 	if (!KEY[3]) begin
-		counter_CLK_25M <= 26'b0;
+		counter_CLK_25M <= 27'b0;
 	end
 	else begin
 		counter_CLK_25M <= counter_CLK_25M + 1;
@@ -211,7 +211,7 @@ end
 
 always_ff @(negedge CLK_65M or negedge KEY[3]) begin
 	if (!KEY[3]) begin
-		counter_CLK_65M <= 26'b0;
+		counter_CLK_65M <= 27'b0;
 	end
 	else begin
 		counter_CLK_65M <= counter_CLK_65M + 1;
@@ -220,7 +220,7 @@ end
 
 always_ff @(negedge CLOCK_50 or negedge KEY[3]) begin
 	if (!KEY[3]) begin
-		counter_CLOCK_50 <= 26'b0;
+		counter_CLOCK_50 <= 27'b0;
 	end
 	else begin
 		counter_CLOCK_50 <= counter_CLOCK_50 + 1;
