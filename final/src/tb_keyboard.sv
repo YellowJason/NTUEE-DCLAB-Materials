@@ -30,9 +30,8 @@ module tb;
 		#(2*CLK)
         rst_n = 1;
 
-        @(posedge finish)
+        #(500*CLK)
         $display("reading finish");
-		#(30*CLK)
         $finish;
 	end
     
@@ -49,7 +48,7 @@ module tb;
         i_data = 1;
 
         // data 2
-        #(10*CLK)
+        #(50*CLK)
         i_data = 0;
         #(4*HCLK_ps2)
         i_data = 1;
@@ -68,7 +67,7 @@ module tb;
             ps2_clk = ~ps2_clk;
         end
 
-        #(8*CLK)
+        #(48*CLK)
         repeat (iter) begin
             #(HCLK_ps2)
             ps2_clk = ~ps2_clk;
