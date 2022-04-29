@@ -26,7 +26,7 @@ parameter V_TOTAL = 10'd628;
 logic [10:0] hcnt;
 logic [9:0] vcnt;
 
-assign vga_clk = ~clk;
+assign o_vga_clk = ~clk;
 
 // output buffer
 logic [7:0] vga_r;
