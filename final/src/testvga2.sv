@@ -28,7 +28,7 @@ logic [9:0] h_counter, h_counter_nxt;
 logic [9:0] v_counter, v_counter_nxt;
 
 assign o_vga_blank = ~((h_counter < H_SYNC + H_BACK) || (h_counter > H_SYNC + H_BACK + H_DISP) ||
-                       (v_counter < V_SYNC + V_BACK) || (v_counter < V_SYNC + V_BACK + V_DISP));
+                       (v_counter < V_SYNC + V_BACK) || (v_counter > V_SYNC + V_BACK + V_DISP));
 assign o_vga_clk = ~clk;
 
 // output buffer
@@ -56,7 +56,7 @@ always_ff @(posedge clk or negedge rst_n) begin
         h_counter <= h_counter + 1;
         if (h_counter < H_SYNC-1) vga_hs <= 0;
         else if (h_counter < H_TOTAL-1) vga_hs <= 1;
-        else h_counter<=0;
+        else h_counter <= 0;
     end  
 end
 
@@ -68,7 +68,7 @@ always_ff @(posedge clk or negedge rst_n) begin
     end
     else begin
         if (h_counter == H_TOTAL-1) v_counter <= v_counter + 1;
-        if (v_counter < V_SYNC+V_BACK) vga_vs <= 0;
+        if (v_counter < V_SYNC) vga_vs <= 0;
         else if (v_counter < V_TOTAL) vga_vs <= 1;
         else v_counter <= 0;
     end
@@ -76,8 +76,8 @@ end
 
 // current display coordinate
 logic [9:0] x, y;
-assign x = (h_counter>H_SYNC+H_BACK-1)&&(h_counter<H_SYNC+H_BACK+H_DISP) ? (h_counter-H_SYNC-H_BACK+1) : 32'd0;
-assign y = (v_counter>H_SYNC+H_BACK-1)&&(v_counter<H_SYNC+H_BACK+H_DISP) ? (v_counter-H_SYNC-H_BACK+1) : 32'd0;
+assign x = (h_counter >= H_SYNC+H_BACK)&&(h_counter < H_SYNC+H_BACK+H_DISP) ? (h_counter-H_SYNC-H_BACK+1) : 32'd0;
+assign y = (v_counter >= V_SYNC+V_BACK)&&(v_counter < V_SYNC+V_BACK+V_DISP) ? (v_counter-V_SYNC-V_BACK+1) : 32'd0;
 
 always_ff @(posedge clk or negedge rst_n) begin
     if (!rst_n) begin
@@ -86,25 +86,35 @@ always_ff @(posedge clk or negedge rst_n) begin
         vga_b <= 0;
     end
     else begin
-        if (x == 0) begin
-            vga_r<=0;
-            vga_g<=0;
-            vga_b<=0;
-        end
-        else if (x < H_DISP/3) begin
-            vga_r<=8'd255;
-            vga_g<=8'd255;
+        if ((x<10) || (x>630) || (y<10) || (y>470)) begin
+            vga_r<=8'd200;
+            vga_g<=8'd200;
             vga_b<=8'd255;
         end
-        else if (x < H_DISP*2/3) begin
-            vga_r<=8'd0;
-            vga_g<=8'd255;
-            vga_b<=8'd255;
-        end
-        else  begin
-            vga_r<=8'd0;
-            vga_g<=8'd255;
-            vga_b<=8'd0;
+        else begin
+            if (x < H_DISP/4) begin
+                vga_r<=8'd255;
+                vga_g<=8'd255;
+            end
+            else if (x < H_DISP*1/2) begin
+                vga_r<=8'd0;
+                vga_g<=8'd255;
+            end
+            else if (x < H_DISP*3/4) begin
+                vga_r<=8'd255;
+                vga_g<=8'd0;
+            end
+            else begin
+                vga_r<=8'd0;
+                vga_g<=8'd0;
+            end
+
+            if (y < V_DISP/2) begin
+                vga_b <= 8'd0;
+            end
+            else begin
+                vga_b <= 8'd255;
+            end
         end
     end
 end

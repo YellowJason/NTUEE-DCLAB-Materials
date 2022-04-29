@@ -8,7 +8,7 @@ module tb;
     wire [7:0] vga_r, vga_g, vga_b;
     wire vga_hs, vga_vs, vga_blank, vga_sync, vga_clk;
 
-	initial clk = 0;
+	initial clk = 1;
 	always #HCLK clk = ~clk;
 
     vga vga0(
