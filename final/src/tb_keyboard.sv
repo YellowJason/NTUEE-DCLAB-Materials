@@ -6,18 +6,19 @@ module tb;
     localparam HCLK_ps2 = 100;
 
     logic clk, rst_n, i_data, ps2_clk;
-    wire [7:0] o_data;
+    wire [7:0] o_data, o_data_down;
     wire finish;
 
 	initial clk = 0;
 	always #HCLK clk = ~clk;
 
-    Keyboard keyboard0(
+    Keyboard2 keyboard0(
         .i_clk(clk),
         .i_rst_n(rst_n),
         .i_data(i_data),
         .i_ps2_clk(ps2_clk),
         .o_data(o_data),
+        .o_data_down(o_data_down),
         .o_finish(finish)
     );
 

@@ -160,16 +160,16 @@ Debounce deb2(
 );
 
 // keyboard
-/*
-Keyboard keyboard0(
+logic key_finish;
+Keyboard2 keyboard0(
     .i_clk(CLOCK_50),
     .i_rst_n(KEY[3]),
     .i_data(PS2_DAT),
     .i_ps2_clk(PS2_CLK),
-    .o_num1(aaa),
-    .o_num2(bbb)
+    .o_data({bbb, aaa}),
+	.o_data_down({ddd, ccc}),
+    .o_finish(key_finish)
 );
-*/
 
 logic CLK_25M, CLK_65M;
 altpll (
@@ -192,13 +192,12 @@ vga vga0(
 	.o_vga_clk(VGA_CLK)
 );
 
-//-----------------------------------------------------------------
+//-----------------------------debug-----------------------------
 logic [26:0] counter_CLK_25M, counter_CLK_65M, counter_CLOCK_50;
 
-assign aaa = counter_CLK_25M[26:23];
-assign bbb = counter_CLOCK_50[26:23];
-assign ccc = counter_CLK_65M[26:23];
-assign ddd = 4'b0;
+// assign ccc = counter_CLK_25M[26:23];
+// assign bbb = counter_CLOCK_50[26:23];
+// assign ddd = counter_CLK_65M[26:23];
 
 always_ff @(negedge CLK_25M or negedge KEY[3]) begin
 	if (!KEY[3]) begin
@@ -226,7 +225,7 @@ always_ff @(negedge CLOCK_50 or negedge KEY[3]) begin
 		counter_CLOCK_50 <= counter_CLOCK_50 + 1;
 	end
 end
-//---------------------------------------------------------------------
+//---------------------------------------------------------------
 
 // 7 hex decoder
 SevenHexDecoder seven_dec0(
