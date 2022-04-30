@@ -54,17 +54,23 @@ end
 logic update;
 assign update = (data_curr==up) || (data_curr==down) || (data_curr==right) || (data_curr==left);
 
-always_ff @(posedge flag) begin
-    // receive f0, ignore next data
-    if (data_curr==8'hf0) keyup <= 1'b1;
-    else                  keyup <= 1'b0;
-    // update output
-    if (keyup) begin
+always_ff @(posedge flag or negedge i_rst_n) begin
+    if (!i_rst_n) begin
+        keyup <= 1'b0;
         data_pre <= 8'b0;
     end
     else begin
-        if (update) data_pre <= data_curr;
-        else        data_pre <= data_pre;
+        // receive f0, ignore next data
+        if (data_curr==8'hf0) keyup <= 1'b1;
+        else                  keyup <= 1'b0;
+        // update output
+        if (keyup) begin
+            data_pre <= 8'b0;
+        end
+        else begin
+            if (update) data_pre <= data_curr;
+            else        data_pre <= data_pre;
+        end
     end
 end
 
