@@ -19,6 +19,7 @@ parameter left = 8'h6b;
 logic [7:0] data_pre, data_curr;
 logic [3:0] counter;
 logic flag;
+logic keyup;
 
 assign o_data = data_pre;
 assign o_data_down = data_curr;
@@ -54,8 +55,17 @@ logic update;
 assign update = (data_curr==up) || (data_curr==down) || (data_curr==right) || (data_curr==left);
 
 always_ff @(posedge flag) begin
-    if (update) data_pre <= data_curr;
-    else        data_pre <= data_pre;
+    // receive f0, ignore next data
+    if (data_curr==8'hf0) keyup <= 1'b1;
+    else                  keyup <= 1'b0;
+    // update output
+    if (keyup) begin
+        data_pre <= 8'b0;
+    end
+    else begin
+        if (update) data_pre <= data_curr;
+        else        data_pre <= data_pre;
+    end
 end
 
 endmodule
