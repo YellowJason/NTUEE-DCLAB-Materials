@@ -12,16 +12,24 @@ module Game(
 logic [2:0] blocks [0:9][0:19];
 
 always_comb begin
-    if ((x >= 9'd220) && (x < 9'd420) && (y >= 9'd60) && (y < 9'd420)) begin
-        o_vga_r = 8'd255;
-        o_vga_g = 8'd255;
-        o_vga_b = 8'd0;
+    if ((x >= 9'd220) && (x <= 9'd420) && (y >= 9'd40) && (y <= 9'd440)) begin
+        if (((x-220)%20 == 0) || ((y-40)%20 == 0)) begin
+            o_vga_r = 8'd20;
+            o_vga_g = 8'd20;
+            o_vga_b = 8'd20;
+        end
+        else begin
+            o_vga_r = 8'd255;
+            o_vga_g = 8'd255;
+            o_vga_b = 8'd0;
+        end
     end
     else begin
-        o_vga_r = 8'd255;
-        o_vga_g = 8'd255;
-        o_vga_b = 8'd255;
+        o_vga_r = 8'd20;
+        o_vga_g = 8'd20;
+        o_vga_b = 8'd20;
     end
 end
+
 
 endmodule
