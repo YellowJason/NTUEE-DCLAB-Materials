@@ -28,6 +28,32 @@ ColorDecoder dec0(
     .b(b_dec)
 );
 
+// update counter
+logic [23:0] counter_update;
+
+// center of the moving shape
+logic [3:0] x_center;
+logic [4:0] y_center;
+logic [3:0] b1_x, b2_x, b3_x;
+logic [4:0] b1_y, b2_y, b3_y;
+ShapeDecoder shape0(
+    .center_x(x_center),
+    .center_y(y_center),
+    .shape(3'b1),
+    .b1_x(b1_x),
+    .b2_x(b2_x),
+    .b3_x(b3_x),
+    .b1_y(b1_y),
+    .b2_y(b2_y),
+    .b3_y(b3_y)
+);
+// if current coordinate in the moving shape
+logic in_shape;
+assign in_shape = (x_block == x_center && y_block == y_center) ||
+                  (x_block == b1_x && y_block == b1_y) ||
+                  (x_block == b2_x && y_block == b2_y) ||
+                  (x_block == b3_x && y_block == b3_y);
+
 always_comb begin
     if ((x >= 9'd220) && (x <= 9'd420) && (y >= 9'd40) && (y <= 9'd440)) begin
         // block boundary
@@ -35,6 +61,12 @@ always_comb begin
             o_vga_r = 8'd20;
             o_vga_g = 8'd20;
             o_vga_b = 8'd20;
+        end
+        // moving shape
+        else if (in_shape) begin
+            o_vga_r = 8'd200;
+            o_vga_g = 8'd200;
+            o_vga_b = 8'd200;
         end
         // blocks
         else begin
@@ -66,12 +98,24 @@ always_ff @(posedge i_clk or negedge i_rst_n) begin
             blocks[8][i] <= 3'd1;
             blocks[9][i] <= 3'd2;
         end
+        x_center <= 4'd4;
+        y_center <= 5'd0;
     end
     else begin
         for (i=0; i<10; i++) begin
             for (j=0; j<20; j++) begin
                 blocks[i][j] <= blocks[i][j];
             end
+        end
+        // update moving shape
+        counter_update <= counter_update + 1;
+        if (counter_update == ~24'b0) begin
+            y_center <= y_center + 1;
+            x_center <= x_center;
+        end
+        else begin
+            y_center <= y_center;
+            x_center <= x_center;
         end
     end
 end
@@ -95,6 +139,41 @@ always_comb begin
         5: {r, g, b} = {8'd255, 8'd20,  8'd255};
         6: {r, g, b} = {8'd255, 8'd255, 8'd20 };
         7: {r, g, b} = {8'd255, 8'd255, 8'd255}; 
+    endcase
+end
+
+endmodule
+
+module ShapeDecoder(
+    input [3:0] center_x,
+    input [4:0] center_y,
+    input [2:0] shape,
+    output [3:0] b1_x,
+    output [3:0] b2_x,
+    output [3:0] b3_x,
+    output [4:0] b1_y,
+    output [4:0] b2_y,
+    output [4:0] b3_y
+);
+
+always_comb begin
+    case(shape)
+        1: begin
+            b1_x = center_x-1;
+            b2_x = center_x;
+            b3_x = center_x+1;
+            b1_y = center_y;
+            b2_y = center_y+1;
+            b3_y = center_y+1;
+        end
+        default: begin
+            b1_x = center_x-1;
+            b2_x = center_x;
+            b3_x = center_x+1;
+            b1_y = center_y;
+            b2_y = center_y+1;
+            b3_y = center_y+1;
+        end
     endcase
 end
 
