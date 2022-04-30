@@ -179,17 +179,30 @@ altpll (
 	.reset_reset_n(KEY[3])   // reset.reset_n
 );
 
+logic [9:0] x, y;
 vga vga0(
 	.clk(CLK_25M),
 	.rst_n(KEY[3]),
-	.o_vga_r(VGA_R),
-	.o_vga_g(VGA_G),
-	.o_vga_b(VGA_B),
+	// .o_vga_r(VGA_R),
+	// .o_vga_g(VGA_G),
+	// .o_vga_b(VGA_B),
+	.x(x),
+	.y(y),
 	.o_vga_hs(VGA_HS),
 	.o_vga_vs(VGA_VS),
 	.o_vga_blank(VGA_BLANK_N),
 	.o_vga_sync(VGA_SYNC_N),
 	.o_vga_clk(VGA_CLK)
+);
+
+Game game0(
+	.i_clk(CLOCK_50),
+    .i_rst_n(KEY[3]),
+    .x(x),
+    .y(y),
+    .o_vga_r(VGA_R),
+	.o_vga_g(VGA_G),
+	.o_vga_b(VGA_B),
 );
 
 //-----------------------------debug-----------------------------
