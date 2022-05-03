@@ -298,11 +298,183 @@ module ShapeDecoder(
 
 always_comb begin
     case(shape)
-        1: begin
+        1: begin  //OO
+                 //  OO
             b1_x = center_x-1;
             b2_x = center_x;
             b3_x = center_x+1;
             b1_y = center_y;
+            b2_y = center_y+1;
+            b3_y = center_y+1;
+        end
+        2: begin  // 　O
+                  //  OO
+                  //  O
+            b1_x = center_x;
+            b2_x = center_x-1;
+            b3_x = center_x-1;
+            b1_y = center_y-1;
+            b2_y = center_y;
+            b3_y = center_y+1; 
+        end
+        3: begin  // O
+                  // OO
+                  //  O
+            b1_x = center_x;
+            b2_x = center_x+1;
+            b3_x = center_x+1;
+            b1_y = center_y-1;
+            b2_y = center_y;
+            b3_y = center_y+1;
+        end
+        4: begin  //OO
+                // OO
+            b1_x = center_x-1;
+            b2_x = center_x;
+            b3_x = center_x+1;
+            b1_y = center_y;
+            b2_y = center_y-1;
+            b3_y = center_y-1;
+        end
+        5:begin //O
+             //  OOO
+            b1_x = center_x-1;
+            b2_x = center_x;
+            b3_x = center_x+1;
+            b1_y = center_y;
+            b2_y = center_y-1;
+            b3_y = center_y;
+        end
+        6:begin //O
+              // OO
+                //O
+            b1_x = center_x-1;
+            b2_x = center_x;
+            b3_x = center_x;
+            b1_y = center_y;
+            b2_y = center_y-1;
+            b3_y = center_y+1;
+        end
+        7:begin // OOO
+                //  O
+            b1_x = center_x-1;
+            b2_x = center_x;
+            b3_x = center_x+1;
+            b1_y = center_y;
+            b2_y = center_y+1;
+            b3_y = center_y;
+        end
+        8: begin //O
+                // OO
+                // O
+            b1_x = center_x;
+            b2_x = center_x+1;
+            b3_x = center_x;
+            b1_y = center_y-1;
+            b2_y = center_y;
+            b3_y = center_y+1;
+        end
+        9: begin //OOOO
+            b1_x = center_x-1;
+            b2_x = center_x+1;
+            b3_x = center_x+2;
+            b1_y = center_y;
+            b2_y = center_y;
+            b3_y = center_y;
+        end
+        10: begin //O
+                  //O
+                  //O
+                  //O
+            b1_x = center_x;
+            b2_x = center_x;
+            b3_x = center_x;
+            b1_y = center_y-1;
+            b2_y = center_y+1;
+            b3_y = center_y+2;
+        end
+        11: begin //O
+                  //O
+                // OO
+            b1_x = center_x-1;
+            b2_x = center_x;
+            b3_x = center_x;
+            b1_y = center_y+1;
+            b2_y = center_y-1;
+            b3_y = center_y+1;
+        end
+        12: begin // OOO
+                  //   O
+            b1_x = center_x-1;
+            b2_x = center_x+1;
+            b3_x = center_x+1;
+            b1_y = center_y;
+            b2_y = center_y;
+            b3_y = center_y+1;
+        end
+        13: begin  //OO
+                   //O
+                   //O
+            b1_x = center_x;
+            b2_x = center_x;
+            b3_x = center_x+1;
+            b1_y = center_y-1;
+            b2_y = center_y+1;
+            b3_y = center_y-1;
+        end
+        14:begin   //O
+                   //OOO
+            b1_x = center_x-1;
+            b2_x = center_x-1;
+            b3_x = center_x+1;
+            b1_y = center_y-1;
+            b2_y = center_y;
+            b3_y = center_y;
+        end
+        15:begin  //O
+               // OOO
+            b1_x = center_x-1;
+            b2_x = center_x+1;
+            b3_x = center_x+1;
+            b1_y = center_y;
+            b2_y = center_y;
+            b3_y = center_y-1;
+        end
+        16:begin  // OO
+                  //  O
+                  //  O
+            b1_x = center_x-1;
+            b2_x = center_x;
+            b3_x = center_x;
+            b1_y = center_y-1;
+            b2_y = center_y-1;
+            b3_y = center_y+1;
+        end
+        17:begin //OOO
+                 //O
+            b1_x = center_x-1;
+            b2_x = center_x-1;
+            b3_x = center_x+1;
+            b1_y = center_y;
+            b2_y = center_y+1;
+            b3_y = center_y;
+        end
+        18:begin  //OO
+                  //OO
+            b1_x = center_x;
+            b2_x = center_x+1;
+            b3_x = center_x+1;
+            b1_y = center_y+1;
+            b2_y = center_y;
+            b3_y = center_y+1;
+        end
+        19:begin  //O
+                  //O
+                  //OO
+            b1_x = center_x;
+            b2_x = center_x;
+            b3_x = center_x+1;
+            b1_y = center_y-1;
             b2_y = center_y+1;
             b3_y = center_y+1;
         end
