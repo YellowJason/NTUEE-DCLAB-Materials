@@ -76,13 +76,12 @@ assign in_shape = (x_block == x_center && y_block == y_center) ||
                   (x_block == b3_x && y_block == b3_y);
 
 // the lowest position of current shape
-logic [3:0] x_low, x_low_nxt;
 logic [4:0] y_low, y_low_nxt;
 logic [3:0] b1_x_low, b2_x_low, b3_x_low;
 logic [4:0] b1_y_low, b2_y_low, b3_y_low;
 logic down_valid;
 ShapeDecoder shape1(
-    .center_x(x_low),
+    .center_x(x_center),
     .center_y(y_low),
     .shape(shape),
     .b1_x(b1_x_low),
@@ -95,7 +94,7 @@ ShapeDecoder shape1(
 assign down_valid = (blocks[b1_x_low][b1_y_low+1] == 3'b0) &&
                     (blocks[b2_x_low][b2_y_low+1] == 3'b0) &&
                     (blocks[b3_x_low][b3_y_low+1] == 3'b0) &&
-                    (blocks[x_low][y_low+1] == 3'b0) &&
+                    (blocks[x_center][y_low+1] == 3'b0) &&
                     (b1_y_low+1 <= 5'd19) &&
                     (b2_y_low+1 <= 5'd19) &&
                     (b3_y_low+1 <= 5'd19) &&
@@ -103,7 +102,7 @@ assign down_valid = (blocks[b1_x_low][b1_y_low+1] == 3'b0) &&
 
 // if current coordinate in the moving shape
 logic in_low;
-assign in_low = (x_block == x_low && y_block == y_low) ||
+assign in_low = (x_block == x_center && y_block == y_low) ||
                   (x_block == b1_x_low && y_block == b1_y_low) ||
                   (x_block == b2_x_low && y_block == b2_y_low) ||
                   (x_block == b3_x_low && y_block == b3_y_low);
@@ -189,7 +188,6 @@ always_comb begin
             x_center_nxt = x_center;
             y_center_nxt = y_center;
             // reset the lowest to current position
-            x_low_nxt = x_center;
             y_low_nxt = y_center;
         end
         S_STAL: begin
@@ -210,14 +208,13 @@ always_comb begin
         S_END: begin
             state_nxt = S_STAL;
             // falling
-            if (x_center == x_low && y_center == y_low) begin
-                blocks_nxt[x_low][y_low] = 3'd3;
+            if (y_center == y_low) begin
+                blocks_nxt[x_center][y_low] = 3'd3;
                 blocks_nxt[b1_x_low][b1_y_low] = 3'd3;
                 blocks_nxt[b2_x_low][b2_y_low] = 3'd3;
                 blocks_nxt[b3_x_low][b3_y_low] = 3'd3;
                 x_center_nxt = 4'd4;
                 y_center_nxt = 5'b0;
-                x_low_nxt = 4'd4;
                 y_low_nxt = 5'b0;
             end
             else begin
@@ -252,7 +249,6 @@ always_ff @(posedge i_clk or negedge i_rst_n) begin
         counter_stall <= 23'b0;
         x_center <= 4'd4;
         y_center <= 5'd0;
-        x_low <= 4'd4;
         y_low <= 5'd0;
     end
     else begin
@@ -266,7 +262,6 @@ always_ff @(posedge i_clk or negedge i_rst_n) begin
         counter_stall <= counter_stall_nxt;
         x_center <= x_center_nxt;
         y_center <= y_center_nxt;
-        x_low <= x_low_nxt;
         y_low <= y_low_nxt;
     end
 end
