@@ -170,12 +170,24 @@ always_comb begin
                     state_nxt = S_END;
                 end
                 right: begin
-                    x_center_nxt = x_center + 1;
-                    state_nxt = S_EVAL;
+                    if (!(x_center == 4'd9 || b1_x == 4'd9 || b2_x == 4'd9 || b3_x == 4'd9)) begin
+                        x_center_nxt = x_center + 1;
+                        state_nxt = S_EVAL;
+                    end
+                    else begin
+                        x_center_nxt = x_center;
+                        state_nxt = state;
+                    end
                 end
                 left: begin
-                    x_center_nxt = x_center - 1;
-                    state_nxt = S_EVAL;
+                    if (!(x_center == 4'd0 || b1_x == 4'd0 || b2_x == 4'd0 || b3_x == 4'd0)) begin
+                        x_center_nxt = x_center - 1;
+                        state_nxt = S_EVAL;
+                    end
+                    else begin
+                        x_center_nxt = x_center;
+                        state_nxt = state;
+                    end
                 end
                 default: begin
                     x_center_nxt = x_center;
@@ -208,25 +220,27 @@ always_comb begin
             end
         end
         S_END: begin
-            state_nxt = S_STAL;
             // falling
             if (y_center == y_low) begin
+                state_nxt = S_STAL;
                 blocks_nxt[x_low][y_low] = 3'd3;
                 blocks_nxt[b1_x_low][b1_y_low] = 3'd3;
                 blocks_nxt[b2_x_low][b2_y_low] = 3'd3;
                 blocks_nxt[b3_x_low][b3_y_low] = 3'd3;
+                // new shape
                 x_center_nxt = 4'd4;
-                y_center_nxt = 5'b0;
+                y_center_nxt = 5'b1;
                 x_low_nxt = 4'd4;
-                y_low_nxt = 5'b0;
+                y_low_nxt = 5'b1;
             end
             else begin
+                state_nxt = S_WAIT;
                 x_center_nxt = x_center;
                 y_center_nxt = y_center + 1;
                 x_low_nxt = x_center;
                 y_low_nxt = y_low;
             end
-            counter_stall_nxt = counter_stall;
+            counter_stall_nxt = 23'b0;
         end
     endcase
 end
@@ -251,9 +265,9 @@ always_ff @(posedge i_clk or negedge i_rst_n) begin
         counter_update <= 25'b0;
         counter_stall <= 23'b0;
         x_center <= 4'd4;
-        y_center <= 5'd0;
+        y_center <= 5'd1;
         x_low <= 4'd4;
-        y_low <= 5'd0;
+        y_low <= 5'd1;
     end
     else begin
         for (i=0; i<10; i++) begin
