@@ -200,6 +200,7 @@ Game game0(
     .i_rst_n(KEY[3]),
     .x(x),
     .y(y),
+	.i_key({bbb, aaa}),
     .o_vga_r(VGA_R),
 	.o_vga_g(VGA_G),
 	.o_vga_b(VGA_B),
