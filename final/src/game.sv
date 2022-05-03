@@ -152,17 +152,11 @@ always_comb begin
         end
     end
     counter_update_nxt = counter_update + 1;
-    // falling
-    if (counter_update == ~25'b0) begin
-        y_center_nxt = y_center + 1;
-    end
-    else begin
-        y_center_nxt = y_center;
-    end
     //
     case(state)
         S_WAIT: begin
             counter_stall_nxt = 23'b0;
+            y_center_nxt = y_center;
             x_low_nxt = x_low;
             y_low_nxt = y_low;
             case(i_key)
@@ -184,7 +178,7 @@ always_comb begin
                 end
                 default: begin
                     x_center_nxt = x_center;
-                    state_nxt = S_WAIT;
+                    state_nxt = (counter_update == ~25'b0) ? S_END : S_WAIT;
                 end
             endcase
         end
@@ -192,6 +186,7 @@ always_comb begin
             state_nxt = S_STAL;
             counter_stall_nxt = 23'b0;
             x_center_nxt = x_center;
+            y_center_nxt = y_center;
             // reset the lowest to current position
             x_low_nxt = x_center;
             y_low_nxt = y_center;
@@ -199,22 +194,37 @@ always_comb begin
         S_STAL: begin
             counter_stall_nxt = counter_stall + 1;
             x_center_nxt = x_center;
+            y_center_nxt = y_center;
             // calculate the lowest position
             x_low_nxt = x_low;
             y_low_nxt = (down_valid) ? (y_low + 1) : y_low;
             // stall time
             if (counter_stall == ~23'b0) begin
-                state_nxt = S_WAIT;
+                state_nxt = (counter_update == ~25'b0) ? S_END : S_WAIT;
             end
             else begin
                 state_nxt = state;
             end
         end
         S_END: begin
-            state_nxt = state;
-            x_center_nxt = x_center;
-            x_low_nxt = x_low;
-            y_low_nxt = y_low;
+            state_nxt = S_STAL;
+            // falling
+            if (x_center == x_low && y_center == y_low) begin
+                blocks_nxt[x_low][y_low] = 3'd3;
+                blocks_nxt[b1_x_low][b1_y_low] = 3'd3;
+                blocks_nxt[b2_x_low][b2_y_low] = 3'd3;
+                blocks_nxt[b3_x_low][b3_y_low] = 3'd3;
+                x_center_nxt = 4'd4;
+                y_center_nxt = 5'b0;
+                x_low_nxt = 4'd4;
+                y_low_nxt = 5'b0;
+            end
+            else begin
+                x_low_nxt = x_low;
+                y_low_nxt = y_low;
+                x_center_nxt = x_center;
+                y_center_nxt = y_center + 1;
+            end
             counter_stall_nxt = counter_stall;
         end
     endcase
@@ -236,7 +246,7 @@ always_ff @(posedge i_clk or negedge i_rst_n) begin
             blocks[8][i] <= 3'd0;
             blocks[9][i] <= 3'd0;
         end
-        state <= S_WAIT;
+        state <= S_STAL;
         counter_update <= 25'b0;
         counter_stall <= 23'b0;
         x_center <= 4'd4;
