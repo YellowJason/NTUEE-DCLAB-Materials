@@ -157,7 +157,7 @@ always_comb begin
         S_WAIT: begin
             counter_stall_nxt = 23'b0;
             y_center_nxt = y_center;
-            x_low_nxt = x_low;
+            x_low_nxt = x_center;
             y_low_nxt = y_low;
             case(i_key)
                 up: begin
@@ -166,7 +166,8 @@ always_comb begin
                 end
                 down: begin
                     x_center_nxt = x_center;
-                    state_nxt = S_EVAL;
+                    y_center_nxt = y_low;
+                    state_nxt = S_END;
                 end
                 right: begin
                     x_center_nxt = x_center + 1;
@@ -196,7 +197,7 @@ always_comb begin
             x_center_nxt = x_center;
             y_center_nxt = y_center;
             // calculate the lowest position
-            x_low_nxt = x_low;
+            x_low_nxt = x_center;
             y_low_nxt = (down_valid) ? (y_low + 1) : y_low;
             // stall time
             if (counter_stall == ~23'b0) begin
@@ -220,7 +221,7 @@ always_comb begin
                 y_low_nxt = 5'b0;
             end
             else begin
-                x_low_nxt = x_low;
+                x_low_nxt = x_center;
                 y_low_nxt = y_low;
                 x_center_nxt = x_center;
                 y_center_nxt = y_center + 1;
