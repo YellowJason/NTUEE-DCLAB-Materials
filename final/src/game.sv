@@ -324,9 +324,9 @@ module ShapeDecoder(
 
 always_comb begin
     case(shape)
-        0: begin  //OO
-                 //  OO
-            case(direction[0])
+        0: begin  
+            case(direction[0])//OO
+                             //  OO
                 0: begin
                     b1_x = center_x-1;
                     b2_x = center_x;
@@ -336,8 +336,8 @@ always_comb begin
                     b3_y = center_y+1;
                 end
                 1: begin  // 　O
-                        //  OO
-                        //  O
+                          //  OO
+                          //  O
                 b1_x = center_x;
                 b2_x = center_x-1;
                 b3_x = center_x-1;
@@ -347,9 +347,9 @@ always_comb begin
                 end
             endcase
         end
-        1: begin                // O
+        1: begin                   // O
             case(direction[0])     // OO
-                0:begin         //  O
+                0:begin            //  O
                     b1_x = center_x;
                     b2_x = center_x+1;
                     b3_x = center_x+1;
