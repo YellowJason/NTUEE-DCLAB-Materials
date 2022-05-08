@@ -523,8 +523,8 @@ always_comb begin
                     b3_y = center_y-1;
                 end
                 1:begin  // OO
-                        //  O
-                        //  O
+                         //  O
+                         //  O
                     b1_x = center_x-1;
                     b2_x = center_x;
                     b3_x = center_x;
