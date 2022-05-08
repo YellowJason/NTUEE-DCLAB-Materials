@@ -53,8 +53,7 @@ logic [22:0] counter_stall, counter_stall_nxt;
 logic [3:0] x_center, x_center_nxt;
 logic [4:0] y_center, y_center_nxt;
 logic [2:0] shape, shape_nxt;
-logic [1:0] dirc;
-assign dirc = 2'b0;
+logic [1:0] dirc, dirc_nxt;
 logic [3:0] b1_x, b2_x, b3_x;
 logic [4:0] b1_y, b2_y, b3_y;
 ShapeDecoder shape0(
@@ -170,6 +169,7 @@ always_comb begin
     end
     counter_update_nxt = counter_update + 1;
     shape_nxt = shape;
+    dirc_nxt = dirc;
     //
     case(state)
         S_WAIT: begin
@@ -180,6 +180,7 @@ always_comb begin
             case(i_key)
                 up: begin
                     x_center_nxt = x_center;
+                    dirc_nxt = dirc + 1;
                     state_nxt = S_EVAL;
                 end
                 down: begin
@@ -284,6 +285,7 @@ always_ff @(posedge i_clk or negedge i_rst_n) begin
         counter_update <= 25'b0;
         counter_stall <= 23'b0;
         shape <= 3'b0;
+        dirc <= 2'b0;
         x_center <= 4'd4;
         y_center <= 5'd1;
         x_low <= 4'd4;
@@ -299,6 +301,7 @@ always_ff @(posedge i_clk or negedge i_rst_n) begin
         counter_update <= counter_update_nxt;
         counter_stall <= counter_stall_nxt;
         shape <= shape_nxt;
+        dirc <= dirc_nxt;
         x_center <= x_center_nxt;
         y_center <= y_center_nxt;
         x_low <= x_low_nxt;
