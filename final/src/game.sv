@@ -147,6 +147,19 @@ always_comb begin
     end
 end
 
+// if touch boundary or other blocks
+logic right_enable, left_enable;
+assign right_enable = (!(x_center == 4'd9 || b1_x == 4'd9 || b2_x == 4'd9 || b3_x == 4'd9)) &&
+                      (blocks[x_center+1][y_center] == 3'b0) &&
+                      (blocks[b1_x+1][b1_y] == 3'b0) &&
+                      (blocks[b2_x+1][b2_y] == 3'b0) &&
+                      (blocks[b3_x+1][b3_y] == 3'b0);
+assign left_enable  = (!(x_center == 4'd0 || b1_x == 4'd0 || b2_x == 4'd0 || b3_x == 4'd0)) &&
+                      (blocks[x_center-1][y_center] == 3'b0) &&
+                      (blocks[b1_x-1][b1_y] == 3'b0) &&
+                      (blocks[b2_x-1][b2_y] == 3'b0) &&
+                      (blocks[b3_x-1][b3_y] == 3'b0);
+
 // Finite state machine
 always_comb begin
     // default blocks color
@@ -175,7 +188,7 @@ always_comb begin
                     state_nxt = S_END;
                 end
                 right: begin
-                    if (!(x_center == 4'd9 || b1_x == 4'd9 || b2_x == 4'd9 || b3_x == 4'd9)) begin
+                    if (right_enable) begin
                         x_center_nxt = x_center + 1;
                         state_nxt = S_EVAL;
                     end
@@ -185,7 +198,7 @@ always_comb begin
                     end
                 end
                 left: begin
-                    if (!(x_center == 4'd0 || b1_x == 4'd0 || b2_x == 4'd0 || b3_x == 4'd0)) begin
+                    if (left_enable) begin
                         x_center_nxt = x_center - 1;
                         state_nxt = S_EVAL;
                     end

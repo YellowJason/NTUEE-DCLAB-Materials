@@ -1,13 +1,12 @@
 module Keyboard2(
-    input i_clk,
     input i_rst_n,
     // PS2 input signal
     input i_data,
     input i_ps2_clk,
     // output signal
-    output [7:0] o_data,
-    output [7:0] o_data_down,
-    output o_finish
+    output [7:0] o_data
+    // output [7:0] o_data_down,
+    // output o_finish
 );
 
 // keys we want to detect

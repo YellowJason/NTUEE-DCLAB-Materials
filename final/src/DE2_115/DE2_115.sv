@@ -161,14 +161,12 @@ Debounce deb2(
 
 // keyboard
 logic key_finish;
+logic [7:0] keyboard_down;
 Keyboard2 keyboard0(
-    .i_clk(CLOCK_50),
     .i_rst_n(KEY[3]),
     .i_data(PS2_DAT),
     .i_ps2_clk(PS2_CLK),
-    .o_data({bbb, aaa}),
-	.o_data_down({ddd, ccc}),
-    .o_finish(key_finish)
+    .o_data(keyboard_down),
 );
 
 logic CLK_25M, CLK_65M;
@@ -200,15 +198,15 @@ Game game0(
     .i_rst_n(KEY[3]),
     .x(x),
     .y(y),
-	.i_key({bbb, aaa}),
+	.i_key(keyboard_down),
     .o_vga_r(VGA_R),
 	.o_vga_g(VGA_G),
 	.o_vga_b(VGA_B),
 );
 
 //-----------------------------debug-----------------------------
+/*
 logic [26:0] counter_CLK_25M, counter_CLK_65M, counter_CLOCK_50;
-
 // assign ccc = counter_CLK_25M[26:23];
 // assign bbb = counter_CLOCK_50[26:23];
 // assign ddd = counter_CLK_65M[26:23];
@@ -239,16 +237,17 @@ always_ff @(negedge CLOCK_50 or negedge KEY[3]) begin
 		counter_CLOCK_50 <= counter_CLOCK_50 + 1;
 	end
 end
+*/
 //---------------------------------------------------------------
 
 // 7 hex decoder
 SevenHexDecoder seven_dec0(
-	.i_hex(aaa),
+	.i_hex(keyboard_down[3:0]),
  	.o_seven_ten(HEX1),
  	.o_seven_one(HEX0)
 );
 SevenHexDecoder seven_dec1(
-	.i_hex(bbb),
+	.i_hex(keyboard_down[7:4]),
  	.o_seven_ten(HEX3),
  	.o_seven_one(HEX2)
 );
