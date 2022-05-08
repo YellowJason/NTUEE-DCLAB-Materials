@@ -52,14 +52,16 @@ logic [22:0] counter_stall, counter_stall_nxt;
 // the moving shape
 logic [3:0] x_center, x_center_nxt;
 logic [4:0] y_center, y_center_nxt;
-logic [2:0] shape;
-assign shape = 3'b1;
+logic [2:0] shape, shape_nxt;
+logic [1:0] dirc;
+assign dirc = 2'b0;
 logic [3:0] b1_x, b2_x, b3_x;
 logic [4:0] b1_y, b2_y, b3_y;
 ShapeDecoder shape0(
     .center_x(x_center),
     .center_y(y_center),
     .shape(shape),
+    .direction(dirc),
     .b1_x(b1_x),
     .b2_x(b2_x),
     .b3_x(b3_x),
@@ -85,6 +87,7 @@ ShapeDecoder shape1(
     .center_x(x_low),
     .center_y(y_low),
     .shape(shape),
+    .direction(dirc),
     .b1_x(b1_x_low),
     .b2_x(b2_x_low),
     .b3_x(b3_x_low),
@@ -92,6 +95,7 @@ ShapeDecoder shape1(
     .b2_y(b2_y_low),
     .b3_y(b3_y_low)
 );
+
 assign down_valid = (blocks[b1_x_low][b1_y_low+1] == 3'b0) &&
                     (blocks[b2_x_low][b2_y_low+1] == 3'b0) &&
                     (blocks[b3_x_low][b3_y_low+1] == 3'b0) &&
@@ -152,6 +156,7 @@ always_comb begin
         end
     end
     counter_update_nxt = counter_update + 1;
+    shape_nxt = shape;
     //
     case(state)
         S_WAIT: begin
@@ -228,6 +233,7 @@ always_comb begin
                 blocks_nxt[b2_x_low][b2_y_low] = 3'd3;
                 blocks_nxt[b3_x_low][b3_y_low] = 3'd3;
                 // new shape
+                shape_nxt = (shape == 3'd6) ? 3'b0 : (shape + 1);
                 x_center_nxt = 4'd4;
                 y_center_nxt = 5'b1;
                 x_low_nxt = 4'd4;
@@ -264,6 +270,7 @@ always_ff @(posedge i_clk or negedge i_rst_n) begin
         state <= S_STAL;
         counter_update <= 25'b0;
         counter_stall <= 23'b0;
+        shape <= 3'b0;
         x_center <= 4'd4;
         y_center <= 5'd1;
         x_low <= 4'd4;
@@ -278,6 +285,7 @@ always_ff @(posedge i_clk or negedge i_rst_n) begin
         state <= state_nxt;
         counter_update <= counter_update_nxt;
         counter_stall <= counter_stall_nxt;
+        shape <= shape_nxt;
         x_center <= x_center_nxt;
         y_center <= y_center_nxt;
         x_low <= x_low_nxt;
@@ -325,9 +333,9 @@ module ShapeDecoder(
 always_comb begin
     case(shape)
         0: begin  
-            case(direction[0])//OO
-                             //  OO
-                0: begin
+            case(direction[0])
+                0: begin // OO
+                         //  OO
                     b1_x = center_x-1;
                     b2_x = center_x;
                     b3_x = center_x+1;
@@ -335,9 +343,9 @@ always_comb begin
                     b2_y = center_y+1;
                     b3_y = center_y+1;
                 end
-                1: begin  // 　O
-                          //  OO
-                          //  O
+                1: begin //  O
+                         // OO
+                         // O
                 b1_x = center_x;
                 b2_x = center_x-1;
                 b3_x = center_x-1;
@@ -347,9 +355,12 @@ always_comb begin
                 end
             endcase
         end
-        1: begin                   // O
-            case(direction[0])     // OO
-                0:begin            //  O
+
+        1: begin                   
+            case(direction[0])     
+                0:begin // O         
+                        // OO
+                        //  O
                     b1_x = center_x;
                     b2_x = center_x+1;
                     b3_x = center_x+1;
@@ -357,8 +368,8 @@ always_comb begin
                     b2_y = center_y;
                     b3_y = center_y+1;
                 end
-                1: begin  //OO
-                        // OO
+                1: begin //  OO
+                         // OO
                     b1_x = center_x-1;
                     b2_x = center_x;
                     b3_x = center_x+1;
@@ -379,7 +390,6 @@ always_comb begin
                     b2_y = center_y-1;
                     b3_y = center_y;
                 end
-
                 1:begin //O
                       // OO
                         //O
@@ -390,7 +400,6 @@ always_comb begin
                     b2_y = center_y-1;
                     b3_y = center_y+1;
                 end
-
                 2:begin // OOO
                         //  O
                     b1_x = center_x-1;
@@ -400,7 +409,6 @@ always_comb begin
                     b2_y = center_y+1;
                     b3_y = center_y;
                 end
-
                 3: begin //O
                         // OO
                         // O
@@ -413,8 +421,6 @@ always_comb begin
                 end
             endcase
         end
-        
-        
         
         3: begin //OOOO
             case(direction[0])
@@ -439,6 +445,7 @@ always_comb begin
                 end
             endcase
         end
+
         4: begin                 //O
             case(direction)      //O
                 0:begin        // OO
@@ -479,6 +486,7 @@ always_comb begin
                 end
             endcase
         end
+
         5:begin                  //O
             case(direction)   // OOO
                 0:begin
@@ -520,6 +528,7 @@ always_comb begin
                 end
             endcase
         end
+
         6:begin   //OO
                   //OO
             b1_x = center_x;
