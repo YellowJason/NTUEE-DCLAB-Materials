@@ -479,7 +479,7 @@ always_comb begin
                 end
             endcase
         end
-        5:begin                 //O
+        5:begin                  //O
             case(direction)   // OOO
                 0:begin
                     b1_x = center_x-1;
