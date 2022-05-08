@@ -215,6 +215,15 @@ always_comb begin
             endcase
         end
         S_EVAL: begin
+            if (i_key == up) begin
+                if ((blocks[x_center][y_center] != 3'b0) ||
+                    (blocks[b1_x][b1_y] != 3'b0) || (blocks[b2_x][b2_y] != 3'b0) || (blocks[b3_x][b3_y] != 3'b0)) begin
+                    dirc_nxt = dirc - 1;
+                end
+                else begin
+                    dirc_nxt = dirc;
+                end
+            end
             state_nxt = S_STAL;
             counter_stall_nxt = 23'b0;
             x_center_nxt = x_center;
