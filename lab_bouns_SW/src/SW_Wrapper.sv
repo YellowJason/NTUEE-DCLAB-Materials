@@ -36,6 +36,27 @@ localparam S_READ = 3'b001;
 localparam S_WAIT_CALCULATE = 3'b010;
 localparam S_QUERY_TX = 3'b011;
 localparam S_SEND_DATA = 3'b100;
+
+logic [255:0] n_r, n_nxt, d_r, d_nxt, enc_r, enc_nxt, dec_r, dec_nxt;
+logic [2:0] state_r, state_nxt;
+logic [6:0] bytes_counter_r, bytes_counter_nxt;
+logic [4:0] avm_address_r, avm_address_nxt;
+logic avm_read_r, avm_read_nxt, avm_write_r, avm_write_nxt;
+
+logic rsa_start_r, rsa_start_nxt;
+logic rsa_finished;
+logic [255:0] rsa_dec;
+
+parameter read_d_start = 7'd33;
+parameter read_a_start = 7'd65;
+parameter data_counter_end = 7'd96;
+parameter write_data_end = 7'd31;
+
+assign avm_address = avm_address_r;
+assign avm_read = avm_read_r;
+assign avm_write = avm_write_r;
+assign avm_writedata = dec_r[247-:8];
+
 // Remember to complete the port connection
 SW_core sw_core(
     .clk				(avm_clk),
