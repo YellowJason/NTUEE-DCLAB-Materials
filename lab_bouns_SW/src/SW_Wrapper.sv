@@ -31,7 +31,11 @@ localparam TX_OK_BIT   = 6;
 localparam RX_OK_BIT   = 7;
 
 // Feel free to design your own FSM!
-
+localparam S_QUERY_RX = 3'b000;
+localparam S_READ = 3'b001;
+localparam S_WAIT_CALCULATE = 3'b010;
+localparam S_QUERY_TX = 3'b011;
+localparam S_SEND_DATA = 3'b100;
 // Remember to complete the port connection
 SW_core sw_core(
     .clk				(avm_clk),
