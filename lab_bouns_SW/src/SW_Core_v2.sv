@@ -152,7 +152,7 @@ module SW_core(
     endgenerate
 
     //////////////////////////// state control ////////////////////////////
-    always@(*) begin
+    always @(*) begin
         state_n = state;
         case(state)
             S_idle:             state_n = (i_valid) ? S_input : state;
@@ -164,7 +164,7 @@ module SW_core(
     end
 
     ///////////////////// main design ///////////////////
-    always@(*) begin
+    always @(*) begin
         sequence_A_n                                   = sequence_A;
         sequence_B_n                                   = sequence_B;
         seq_A_length_n                                 = seq_A_length;
