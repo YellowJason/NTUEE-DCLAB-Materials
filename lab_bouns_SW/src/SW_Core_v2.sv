@@ -55,17 +55,18 @@ module SW_core(
     reg [$clog2(128)-1:0]   column, column_n;
     reg [$clog2(128)-1:0]   row, row_n;
 
-    reg signed [10-1:0]     row_highest_scores[0:128-1], row_highest_scores_n[0:128-1];
+    reg signed [10-1:0]     row_highest_scores [0:128-1], row_highest_scores_n  [0:128-1];
     reg [$clog2(128)-1:0]   row_highest_columns[0:128-1], row_highest_columns_n [0:128-1];
 
-    reg signed [10-1:0]     PE_score_buff  [0:128-1], PE_score_buff_n [0:128-1];
+    reg signed [10-1:0]     PE_score_buff [0:128-1], PE_score_buff_n [0:128-1];
 
-    reg signed [10-1:0]     PE_align_score_d  [0:128-1], PE_align_score_d_n [0:128-1];
+    reg signed [10-1:0]     PE_align_score_d  [0:128-1], PE_align_score_d_n  [0:128-1];
     reg signed [10-1:0]     PE_insert_score_d [0:128-1], PE_insert_score_d_n [0:128-1];
     reg signed [10-1:0]     PE_delete_score_d [0:128-1], PE_delete_score_d_n [0:128-1];
+    
     reg signed [10-1:0]     PE_align_score_dd [0:128-1], PE_align_score_dd_n [0:128-1];
-    reg signed [10-1:0]     PE_insert_score_dd[0:128-1], PE_insert_score_dd_n [0:128-1];
-    reg signed [10-1:0]     PE_delete_score_dd[0:128-1], PE_delete_score_dd_n [0:128-1];
+    reg signed [10-1:0]     PE_insert_score_dd[0:128-1], PE_insert_score_dd_n[0:128-1];
+    reg signed [10-1:0]     PE_delete_score_dd[0:128-1], PE_delete_score_dd_n[0:128-1];
 
     // output reg
     reg                   o_valid_n;
@@ -182,9 +183,10 @@ module SW_core(
         for (i=0;i<128;i=i+1) PE_align_score_d_n  [i]  = PE_align_score_d [i];
         for (i=0;i<128;i=i+1) PE_insert_score_d_n [i]  = PE_insert_score_d [i];
         for (i=0;i<128;i=i+1) PE_delete_score_d_n [i]  = PE_delete_score_d [i];
-        for (i=0;i<128;i=i+1) PE_align_score_dd_n [i]  = PE_align_score_dd [i];
-        for (i=0;i<128;i=i+1) PE_insert_score_dd_n[i]  = PE_insert_score_dd [i];
-        for (i=0;i<128;i=i+1) PE_delete_score_dd_n[i]  = PE_delete_score_dd [i];
+
+        for (i=0;i<128;i=i+1) PE_align_score_dd_n [i]  = PE_align_score_d [i];
+        for (i=0;i<128;i=i+1) PE_insert_score_dd_n[i]  = PE_insert_score_d [i];
+        for (i=0;i<128;i=i+1) PE_delete_score_dd_n[i]  = PE_delete_score_d [i];
 
     //////////////////////////////////////////// output ports ////////////////////////////////////////////
         o_ready    = 0;        
@@ -195,19 +197,23 @@ module SW_core(
         // *** TODO
         case(state)
             S_idle: begin
-                
+                o_ready = 1'b1;
+                sequence_A_n = i_sequence_read;
+                sequence_B_n = i_sequence_ref;
+                seq_A_length_n = i_seq_read_length;
+                seq_B_length_n = i_seq_ref_length;
             end
             S_input: begin
-               
+                o_ready = 1'b1;
             end
             S_calculate: begin
-                           
+                o_ready = 1'b0;       
             end
             S_select_highest: begin
-                
+                o_ready = 1'b0;
             end
             S_done: begin
-                
+                o_ready = 1'b0;
             end
         endcase
     end
@@ -298,18 +304,60 @@ module DP_PE_single(
     input signed [10-1:0]    i_delete_diagonal_score,
     input signed [10-1:0]    i_delete_left_score,
 
-    output signed [10-1:0]   o_align_score,
-    output signed [10-1:0]   o_insert_score,
-    output signed [10-1:0]   o_delete_score,
+    output reg signed [10-1:0]   o_align_score,
+    output reg signed [10-1:0]   o_insert_score,
+    output reg signed [10-1:0]   o_delete_score,
 
-    output signed [10-1:0]   o_the_score, // The highest score among o_align_score, o_insert_score and o_delete_score
-    output reg               o_last_A_base_valid,
-    output reg [1:0]         o_last_A_base
+    output reg signed [10-1:0]   o_the_score, // The highest score among o_align_score, o_insert_score and o_delete_score
+    output reg                   o_last_A_base_valid,
+    output reg [1:0]             o_last_A_base
 );
 
 // *** TODO
+always_comb begin
+    // o_align_score
+    if (i_A_base == i_B_base) begin
+        o_align_score = i_align_diagonal_score + `CONST_MATCH_SCORE;
+    end
+    else begin
+        o_align_score = i_align_diagonal_score + `CONST_MISMATCH_SCORE
+    end
+    // o_insert_score
+    if ((i_align_top_score + `CONST_GAP_OPEN)<0 && (i_insert_top_score + `CONST_GAP_EXTEND)<0) begin
+        o_insert_score = 0;
+    end
+    else if ((i_align_top_score + `CONST_GAP_OPEN) > (i_insert_top_score + `CONST_GAP_EXTEND)) begin
+        o_insert_score = i_align_top_score + `CONST_GAP_OPEN;
+    end
+    else begin
+        o_insert_score = i_insert_top_score + `CONST_GAP_EXTEND;
+    end
+    // o_delete_score
+    if ((i_align_left_score + `CONST_GAP_OPEN)<0 && (i_delete_left_score + `CONST_GAP_EXTEND)<0) begin
+        o_delete_score = 0;
+    end
+    else if ((i_align_left_score + `CONST_GAP_OPEN) > (i_delete_left_score + `CONST_GAP_EXTEND)) begin
+        o_delete_score = i_align_left_score + `CONST_GAP_OPEN;
+    end
+    else begin
+        o_delete_score = i_delete_left_score + `CONST_GAP_EXTEND;
+    end
+    // o_the_score
+    if (o_align_score<0 && o_insert_score<0 && o_delete_score<0) begin
+        o_the_score = 0;
+    end
+    else if (o_align_score>=o_insert_score && o_align_score>=o_delete_score) begin
+        o_the_score = o_align_score;
+    end
+    else if (o_insert_score>=o_align_score && o_insert_score>=o_delete_score) begin
+        o_the_score = o_insert_score;
+    end
+    else begin
+        o_the_score = o_delete_score;
+    end
+end
 
-always@(posedge clk or posedge rst) begin
+always_ff @(posedge clk or posedge rst) begin
     if (rst) begin
         o_last_A_base_valid <= 0;
         o_last_A_base       <= 0;
