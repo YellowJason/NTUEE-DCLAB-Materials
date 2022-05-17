@@ -48,8 +48,7 @@ logic rsa_finished;
 logic [255:0] rsa_dec;
 
 parameter read_d_start = 7'd33;
-parameter read_a_start = 7'd65;
-parameter data_counter_end = 7'd96;
+parameter data_counter_end = 7'd64;
 parameter write_data_end = 7'd31;
 
 assign avm_address = avm_address_r;
@@ -58,38 +57,41 @@ assign avm_write = avm_write_r;
 assign avm_writedata = dec_r[247-:8];
 
 // Remember to complete the port connection
+reg [6:0] row, col;
+reg ready, valid;
+reg [9:0] align_s;
 SW_core sw_core(
     .clk				(avm_clk),
     .rst				(avm_rst),
 
-	.o_ready			(),
-    .i_valid			(),
-    .i_sequence_ref		(),
-    .i_sequence_read	(),
-    .i_seq_ref_length	(),
-    .i_seq_read_length	(),
+	.o_ready			(ready),
+    .i_valid			(1'd0),
+    .i_sequence_ref		(256'd0),
+    .i_sequence_read	(256'd0),
+    .i_seq_ref_length	(8'd0),
+    .i_seq_read_length	(8'd0),
     
-    .i_ready			(),
-    .o_valid			(),
-    .o_alignment_score	(),
-    .o_column			(),
-    .o_row				()
+    .i_ready			(1'd0),
+    .o_valid			(valid),
+    .o_alignment_score	(align_s),
+    .o_column			(col),
+    .o_row				(row)
 );
 
 task StartRead;
     input [4:0] addr;
     begin
-        avm_read_w = 1;
-        avm_write_w = 0;
-        avm_address_w = addr;
+        avm_read_nxt = 1;
+        avm_write_nxt = 0;
+        avm_address_nxt = addr;
     end
 endtask
 task StartWrite;
     input [4:0] addr;
     begin
-        avm_read_w = 0;
-        avm_write_w = 1;
-        avm_address_w = addr;
+        avm_read_nxt = 0;
+        avm_write_nxt = 1;
+        avm_address_nxt = addr;
     end
 endtask
 
@@ -118,7 +120,7 @@ always_comb begin
             dec_nxt = dec_r;
             if(!avm_waitrequest) begin
                 StartRead(STATUS_BASE);
-                // read the last byte of a in cycle 96
+                // read the last byte of a in cycle 64
                 if(bytes_counter_r == data_counter_end) begin
                     n_nxt = n_r;
                     d_nxt = d_r;
@@ -129,17 +131,7 @@ always_comb begin
                     // stop reading when calculate
                     avm_read_nxt = 0;
                 end
-                // read a in cycles 65~95
-                else if(bytes_counter_r >= read_a_start) begin
-                    // both n,d are received
-                    n_nxt = n_r;
-                    d_nxt = d_r;
-                    enc_nxt = {enc_r[247:0], avm_readdata[7:0]};
-                    state_nxt = S_QUERY_RX;
-                    bytes_counter_nxt = bytes_counter_r;
-                    rsa_start_nxt = rsa_start_r;
-                end
-                // read d in cycles 33~64
+                // read d in cycles 33~63
                 else if(bytes_counter_r >= read_d_start) begin
                     // n is received, start reading d 
                     n_nxt = n_r;
