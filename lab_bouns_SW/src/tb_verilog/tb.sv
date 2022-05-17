@@ -50,7 +50,7 @@ module tb;
 
 	integer err_cnt;
 	initial begin
-		$fsdbDumpfile("lab2.fsdb");
+		$fsdbDumpfile("lab_bonus.fsdb");
 		$fsdbDumpvars;
 
 		fp_test 	= $fopen("./../cpp/test_data/random_pattern.bin", "rb");
