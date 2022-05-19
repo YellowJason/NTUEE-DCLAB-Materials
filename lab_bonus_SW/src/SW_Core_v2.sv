@@ -92,7 +92,7 @@ module SW_core(
                     .clk                        (clk),
                     .rst                        (rst),
                     ///////////////////////////////////// I/Os //////////////////////////////////////
-                    .i_A_base_valid             ((state == S_calculate) && (counter < seq_A_length)),
+                    .i_A_base_valid             ((state == S_calculate) && (counter <= seq_A_length)),
                     .i_A_base                   (sequence_A_shifter[2*128-1-:2]),
 
                     .i_B_base_valid             (sequence_B_valid[gv]),
@@ -198,6 +198,7 @@ module SW_core(
         case(state)
             S_idle: begin
                 o_ready = 1'b1;
+                counter_n = 9'b0;
                 sequence_A_n = i_sequence_read;
                 sequence_B_n = i_sequence_ref;
                 seq_A_length_n = i_seq_read_length;
@@ -205,15 +206,21 @@ module SW_core(
             end
             S_input: begin
                 o_ready = 1'b1;
+                counter_n = counter + 1'b1;
+                sequence_A_shifter_n = sequence_A_n;
+                for (i=0;i<128;i=i+1) sequence_B_valid_n[i] = 1'b1;
             end
             S_calculate: begin
-                o_ready = 1'b0;       
+                o_ready = 1'b0;
+                counter_n = counter + 1'b1;
+                sequence_A_shifter_n = {sequence_A_shifter_n[2*128-3:0], 2'b00};
             end
             S_select_highest: begin
                 o_ready = 1'b0;
             end
             S_done: begin
                 o_ready = 1'b0;
+                for (i=0;i<128;i=i+1) sequence_B_valid_n[i] = 1'b0;
             end
         endcase
     end
@@ -320,7 +327,7 @@ always_comb begin
         o_align_score = i_align_diagonal_score + `CONST_MATCH_SCORE;
     end
     else begin
-        o_align_score = i_align_diagonal_score + `CONST_MISMATCH_SCORE
+        o_align_score = i_align_diagonal_score + `CONST_MISMATCH_SCORE;
     end
     // o_insert_score
     if ((i_align_top_score + `CONST_GAP_OPEN)<0 && (i_insert_top_score + `CONST_GAP_EXTEND)<0) begin
