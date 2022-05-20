@@ -120,11 +120,11 @@ always_comb begin
             dec_nxt = dec_r;
             if(!avm_waitrequest) begin
                 StartRead(STATUS_BASE);
-                // read the last byte of a in cycle 64
+                // read the last byte of d in cycle 64
                 if(bytes_counter_r == data_counter_end) begin
                     n_nxt = n_r;
-                    d_nxt = d_r;
-                    enc_nxt = {enc_r[247:0], avm_readdata[7:0]};
+                    d_nxt = {d_r[247:0], avm_readdata[7:0]};
+                    enc_nxt = enc_r;
                     state_nxt = S_WAIT_CALCULATE;
                     bytes_counter_nxt = 0;
                     rsa_start_nxt = 1'b1;
