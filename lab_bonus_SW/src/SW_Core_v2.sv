@@ -209,7 +209,6 @@ module SW_core(
                 column_n = 0;
 
                 for (i=0;i<128;i=i+1) begin
-                    PE_score_buff_n[i]       = 0;
                     row_highest_scores_n[i]  = 0;
                     row_highest_columns_n[i] = 0;
                     PE_align_score_d_n  [i]  = 0;
