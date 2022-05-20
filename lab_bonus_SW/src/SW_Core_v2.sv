@@ -199,10 +199,10 @@ module SW_core(
             S_idle: begin
                 o_ready = 1'b1;
                 counter_n = 9'b0;
-                sequence_A_n = i_sequence_read;
-                sequence_B_n = i_sequence_ref;
-                seq_A_length_n = i_seq_read_length;
-                seq_B_length_n = i_seq_ref_length;
+                sequence_B_n = i_sequence_read;
+                sequence_A_n = i_sequence_ref;
+                seq_B_length_n = i_seq_read_length;
+                seq_A_length_n = i_seq_ref_length;
                 // reset output
                 highest_score_n = MOST_NEGATIVE;
                 row_n = 0;
@@ -232,7 +232,7 @@ module SW_core(
                 sequence_A_shifter_n = {sequence_A_shifter_n[2*128-3:0], 2'b00};
                 // update matrix
                 for (i=0;i<128;i=i+1) begin
-                    PE_align_score_d_n [i] = PE_align_score [i];
+                    PE_align_score_d_n [i] = PE_score_buff_n[i];
                     PE_insert_score_d_n[i] = PE_insert_score[i];
                     PE_delete_score_d_n[i] = PE_delete_score[i];
                     // update highest
@@ -256,6 +256,7 @@ module SW_core(
                 for (i=0;i<128;i=i+1) sequence_B_valid_n[i] = 1'b0;
                 if (i_ready) begin
                     o_valid_n = 1'b1;
+                    // output should reverse, but I don't know the reason
                     o_row_n = row;
                     o_column_n = column;
                 end
@@ -365,6 +366,7 @@ always_comb begin
         o_align_score = i_align_left_score;
         o_insert_score = i_insert_left_score;
         o_delete_score = i_delete_left_score;
+        o_the_score = i_align_left_score;
     end
     // active
     else begin
