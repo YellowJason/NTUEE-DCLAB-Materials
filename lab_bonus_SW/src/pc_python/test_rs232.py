@@ -52,16 +52,16 @@ for i in range(0, len(pat), 64):
         count = count + 1    
     
     print ('*Golden*')
-    print ('Score: \t' + lines[(i/64)*3+1]),
-    print ("Row: \t" + lines[(i/64)*3+2]),
-    print ("Column: " + lines[(i/64)*3+3])
+    print ('Score: \t' + lines[int(i/64)*3+1]),
+    print ("Row: \t" + lines[int(i/64)*3+2]),
+    print ("Column: " + lines[int(i/64)*3+3])
     
     print ('*Output*')
     print ('Score: \t' + str(score))
     print ("Row: \t" + str(row))
     print ("Column: " + str(column))
     
-    if (int(lines[(i/64)*3+1]) != score or int(lines[(i/64)*3+2]) != row or int(lines[(i/64)*3+3]) != column):
+    if (int(lines[int(i/64)*3+1]) != score or int(lines[int(i/64)*3+2]) != row or int(lines[int(i/64)*3+3]) != column):
         err_count = err_count + 1
         print('error')
     else:
