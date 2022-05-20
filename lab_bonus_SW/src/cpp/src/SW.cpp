@@ -158,6 +158,13 @@ smith_waterman(
         
     } // end of dynamic programming
 
+    // print matrix
+    for (int i=0; i<haplotype.length(); ++i) {
+        for (int j=0; j<reference.length(); ++j) {
+            std::cout << align_scores[i][j] << " ";
+        }
+        std::cout << std::endl;
+    }
     score_row = highest_row;
     score_col = highest_col;    
     ////////////////////// back trace //////////////////////
