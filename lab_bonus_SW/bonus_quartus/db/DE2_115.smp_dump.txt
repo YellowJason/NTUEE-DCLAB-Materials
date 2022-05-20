@@ -1,0 +1,16 @@
+
+State Machine - |DE2_115|sw_qsys:my_qsys|SW_Wrapper:sw_wrapper_0|state_r
+Name state_r.S_QUERY_TX state_r.S_WAIT_CALCULATE state_r.S_READ state_r.S_QUERY_RX state_r.S_SEND_DATA 
+state_r.S_QUERY_RX 0 0 0 0 0 
+state_r.S_READ 0 0 1 1 0 
+state_r.S_WAIT_CALCULATE 0 1 0 1 0 
+state_r.S_QUERY_TX 1 0 0 1 0 
+state_r.S_SEND_DATA 0 0 0 1 1 
+
+State Machine - |DE2_115|sw_qsys:my_qsys|SW_Wrapper:sw_wrapper_0|SW_core:sw_core|state
+Name state.S_select_highest state.S_calculate state.S_input state.S_idle state.S_done 
+state.S_idle 0 0 0 0 0 
+state.S_input 0 0 1 1 0 
+state.S_calculate 0 1 0 1 0 
+state.S_select_highest 1 0 0 1 0 
+state.S_done 0 0 0 1 1 
