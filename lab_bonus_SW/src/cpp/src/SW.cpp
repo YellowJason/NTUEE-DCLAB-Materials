@@ -158,6 +158,13 @@ smith_waterman(
         
     } // end of dynamic programming
 
+    // print matrix
+    for (int i=0; i<haplotype.length(); ++i) {
+        for (int j=0; j<reference.length(); ++j) {
+            std::cout << align_scores[i][j] << " ";
+        }
+        std::cout << std::endl;
+    }
     score_row = highest_row;
     score_col = highest_col;    
     ////////////////////// back trace //////////////////////
@@ -173,8 +180,8 @@ smith_waterman(
     {
         reference_base = reference[highest_col];
         haplotype_base = haplotype[highest_row];
-
-        // printf("last_direction = %d\t", last_direction);
+        // std::cout<<"last_direction"<<last_direction<<"\n";
+        //printf("last_direction = %d\t", last_direction); //=============================
 
 
         if (last_direction == 2) // align
@@ -318,8 +325,8 @@ smith_waterman(
 
             deletion_not_pushed = 1;
         }
-
-        // printf("(row, col) = (%d, %d)\n", highest_row, highest_col);
+        // std::cout<<"(row,col)=("<<highest_row<<","<<highest_col<<")"<<"\n";
+        //printf("(row, col) = (%d, %d)\n", highest_row, highest_col); //==================
 
         // terminate while loop
         if (last_direction==0 || highest_row<0 || highest_col<0)
