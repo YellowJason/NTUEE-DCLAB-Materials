@@ -173,14 +173,14 @@ smith_waterman(
     {
         reference_base = reference[highest_col];
         haplotype_base = haplotype[highest_row];
-
-        // printf("last_direction = %d\t", last_direction);
+        // std::cout<<"last_direction"<<last_direction<<"\n";
+        //printf("last_direction = %d\t", last_direction); //=============================
 
 
         if (last_direction == 2) // align
         {
             
-            // std::cout << "local address " << highest_row << " (ref, alt) = (" << reference_base << ", " << haplotype_base << ")\n";
+            std::cout << "local address " << highest_row << " (ref, alt) = (" << reference_base << ", " << haplotype_base << ")\n";
             if (reference_base != haplotype_base)
             {
                 // convert char to string
@@ -318,8 +318,8 @@ smith_waterman(
 
             deletion_not_pushed = 1;
         }
-
-        // printf("(row, col) = (%d, %d)\n", highest_row, highest_col);
+        // std::cout<<"(row,col)=("<<highest_row<<","<<highest_col<<")"<<"\n";
+        //printf("(row, col) = (%d, %d)\n", highest_row, highest_col); //==================
 
         // terminate while loop
         if (last_direction==0 || highest_row<0 || highest_col<0)
