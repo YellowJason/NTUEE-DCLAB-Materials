@@ -180,7 +180,7 @@ smith_waterman(
         if (last_direction == 2) // align
         {
             
-            std::cout << "local address " << highest_row << " (ref, alt) = (" << reference_base << ", " << haplotype_base << ")\n";
+            // std::cout << "local address " << highest_row << " (ref, alt) = (" << reference_base << ", " << haplotype_base << ")\n";
             if (reference_base != haplotype_base)
             {
                 // convert char to string
