@@ -31,37 +31,37 @@ localparam TX_OK_BIT   = 6;
 localparam RX_OK_BIT   = 7;
 
 // Feel free to design your own FSM!
-localparam S_QUERY_RX = 3'b000;
-localparam S_READ = 3'b001;
+localparam S_QUERY_RX       = 3'b000;
+localparam S_READ           = 3'b001;
 localparam S_WAIT_CALCULATE = 3'b010;
-localparam S_QUERY_TX = 3'b011;
-localparam S_SEND_DATA = 3'b100;
+localparam S_QUERY_TX       = 3'b011;
+localparam S_SEND_DATA      = 3'b100;
 
-logic [255:0] seq_ref_r, seq_ref_nxt, seq_read_r, seq_read_nxt, dec_r, dec_nxt;
-logic [2:0] state_r, state_nxt;
-logic [6:0] bytes_counter_r, bytes_counter_nxt;
-logic [4:0] avm_address_r, avm_address_nxt;
-logic avm_read_r, avm_read_nxt, avm_write_r, avm_write_nxt;
+logic [255:0] seq_ref_r, seq_ref_nxt, seq_read_r, seq_read_nxt, result_r, result_nxt;
+logic [  2:0] state_r, state_nxt;
+logic [  6:0] bytes_counter_r, bytes_counter_nxt;
+logic [  4:0] avm_address_r, avm_address_nxt;
+logic         avm_read_r, avm_read_nxt, avm_write_r, avm_write_nxt;
 
-logic rsa_start_r, rsa_start_nxt;
-logic rsa_finished;
+logic         rsa_start_r, rsa_start_nxt;
+logic         rsa_finished;
 logic [255:0] rsa_dec;
 
 parameter read_seq_read_start = 7'd33;
-parameter data_counter_end = 7'd64;
-parameter write_data_end = 7'd31;
+parameter data_counter_end    = 7'd64;
+parameter write_data_end      = 7'd31;
 
-assign avm_address = avm_address_r;
-assign avm_read = avm_read_r;
-assign avm_write = avm_write_r;
-assign avm_writedata = dec_r[247-:8];
+assign avm_address   = avm_address_r;
+assign avm_read      = avm_read_r;
+assign avm_write     = avm_write_r;
+assign avm_writedata = result_r[247-:8];
 
 // Remember to complete the port connection
+logic       ready, valid;
 logic [6:0] row, col;
-logic ready, valid;
 logic [9:0] align_s;
 logic [7:0] seq_ref_len, seq_read_len;
-assign seq_ref_len = 8'd128;
+assign seq_ref_len  = 8'd128;
 assign seq_read_len = 8'd128;
 SW_core sw_core(
     .clk				(avm_clk),
@@ -105,7 +105,7 @@ always_comb begin
         S_QUERY_RX:begin
             seq_ref_nxt = seq_ref_r;
             seq_read_nxt = seq_read_r;
-            dec_nxt = dec_r;
+            result_nxt = result_r;
             rsa_start_nxt = rsa_start_r;
             if((!avm_waitrequest) && avm_readdata[RX_OK_BIT]) begin
                 StartRead(RX_BASE);
@@ -119,10 +119,10 @@ always_comb begin
             end
         end
         S_READ:begin
-            dec_nxt = dec_r;
+            result_nxt = result_r;
             if(!avm_waitrequest) begin
                 StartRead(STATUS_BASE);
-                // read the last byte of d in cycle 64
+                // read the last byte of seq_read in cycle 64
                 if(bytes_counter_r == data_counter_end) begin
                     seq_ref_nxt = seq_ref_r;
                     seq_read_nxt = {seq_read_r[247:0], avm_readdata[7:0]};
@@ -132,16 +132,16 @@ always_comb begin
                     // stop reading when calculate
                     avm_read_nxt = 0;
                 end
-                // read d in cycles 33~63
+                // read seq_read in cycles 33~63
                 else if(bytes_counter_r >= read_seq_read_start) begin
-                    // n is received, start reading d 
+                    // seq_ref is received, start reading seq_read
                     seq_ref_nxt = seq_ref_r;
                     seq_read_nxt = {seq_read_r[247:0], avm_readdata[7:0]};
                     state_nxt = S_QUERY_RX;
                     bytes_counter_nxt = bytes_counter_r;
                     rsa_start_nxt = rsa_start_r;
                 end
-                // read n in cycles 1~32
+                // read seq_ref in cycles 1~32
                 else begin
                     seq_ref_nxt = {seq_ref_r[247:0], avm_readdata[7:0]};
                     seq_read_nxt = seq_read_r;
@@ -164,7 +164,7 @@ always_comb begin
         S_WAIT_CALCULATE:begin
             seq_ref_nxt = seq_ref_r;
             seq_read_nxt = seq_read_r;
-            dec_nxt = rsa_dec;
+            result_nxt = {8'b0, 56'b0, {57'b0, col}, {57'b0, row}, {54'b0, align_s}}; //{8'b0, 56'bNULL, 64'bCOL, 64'bROW, 64'bSCORE}
             state_nxt = rsa_finished ? S_QUERY_TX : S_WAIT_CALCULATE;
             bytes_counter_nxt = bytes_counter_r;
             rsa_start_nxt = 1'b0;
@@ -175,7 +175,7 @@ always_comb begin
         S_QUERY_TX:begin
             seq_ref_nxt = seq_ref_r;
             seq_read_nxt = seq_read_r;
-            dec_nxt = dec_r;
+            result_nxt = result_r;
             rsa_start_nxt = rsa_start_r;
             if((!avm_waitrequest) && avm_readdata[TX_OK_BIT]) begin
                 StartWrite(TX_BASE);
@@ -192,10 +192,10 @@ always_comb begin
             if(!avm_waitrequest) begin
                 StartRead(STATUS_BASE);
                 if(bytes_counter_r == write_data_end) begin
-                    // all bytes of dec data are transmitted
+                    // all bytes of result data are transmitted
                     seq_ref_nxt = seq_ref_r;
                     seq_read_nxt = seq_read_r;
-                    dec_nxt = dec_r;
+                    result_nxt = result_r;
                     state_nxt = S_QUERY_RX;
                     bytes_counter_nxt = 64;
                     rsa_start_nxt = 0;
@@ -203,7 +203,7 @@ always_comb begin
                 else begin
                     seq_ref_nxt = seq_ref_r;
                     seq_read_nxt = seq_read_r;
-                    dec_nxt = {dec_r[247:0], dec_r[255:248]};
+                    result_nxt = {result_r[247:0], result_r[255:248]};
                     state_nxt = S_QUERY_TX;
                     bytes_counter_nxt = bytes_counter_r;
                     rsa_start_nxt = rsa_start_r;
@@ -212,7 +212,7 @@ always_comb begin
             else begin
                 seq_ref_nxt = seq_ref_r;
                 seq_read_nxt = seq_read_r;
-                dec_nxt = dec_r;
+                result_nxt = result_r;
                 state_nxt = state_r;
                 bytes_counter_nxt = bytes_counter_r;
                 rsa_start_nxt = rsa_start_r;
@@ -224,7 +224,7 @@ always_comb begin
         default:begin
             seq_ref_nxt = seq_ref_r;
             seq_read_nxt = seq_read_r;
-            dec_nxt = dec_r;
+            result_nxt = result_r;
             state_nxt = state_r;
             bytes_counter_nxt = bytes_counter_r;
             rsa_start_nxt = rsa_start_r;
@@ -240,7 +240,7 @@ always_ff @(posedge avm_clk or posedge avm_rst) begin
     if (avm_rst) begin
     	seq_ref_r <= 0;
         seq_read_r <= 0;
-        dec_r <= 0;
+        result_r <= 0;
         state_r <= S_QUERY_RX;
         bytes_counter_r <= 0;
         rsa_start_r <= 0;
@@ -252,7 +252,7 @@ always_ff @(posedge avm_clk or posedge avm_rst) begin
 	else begin
     	seq_ref_r <= seq_ref_nxt;
         seq_read_r <= seq_read_nxt;
-        dec_r <= dec_nxt;
+        result_r <= result_nxt;
         state_r <= state_nxt;
         bytes_counter_r <= bytes_counter_nxt;
         rsa_start_r <= rsa_start_nxt;
