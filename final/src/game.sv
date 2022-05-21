@@ -131,7 +131,7 @@ always_comb begin
             else if (shape+1 == 3'd4) {o_vga_r, o_vga_g, o_vga_b} = {8'd20,  8'd255, 8'd255};
             else if (shape+1 == 3'd5) {o_vga_r, o_vga_g, o_vga_b} = {8'd255, 8'd20,  8'd255};
             else if (shape+1 == 3'd6) {o_vga_r, o_vga_g, o_vga_b} = {8'd255, 8'd255, 8'd20 };
-            else {o_vga_r, o_vga_g, o_vga_b} = {8'd230, 8'd230, 8'd230};
+            else {o_vga_r, o_vga_g, o_vga_b} = {8'd255, 8'd100, 8'd0};
         end
         // lowest position
         else if (in_low) begin
@@ -258,10 +258,10 @@ always_comb begin
             // falling
             if (y_center == y_low) begin
                 state_nxt = S_STAL;
-                blocks_nxt[x_low][y_low] = 3'd3;
-                blocks_nxt[b1_x_low][b1_y_low] = 3'd3;
-                blocks_nxt[b2_x_low][b2_y_low] = 3'd3;
-                blocks_nxt[b3_x_low][b3_y_low] = 3'd3;
+                blocks_nxt[x_low][y_low] = shape+1;
+                blocks_nxt[b1_x_low][b1_y_low] = shape+1;
+                blocks_nxt[b2_x_low][b2_y_low] = shape+1;
+                blocks_nxt[b3_x_low][b3_y_low] = shape+1;
                 // new shape
                 shape_nxt = (shape == 3'd6) ? 3'b0 : (shape + 1);
                 x_center_nxt = 4'd4;
@@ -343,7 +343,7 @@ always_comb begin
         4: {r, g, b} = {8'd20,  8'd255, 8'd255};
         5: {r, g, b} = {8'd255, 8'd20,  8'd255};
         6: {r, g, b} = {8'd255, 8'd255, 8'd20 };
-        7: {r, g, b} = {8'd200, 8'd200, 8'd200};
+        7: {r, g, b} = {8'd255, 8'd100, 8'd0  };
     endcase
 end
 
