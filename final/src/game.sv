@@ -14,7 +14,7 @@ parameter S_WAIT = 3'b000; // Wait key action
 parameter S_EVAL = 3'b001; // evaluate if the key is workable
 parameter S_STAL = 3'b010; // stall a little time after update
 parameter S_END  = 3'b011; // evaluate if the block reach bottom
-parameter S_ROTA = 3'b100; // evaluate if rotateable
+parameter S_DELE = 3'b100; // delete full rows
 logic [2:0] state, state_nxt;
 
 // output buffer
@@ -55,6 +55,9 @@ logic [24:0] counter_update, counter_update_nxt;
 
 // stall counter
 logic [22:0] counter_stall, counter_stall_nxt;
+
+// row delete counter
+logic [4:0] counter_delete, counter_delete_nxt;
 
 // the moving shape
 logic [3:0] x_center, x_center_nxt;
@@ -177,9 +180,10 @@ always_comb begin
             blocks_nxt[i][j] = blocks[i][j];
         end
     end
-    counter_update_nxt = counter_update + 1;
     state_nxt = state;
+    counter_update_nxt = counter_update + 1;
     counter_stall_nxt = counter_stall;
+    counter_delete_nxt = 5'b0;
     shape_nxt = shape;
     dirc_nxt = dirc;
     x_center_nxt = x_center;
@@ -264,17 +268,11 @@ always_comb begin
         S_END: begin
             // falling
             if (y_center == y_low) begin
-                state_nxt = S_STAL;
+                state_nxt = S_DELE;
                 blocks_nxt[x_center][y_low] = shape+1;
                 blocks_nxt[b1_x_low][b1_y_low] = shape+1;
                 blocks_nxt[b2_x_low][b2_y_low] = shape+1;
                 blocks_nxt[b3_x_low][b3_y_low] = shape+1;
-                // new shape
-                shape_nxt = (shape == 3'd6) ? 3'b0 : (shape + 1);
-                dirc_nxt = 2'b0;
-                x_center_nxt = 4'd4;
-                y_center_nxt = 5'b0;
-                y_low_nxt = 5'b0;
             end
             else begin
                 state_nxt = S_WAIT;
@@ -283,6 +281,48 @@ always_comb begin
                 y_low_nxt = y_low;
             end
             counter_stall_nxt = 23'b0;
+        end
+        S_DELE: begin
+            if (counter_delete == 5'd19) begin
+                // new shape
+                state_nxt = S_STAL;
+                counter_delete_nxt = 5'd0;
+                if((blocks[0][counter_delete] != 0) && (blocks[1][counter_delete] != 0) &&
+                   (blocks[2][counter_delete] != 0) && (blocks[3][counter_delete] != 0) &&
+                   (blocks[4][counter_delete] != 0) && (blocks[5][counter_delete] != 0) && 
+                   (blocks[6][counter_delete] != 0) && (blocks[7][counter_delete] != 0) &&
+                   (blocks[8][counter_delete] != 0) && (blocks[9][counter_delete] != 0)) begin
+                    for (i=0; i<10; i++) begin
+                        for (j=0; j<20; j++) begin
+                            if (j == 0) blocks_nxt[i][j] = 3'b0;
+                            else if (j <= counter_delete) blocks_nxt[i][j] = blocks[i][j-1];
+                            else blocks_nxt[i][j] = blocks[i][j];
+                        end
+                    end
+                end
+                shape_nxt = (shape == 3'd6) ? 3'b0 : (shape + 1);
+                dirc_nxt = 2'b0;
+                x_center_nxt = 4'd4;
+                y_center_nxt = 5'b0;
+                y_low_nxt = 5'b0;
+            end
+            else begin
+                state_nxt = S_DELE;
+                counter_delete_nxt = counter_delete + 1;
+                if((blocks[0][counter_delete] != 0) && (blocks[1][counter_delete] != 0) &&
+                   (blocks[2][counter_delete] != 0) && (blocks[3][counter_delete] != 0) &&
+                   (blocks[4][counter_delete] != 0) && (blocks[5][counter_delete] != 0) && 
+                   (blocks[6][counter_delete] != 0) && (blocks[7][counter_delete] != 0) &&
+                   (blocks[8][counter_delete] != 0) && (blocks[9][counter_delete] != 0)) begin
+                    for (i=0; i<10; i++) begin
+                        for (j=0; j<20; j++) begin
+                            if (j == 0) blocks_nxt[i][j] = 3'b0;
+                            else if (j <= counter_delete) blocks_nxt[i][j] = blocks[i][j-1];
+                            else blocks_nxt[i][j] = blocks[i][j];
+                        end
+                    end
+                end
+            end
         end
         default: begin
             for (i=0; i<10; i++) begin
@@ -321,6 +361,7 @@ always_ff @(posedge i_clk or negedge i_rst_n) begin
         state <= S_STAL;
         counter_update <= 25'b0;
         counter_stall <= 23'b0;
+        counter_delete <= 5'b0;
         shape <= 3'b0;
         dirc <= 2'b0;
         x_center <= 4'd4;
@@ -339,6 +380,7 @@ always_ff @(posedge i_clk or negedge i_rst_n) begin
         state <= state_nxt;
         counter_update <= counter_update_nxt;
         counter_stall <= counter_stall_nxt;
+        counter_delete <= counter_delete_nxt;
         shape <= shape_nxt;
         dirc <= dirc_nxt;
         x_center <= x_center_nxt;
