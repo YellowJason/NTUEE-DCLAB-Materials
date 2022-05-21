@@ -16,6 +16,12 @@ parameter S_STAL = 2'b10; // stall a little time after update
 parameter S_END  = 2'b11; // evaluate if the block reach bottom
 logic [1:0] state, state_nxt;
 
+// output buffer
+logic [7:0] vga_r, vga_r_n, vga_g, vga_g_n, vga_b, vga_b_n;
+assign o_vga_r = vga_r;
+assign o_vga_g = vga_g;
+assign o_vga_b = vga_b;
+
 // keyboard in
 parameter up = 8'h75;
 parameter down = 8'h72;
@@ -116,40 +122,37 @@ always_comb begin
     if ((x >= 9'd220) && (x <= 9'd420) && (y >= 9'd40) && (y <= 9'd440)) begin
         // block boundary
         if (((x-220)%20 == 0) || ((y-40)%20 == 0)) begin
-            o_vga_r = 8'd255;
-            o_vga_g = 8'd255;
-            o_vga_b = 8'd255;
+            vga_r_n = 8'd255;
+            vga_g_n = 8'd255;
+            vga_b_n = 8'd255;
         end
         // moving shape
         else if (in_shape) begin
-            // o_vga_r = 8'd255;
-            // o_vga_g = 8'd255;
-            // o_vga_b = 8'd0;
-            if (shape+1 == 3'd1) {o_vga_r, o_vga_g, o_vga_b} = {8'd255, 8'd20,  8'd20 };
-            else if (shape+1 == 3'd2) {o_vga_r, o_vga_g, o_vga_b} = {8'd20,  8'd255, 8'd20 };
-            else if (shape+1 == 3'd3) {o_vga_r, o_vga_g, o_vga_b} = {8'd20,  8'd20,  8'd255};
-            else if (shape+1 == 3'd4) {o_vga_r, o_vga_g, o_vga_b} = {8'd20,  8'd255, 8'd255};
-            else if (shape+1 == 3'd5) {o_vga_r, o_vga_g, o_vga_b} = {8'd255, 8'd20,  8'd255};
-            else if (shape+1 == 3'd6) {o_vga_r, o_vga_g, o_vga_b} = {8'd255, 8'd255, 8'd20 };
-            else {o_vga_r, o_vga_g, o_vga_b} = {8'd255, 8'd100, 8'd0};
+            if (shape+1 == 3'd1) {vga_r_n, vga_g_n, vga_b_n} = {8'd255, 8'd20,  8'd20 };
+            else if (shape+1 == 3'd2) {vga_r_n, vga_g_n, vga_b_n} = {8'd20,  8'd255, 8'd20 };
+            else if (shape+1 == 3'd3) {vga_r_n, vga_g_n, vga_b_n} = {8'd20,  8'd20,  8'd255};
+            else if (shape+1 == 3'd4) {vga_r_n, vga_g_n, vga_b_n} = {8'd20,  8'd255, 8'd255};
+            else if (shape+1 == 3'd5) {vga_r_n, vga_g_n, vga_b_n} = {8'd255, 8'd20,  8'd255};
+            else if (shape+1 == 3'd6) {vga_r_n, vga_g_n, vga_b_n} = {8'd255, 8'd255, 8'd20 };
+            else {vga_r_n, vga_g_n, vga_b_n} = {8'd255, 8'd100, 8'd0};
         end
         // lowest position
         else if (in_low) begin
-            o_vga_r = 8'd180;
-            o_vga_g = 8'd180;
-            o_vga_b = 8'd180;
+            vga_r_n = 8'd180;
+            vga_g_n = 8'd180;
+            vga_b_n = 8'd180;
         end
         // blocks
         else begin
-            o_vga_r = r_dec;
-            o_vga_g = g_dec;
-            o_vga_b = b_dec;
+            vga_r_n = r_dec;
+            vga_g_n = g_dec;
+            vga_b_n = b_dec;
         end
     end
     else begin
-        o_vga_r = 8'd20;
-        o_vga_g = 8'd20;
-        o_vga_b = 8'd20;
+        vga_r_n = 8'd20;
+        vga_g_n = 8'd20;
+        vga_b_n = 8'd20;
     end
 end
 
@@ -264,10 +267,11 @@ always_comb begin
                 blocks_nxt[b3_x_low][b3_y_low] = shape+1;
                 // new shape
                 shape_nxt = (shape == 3'd6) ? 3'b0 : (shape + 1);
+                dirc_nxt = 2'b0;
                 x_center_nxt = 4'd4;
-                y_center_nxt = 5'b1;
+                y_center_nxt = 5'b0;
                 x_low_nxt = 4'd4;
-                y_low_nxt = 5'b1;
+                y_low_nxt = 5'b0;
             end
             else begin
                 state_nxt = S_WAIT;
@@ -306,6 +310,9 @@ always_ff @(posedge i_clk or negedge i_rst_n) begin
         y_center <= 5'd1;
         x_low <= 4'd4;
         y_low <= 5'd1;
+        vga_r <= 8'b0;
+        vga_g <= 8'b0;
+        vga_b <= 8'b0;
     end
     else begin
         for (i=0; i<10; i++) begin
@@ -322,6 +329,9 @@ always_ff @(posedge i_clk or negedge i_rst_n) begin
         y_center <= y_center_nxt;
         x_low <= x_low_nxt;
         y_low <= y_low_nxt;
+        vga_r <= vga_r_n;
+        vga_g <= vga_g_n;
+        vga_b <= vga_b_n;
     end
 end
 endmodule
@@ -389,42 +399,43 @@ always_comb begin
         end
 
         1: begin                   
-            case(direction[0])     
-                1:begin // O         
-                        // OO
-                        //  O
-                    b1_x = center_x;
-                    b2_x = center_x+1;
-                    b3_x = center_x+1;
-                    b1_y = center_y-1;
-                    b2_y = center_y;
-                    b3_y = center_y+1;
-                end
+            case(direction[0])
                 0: begin //  OO
                          // OO
                     b1_x = center_x-1;
                     b2_x = center_x;
                     b3_x = center_x+1;
-                    b1_y = center_y;
-                    b2_y = center_y-1;
-                    b3_y = center_y-1;
+                    b1_y = center_y+1;
+                    b2_y = center_y+1;
+                    b3_y = center_y;
+                end
+                1: begin // O         
+                         // OO
+                         //  O
+                    b1_x = center_x-1;
+                    b2_x = center_x-1;
+                    b3_x = center_x;
+                    b1_y = center_y-1;
+                    b2_y = center_y;
+                    b3_y = center_y+1;
                 end
             endcase
         end
         
-        2:begin                //O
-            case(direction) //  OOO
-                2: begin
+        2: begin
+            case(direction)
+                0: begin // OOO
+                         //  O
                     b1_x = center_x-1;
                     b2_x = center_x;
                     b3_x = center_x+1;
                     b1_y = center_y;
-                    b2_y = center_y-1;
+                    b2_y = center_y+1;
                     b3_y = center_y;
                 end
-                1:begin //O
-                      // OO
-                        //O
+                1: begin //O
+                       // OO
+                         //O
                     b1_x = center_x-1;
                     b2_x = center_x;
                     b3_x = center_x;
@@ -432,13 +443,13 @@ always_comb begin
                     b2_y = center_y-1;
                     b3_y = center_y+1;
                 end
-                0:begin // OOO
-                        //  O
+                2: begin  //O
+                        // OOO
                     b1_x = center_x-1;
                     b2_x = center_x;
                     b3_x = center_x+1;
                     b1_y = center_y;
-                    b2_y = center_y+1;
+                    b2_y = center_y-1;
                     b3_y = center_y;
                 end
                 3: begin //O
@@ -454,9 +465,9 @@ always_comb begin
             endcase
         end
         
-        3: begin //OOOO
+        3: begin
             case(direction[0])
-                0:begin
+                0: begin //OOOO
                     b1_x = center_x-1;
                     b2_x = center_x+1;
                     b3_x = center_x+2;
@@ -478,16 +489,8 @@ always_comb begin
             endcase
         end
 
-        4: begin                 //O
-            case(direction)      //O
-                1:begin        // OO
-                    b1_x = center_x-1;
-                    b2_x = center_x;
-                    b3_x = center_x;
-                    b1_y = center_y+1;
-                    b2_y = center_y-1;
-                    b3_y = center_y+1;
-                end
+        4: begin
+            case(direction)
                 0: begin  // OOO
                           //   O
                     b1_x = center_x-1;
@@ -497,17 +500,17 @@ always_comb begin
                     b2_y = center_y;
                     b3_y = center_y+1;
                 end
-                2: begin  //OO
+                1: begin  //O
                           //O
-                          //O
-                    b1_x = center_x;
+                        // OO
+                    b1_x = center_x-1;
                     b2_x = center_x;
-                    b3_x = center_x+1;
-                    b1_y = center_y-1;
-                    b2_y = center_y+1;
-                    b3_y = center_y-1;
+                    b3_x = center_x;
+                    b1_y = center_y+1;
+                    b2_y = center_y-1;
+                    b3_y = center_y+1;
                 end
-                3:begin   //O
+                2: begin  //O
                           //OOO
                     b1_x = center_x-1;
                     b2_x = center_x-1;
@@ -516,31 +519,23 @@ always_comb begin
                     b2_y = center_y;
                     b3_y = center_y;
                 end
+                3: begin  //OO
+                          //O
+                          //O
+                    b1_x = center_x;
+                    b2_x = center_x;
+                    b3_x = center_x+1;
+                    b1_y = center_y-1;
+                    b2_y = center_y+1;
+                    b3_y = center_y-1;
+                end
             endcase
         end
 
-        5:begin                  //O
-            case(direction)   // OOO
-                1:begin
-                    b1_x = center_x-1;
-                    b2_x = center_x+1;
-                    b3_x = center_x+1;
-                    b1_y = center_y;
-                    b2_y = center_y;
-                    b3_y = center_y-1;
-                end
-                0:begin  // OO
-                         //  O
-                         //  O
-                    b1_x = center_x-1;
-                    b2_x = center_x;
-                    b3_x = center_x;
-                    b1_y = center_y-1;
-                    b2_y = center_y-1;
-                    b3_y = center_y+1;
-                end
-                2:begin //OOO
-                        //O
+        5: begin
+            case(direction)
+                0: begin //OOO
+                         //O
                     b1_x = center_x-1;
                     b2_x = center_x-1;
                     b3_x = center_x+1;
@@ -548,9 +543,28 @@ always_comb begin
                     b2_y = center_y+1;
                     b3_y = center_y;
                 end
-                3:begin  //O
-                         //O
-                         //OO
+                1: begin  // OO
+                          //  O
+                          //  O
+                    b1_x = center_x-1;
+                    b2_x = center_x;
+                    b3_x = center_x;
+                    b1_y = center_y-1;
+                    b2_y = center_y-1;
+                    b3_y = center_y+1;
+                end
+                2: begin   //O
+                        // OOO
+                    b1_x = center_x-1;
+                    b2_x = center_x+1;
+                    b3_x = center_x+1;
+                    b1_y = center_y;
+                    b2_y = center_y;
+                    b3_y = center_y-1;
+                end
+                3: begin  //O
+                          //O
+                          //OO
                     b1_x = center_x;
                     b2_x = center_x;
                     b3_x = center_x+1;
@@ -561,8 +575,8 @@ always_comb begin
             endcase
         end
 
-        6:begin   //OO
-                  //OO
+        6: begin   //OO
+                   //OO
             b1_x = center_x;
             b2_x = center_x+1;
             b3_x = center_x+1;
