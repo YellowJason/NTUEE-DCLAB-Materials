@@ -51,10 +51,10 @@ ColorDecoder dec0(
 );
 
 // update counter
-logic [24:0] counter_update, counter_update_nxt;
+logic [23:0] counter_update, counter_update_nxt;
 
 // stall counter
-logic [22:0] counter_stall, counter_stall_nxt;
+logic [21:0] counter_stall, counter_stall_nxt;
 
 // row delete counter
 logic [4:0] counter_delete, counter_delete_nxt;
@@ -192,7 +192,7 @@ always_comb begin
     //
     case(state)
         S_WAIT: begin
-            counter_stall_nxt = 23'b0;
+            counter_stall_nxt = 22'b0;
             y_center_nxt = y_center;
             y_low_nxt = y_low;
             case(i_key)
@@ -228,7 +228,7 @@ always_comb begin
                 end
                 default: begin
                     x_center_nxt = x_center;
-                    state_nxt = (counter_update == ~25'b0) ? S_END : S_WAIT;
+                    state_nxt = (counter_update == ~24'b0) ? S_END : S_WAIT;
                 end
             endcase
         end
@@ -245,7 +245,7 @@ always_comb begin
                 end
             end
             state_nxt = S_STAL;
-            counter_stall_nxt = 23'b0;
+            counter_stall_nxt = 22'b0;
             x_center_nxt = x_center;
             y_center_nxt = y_center;
             // reset the lowest to current position
@@ -258,8 +258,8 @@ always_comb begin
             // calculate the lowest position
             y_low_nxt = (down_valid) ? (y_low + 1) : y_low;
             // stall time
-            if (counter_stall == ~23'b0) begin
-                state_nxt = (counter_update == ~25'b0) ? S_END : S_WAIT;
+            if (counter_stall == ~22'b0) begin
+                state_nxt = (counter_update == ~24'b0) ? S_END : S_WAIT;
             end
             else begin
                 state_nxt = state;
@@ -280,7 +280,7 @@ always_comb begin
                 y_center_nxt = y_center + 1;
                 y_low_nxt = y_low;
             end
-            counter_stall_nxt = 23'b0;
+            counter_stall_nxt = 22'b0;
         end
         S_DELE: begin
             if (counter_delete == 5'd19) begin
@@ -359,8 +359,8 @@ always_ff @(posedge i_clk or negedge i_rst_n) begin
             blocks[9][i] <= 3'd0;
         end
         state <= S_STAL;
-        counter_update <= 25'b0;
-        counter_stall <= 23'b0;
+        counter_update <= 24'b0;
+        counter_stall <= 22'b0;
         counter_delete <= 5'b0;
         shape <= 3'b0;
         dirc <= 2'b0;

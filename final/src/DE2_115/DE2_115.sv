@@ -194,7 +194,7 @@ vga vga0(
 );
 
 Game game0(
-	.i_clk(CLOCK_50),
+	.i_clk(CLK_25M),
     .i_rst_n(KEY[3]),
     .x(x),
     .y(y),
