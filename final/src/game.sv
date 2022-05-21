@@ -10,11 +10,12 @@ module Game(
 );
 
 // states
-parameter S_WAIT = 2'b00; // Wait key action
-parameter S_EVAL = 2'b01; // evaluate if the key is workable
-parameter S_STAL = 2'b10; // stall a little time after update
-parameter S_END  = 2'b11; // evaluate if the block reach bottom
-logic [1:0] state, state_nxt;
+parameter S_WAIT = 3'b000; // Wait key action
+parameter S_EVAL = 3'b001; // evaluate if the key is workable
+parameter S_STAL = 3'b010; // stall a little time after update
+parameter S_END  = 3'b011; // evaluate if the block reach bottom
+parameter S_ROTA = 3'b100; // evaluate if rotateable
+logic [2:0] state, state_nxt;
 
 // output buffer
 logic [7:0] vga_r, vga_r_n, vga_g, vga_g_n, vga_b, vga_b_n;
@@ -83,13 +84,12 @@ assign in_shape = (x_block == x_center && y_block == y_center) ||
                   (x_block == b3_x && y_block == b3_y);
 
 // the lowest position of current shape
-logic [3:0] x_low, x_low_nxt;
 logic [4:0] y_low, y_low_nxt;
 logic [3:0] b1_x_low, b2_x_low, b3_x_low;
 logic [4:0] b1_y_low, b2_y_low, b3_y_low;
 logic down_valid;
 ShapeDecoder shape1(
-    .center_x(x_low),
+    .center_x(x_center),
     .center_y(y_low),
     .shape(shape),
     .direction(dirc),
@@ -104,7 +104,7 @@ ShapeDecoder shape1(
 assign down_valid = (blocks[b1_x_low][b1_y_low+1] == 3'b0) &&
                     (blocks[b2_x_low][b2_y_low+1] == 3'b0) &&
                     (blocks[b3_x_low][b3_y_low+1] == 3'b0) &&
-                    (blocks[x_low][y_low+1] == 3'b0) &&
+                    (blocks[x_center][y_low+1] == 3'b0) &&
                     (b1_y_low+1 <= 5'd19) &&
                     (b2_y_low+1 <= 5'd19) &&
                     (b3_y_low+1 <= 5'd19) &&
@@ -112,7 +112,7 @@ assign down_valid = (blocks[b1_x_low][b1_y_low+1] == 3'b0) &&
 
 // if current coordinate in the moving shape
 logic in_low;
-assign in_low = (x_block == x_low && y_block == y_low) ||
+assign in_low = (x_block == x_center && y_block == y_low) ||
                   (x_block == b1_x_low && y_block == b1_y_low) ||
                   (x_block == b2_x_low && y_block == b2_y_low) ||
                   (x_block == b3_x_low && y_block == b3_y_low);
@@ -178,14 +178,18 @@ always_comb begin
         end
     end
     counter_update_nxt = counter_update + 1;
+    state_nxt = state;
+    counter_stall_nxt = counter_stall;
     shape_nxt = shape;
     dirc_nxt = dirc;
+    x_center_nxt = x_center;
+    y_center_nxt = y_center;
+    y_low_nxt = y_low;
     //
     case(state)
         S_WAIT: begin
             counter_stall_nxt = 23'b0;
             y_center_nxt = y_center;
-            x_low_nxt = x_center;
             y_low_nxt = y_low;
             case(i_key)
                 up: begin
@@ -227,7 +231,9 @@ always_comb begin
         S_EVAL: begin
             if (i_key == up) begin
                 if ((blocks[x_center][y_center] != 3'b0) ||
-                    (blocks[b1_x][b1_y] != 3'b0) || (blocks[b2_x][b2_y] != 3'b0) || (blocks[b3_x][b3_y] != 3'b0)) begin
+                    (blocks[b1_x][b1_y] != 3'b0) || (blocks[b2_x][b2_y] != 3'b0) || (blocks[b3_x][b3_y] != 3'b0) ||
+                    (x_center > 4'd9) || (b1_x > 4'd9) || (b2_x > 4'd9) || (b3_x > 4'd9) ||
+                    (y_center > 5'd19) || (b1_y > 5'd19) || (b2_y > 5'd19) || (b3_y > 5'd19)) begin
                     dirc_nxt = dirc - 1;
                 end
                 else begin
@@ -239,7 +245,6 @@ always_comb begin
             x_center_nxt = x_center;
             y_center_nxt = y_center;
             // reset the lowest to current position
-            x_low_nxt = x_center;
             y_low_nxt = y_center;
         end
         S_STAL: begin
@@ -247,7 +252,6 @@ always_comb begin
             x_center_nxt = x_center;
             y_center_nxt = y_center;
             // calculate the lowest position
-            x_low_nxt = x_center;
             y_low_nxt = (down_valid) ? (y_low + 1) : y_low;
             // stall time
             if (counter_stall == ~23'b0) begin
@@ -261,7 +265,7 @@ always_comb begin
             // falling
             if (y_center == y_low) begin
                 state_nxt = S_STAL;
-                blocks_nxt[x_low][y_low] = shape+1;
+                blocks_nxt[x_center][y_low] = shape+1;
                 blocks_nxt[b1_x_low][b1_y_low] = shape+1;
                 blocks_nxt[b2_x_low][b2_y_low] = shape+1;
                 blocks_nxt[b3_x_low][b3_y_low] = shape+1;
@@ -270,17 +274,30 @@ always_comb begin
                 dirc_nxt = 2'b0;
                 x_center_nxt = 4'd4;
                 y_center_nxt = 5'b0;
-                x_low_nxt = 4'd4;
                 y_low_nxt = 5'b0;
             end
             else begin
                 state_nxt = S_WAIT;
                 x_center_nxt = x_center;
                 y_center_nxt = y_center + 1;
-                x_low_nxt = x_center;
                 y_low_nxt = y_low;
             end
             counter_stall_nxt = 23'b0;
+        end
+        default: begin
+            for (i=0; i<10; i++) begin
+                for (j=0; j<20; j++) begin
+                    blocks_nxt[i][j] = blocks[i][j];
+                end
+            end
+            counter_update_nxt = counter_update + 1;
+            state_nxt = state;
+            counter_stall_nxt = counter_stall;
+            shape_nxt = shape;
+            dirc_nxt = dirc;
+            x_center_nxt = x_center;
+            y_center_nxt = y_center;
+            y_low_nxt = y_low;
         end
     endcase
 end
@@ -308,7 +325,6 @@ always_ff @(posedge i_clk or negedge i_rst_n) begin
         dirc <= 2'b0;
         x_center <= 4'd4;
         y_center <= 5'd1;
-        x_low <= 4'd4;
         y_low <= 5'd1;
         vga_r <= 8'b0;
         vga_g <= 8'b0;
@@ -327,7 +343,6 @@ always_ff @(posedge i_clk or negedge i_rst_n) begin
         dirc <= dirc_nxt;
         x_center <= x_center_nxt;
         y_center <= y_center_nxt;
-        x_low <= x_low_nxt;
         y_low <= y_low_nxt;
         vga_r <= vga_r_n;
         vga_g <= vga_g_n;
