@@ -122,15 +122,22 @@ always_comb begin
         end
         // moving shape
         else if (in_shape) begin
-            o_vga_r = 8'd255;
-            o_vga_g = 8'd255;
-            o_vga_b = 8'd0;
+            // o_vga_r = 8'd255;
+            // o_vga_g = 8'd255;
+            // o_vga_b = 8'd0;
+            if (shape+1 == 3'd1) {o_vga_r, o_vga_g, o_vga_b} = {8'd255, 8'd20,  8'd20 };
+            else if (shape+1 == 3'd2) {o_vga_r, o_vga_g, o_vga_b} = {8'd20,  8'd255, 8'd20 };
+            else if (shape+1 == 3'd3) {o_vga_r, o_vga_g, o_vga_b} = {8'd20,  8'd20,  8'd255};
+            else if (shape+1 == 3'd4) {o_vga_r, o_vga_g, o_vga_b} = {8'd20,  8'd255, 8'd255};
+            else if (shape+1 == 3'd5) {o_vga_r, o_vga_g, o_vga_b} = {8'd255, 8'd20,  8'd255};
+            else if (shape+1 == 3'd6) {o_vga_r, o_vga_g, o_vga_b} = {8'd255, 8'd255, 8'd20 };
+            else {o_vga_r, o_vga_g, o_vga_b} = {8'd230, 8'd230, 8'd230};
         end
         // lowest position
         else if (in_low) begin
-            o_vga_r = 8'd200;
-            o_vga_g = 8'd200;
-            o_vga_b = 8'd200;
+            o_vga_r = 8'd180;
+            o_vga_g = 8'd180;
+            o_vga_b = 8'd180;
         end
         // blocks
         else begin
@@ -336,7 +343,7 @@ always_comb begin
         4: {r, g, b} = {8'd20,  8'd255, 8'd255};
         5: {r, g, b} = {8'd255, 8'd20,  8'd255};
         6: {r, g, b} = {8'd255, 8'd255, 8'd20 };
-        7: {r, g, b} = {8'd255, 8'd255, 8'd255}; 
+        7: {r, g, b} = {8'd200, 8'd200, 8'd200};
     endcase
 end
 
