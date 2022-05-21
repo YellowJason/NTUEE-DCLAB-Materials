@@ -389,42 +389,43 @@ always_comb begin
         end
 
         1: begin                   
-            case(direction[0])     
-                1:begin // O         
-                        // OO
-                        //  O
-                    b1_x = center_x;
-                    b2_x = center_x+1;
-                    b3_x = center_x+1;
-                    b1_y = center_y-1;
-                    b2_y = center_y;
-                    b3_y = center_y+1;
-                end
+            case(direction[0])
                 0: begin //  OO
                          // OO
                     b1_x = center_x-1;
                     b2_x = center_x;
                     b3_x = center_x+1;
-                    b1_y = center_y;
-                    b2_y = center_y-1;
-                    b3_y = center_y-1;
+                    b1_y = center_y+1;
+                    b2_y = center_y+1;
+                    b3_y = center_y;
+                end
+                1: begin // O         
+                         // OO
+                         //  O
+                    b1_x = center_x-1;
+                    b2_x = center_x-1;
+                    b3_x = center_x;
+                    b1_y = center_y-1;
+                    b2_y = center_y;
+                    b3_y = center_y+1;
                 end
             endcase
         end
         
-        2:begin                //O
-            case(direction) //  OOO
-                2: begin
+        2: begin
+            case(direction)
+                0: begin // OOO
+                         //  O
                     b1_x = center_x-1;
                     b2_x = center_x;
                     b3_x = center_x+1;
                     b1_y = center_y;
-                    b2_y = center_y-1;
+                    b2_y = center_y+1;
                     b3_y = center_y;
                 end
-                1:begin //O
-                      // OO
-                        //O
+                1: begin //O
+                       // OO
+                         //O
                     b1_x = center_x-1;
                     b2_x = center_x;
                     b3_x = center_x;
@@ -432,13 +433,13 @@ always_comb begin
                     b2_y = center_y-1;
                     b3_y = center_y+1;
                 end
-                0:begin // OOO
-                        //  O
+                2: begin  //O
+                        // OOO
                     b1_x = center_x-1;
                     b2_x = center_x;
                     b3_x = center_x+1;
                     b1_y = center_y;
-                    b2_y = center_y+1;
+                    b2_y = center_y-1;
                     b3_y = center_y;
                 end
                 3: begin //O
@@ -454,9 +455,9 @@ always_comb begin
             endcase
         end
         
-        3: begin //OOOO
+        3: begin
             case(direction[0])
-                0:begin
+                0: begin //OOOO
                     b1_x = center_x-1;
                     b2_x = center_x+1;
                     b3_x = center_x+2;
@@ -478,16 +479,8 @@ always_comb begin
             endcase
         end
 
-        4: begin                 //O
-            case(direction)      //O
-                1:begin        // OO
-                    b1_x = center_x-1;
-                    b2_x = center_x;
-                    b3_x = center_x;
-                    b1_y = center_y+1;
-                    b2_y = center_y-1;
-                    b3_y = center_y+1;
-                end
+        4: begin
+            case(direction)
                 0: begin  // OOO
                           //   O
                     b1_x = center_x-1;
@@ -497,17 +490,17 @@ always_comb begin
                     b2_y = center_y;
                     b3_y = center_y+1;
                 end
-                2: begin  //OO
+                1: begin  //O
                           //O
-                          //O
-                    b1_x = center_x;
+                        // OO
+                    b1_x = center_x-1;
                     b2_x = center_x;
-                    b3_x = center_x+1;
-                    b1_y = center_y-1;
-                    b2_y = center_y+1;
-                    b3_y = center_y-1;
+                    b3_x = center_x;
+                    b1_y = center_y+1;
+                    b2_y = center_y-1;
+                    b3_y = center_y+1;
                 end
-                3:begin   //O
+                2: begin  //O
                           //OOO
                     b1_x = center_x-1;
                     b2_x = center_x-1;
@@ -516,31 +509,23 @@ always_comb begin
                     b2_y = center_y;
                     b3_y = center_y;
                 end
+                3: begin  //OO
+                          //O
+                          //O
+                    b1_x = center_x;
+                    b2_x = center_x;
+                    b3_x = center_x+1;
+                    b1_y = center_y-1;
+                    b2_y = center_y+1;
+                    b3_y = center_y-1;
+                end
             endcase
         end
 
-        5:begin                  //O
-            case(direction)   // OOO
-                1:begin
-                    b1_x = center_x-1;
-                    b2_x = center_x+1;
-                    b3_x = center_x+1;
-                    b1_y = center_y;
-                    b2_y = center_y;
-                    b3_y = center_y-1;
-                end
-                0:begin  // OO
-                         //  O
-                         //  O
-                    b1_x = center_x-1;
-                    b2_x = center_x;
-                    b3_x = center_x;
-                    b1_y = center_y-1;
-                    b2_y = center_y-1;
-                    b3_y = center_y+1;
-                end
-                2:begin //OOO
-                        //O
+        5: begin
+            case(direction)
+                0: begin //OOO
+                         //O
                     b1_x = center_x-1;
                     b2_x = center_x-1;
                     b3_x = center_x+1;
@@ -548,9 +533,28 @@ always_comb begin
                     b2_y = center_y+1;
                     b3_y = center_y;
                 end
-                3:begin  //O
-                         //O
-                         //OO
+                1: begin  // OO
+                          //  O
+                          //  O
+                    b1_x = center_x-1;
+                    b2_x = center_x;
+                    b3_x = center_x;
+                    b1_y = center_y-1;
+                    b2_y = center_y-1;
+                    b3_y = center_y+1;
+                end
+                2: begin   //O
+                        // OOO
+                    b1_x = center_x-1;
+                    b2_x = center_x+1;
+                    b3_x = center_x+1;
+                    b1_y = center_y;
+                    b2_y = center_y;
+                    b3_y = center_y-1;
+                end
+                3: begin  //O
+                          //O
+                          //OO
                     b1_x = center_x;
                     b2_x = center_x;
                     b3_x = center_x+1;
@@ -561,8 +565,8 @@ always_comb begin
             endcase
         end
 
-        6:begin   //OO
-                  //OO
+        6: begin   //OO
+                   //OO
             b1_x = center_x;
             b2_x = center_x+1;
             b3_x = center_x+1;
