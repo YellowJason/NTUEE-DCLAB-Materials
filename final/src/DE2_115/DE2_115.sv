@@ -143,19 +143,19 @@ logic [3:0] aaa, bbb, ccc, ddd;
 Debounce deb0(
 	.i_in(KEY[0]),
 	.i_rst_n(KEY[3]),
-	.i_clk(CLK_12M),
+	.i_clk(CLK_25M),
 	.o_neg(key0down) 
 );
 Debounce deb1(
 	.i_in(KEY[1]),
 	.i_rst_n(KEY[3]),
-	.i_clk(CLK_12M),
+	.i_clk(CLK_25M),
 	.o_neg(key1down) 
 );
 Debounce deb2(
 	.i_in(KEY[2]),
 	.i_rst_n(KEY[3]),
-	.i_clk(CLK_12M),
+	.i_clk(CLK_25M),
 	.o_neg(key2down) 
 );
 
@@ -196,6 +196,7 @@ vga vga0(
 Game game0(
 	.i_clk(CLK_25M),
     .i_rst_n(KEY[3]),
+	.i_start(key0down),
     .x(x),
     .y(y),
 	.i_key(keyboard_down),

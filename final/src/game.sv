@@ -1,6 +1,7 @@
 module Game(
     input i_clk,
     input i_rst_n,
+    input i_start,
     input [9:0] x,
     input [9:0] y,
     input [7:0] i_key,
@@ -9,12 +10,16 @@ module Game(
     output [7:0] o_vga_b
 );
 
+integer i;
+integer j;
+
 // states
 parameter S_WAIT = 3'b000; // Wait key action
 parameter S_EVAL = 3'b001; // evaluate if the key is workable
 parameter S_STAL = 3'b010; // stall a little time after update
 parameter S_END  = 3'b011; // evaluate if the block reach bottom
 parameter S_DELE = 3'b100; // delete full rows
+parameter S_IDLE = 3'b101; // state before start
 logic [2:0] state, state_nxt;
 
 // output buffer
@@ -191,6 +196,28 @@ always_comb begin
     y_low_nxt = y_low;
     //
     case(state)
+        S_IDLE: begin
+            if (i_start == 1'b1) begin
+                state_nxt = S_STAL;
+                for (i=0; i<10; i++) begin
+                    for (j=0; j<20; j++) begin
+                        blocks_nxt[i][j] = 3'b0;
+                    end
+                end
+                counter_update_nxt = 24'b0;
+                counter_stall_nxt = 22'b0;
+                counter_delete_nxt = 5'b0;
+                shape_nxt = 3'b0;
+                dirc_nxt = 2'b0;
+                x_center_nxt = 4'd4;
+                y_center_nxt = 5'd0;
+                y_low_nxt = 5'd0;
+            end
+            else begin
+                state_nxt = S_IDLE;
+            end
+            counter_update_nxt = 24'b0;
+        end
         S_WAIT: begin
             counter_stall_nxt = 22'b0;
             y_center_nxt = y_center;
@@ -259,7 +286,8 @@ always_comb begin
             y_low_nxt = (down_valid) ? (y_low + 1) : y_low;
             // stall time
             if (counter_stall == ~22'b0) begin
-                state_nxt = (counter_update == ~24'b0) ? S_END : S_WAIT;
+                if (y_low == 5'd0) state_nxt = S_IDLE;
+                else               state_nxt = (counter_update == ~24'b0) ? S_END : S_WAIT;
             end
             else begin
                 state_nxt = state;
@@ -342,8 +370,6 @@ always_comb begin
     endcase
 end
 
-integer i;
-integer j;
 always_ff @(posedge i_clk or negedge i_rst_n) begin
     if (!i_rst_n) begin
         for (i=0; i<20; i++) begin
@@ -358,15 +384,15 @@ always_ff @(posedge i_clk or negedge i_rst_n) begin
             blocks[8][i] <= 3'd0;
             blocks[9][i] <= 3'd0;
         end
-        state <= S_STAL;
+        state <= S_IDLE;
         counter_update <= 24'b0;
         counter_stall <= 22'b0;
         counter_delete <= 5'b0;
         shape <= 3'b0;
         dirc <= 2'b0;
         x_center <= 4'd4;
-        y_center <= 5'd1;
-        y_low <= 5'd1;
+        y_center <= 5'd0;
+        y_low <= 5'd0;
         vga_r <= 8'b0;
         vga_g <= 8'b0;
         vga_b <= 8'b0;
