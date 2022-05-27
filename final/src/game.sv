@@ -67,7 +67,10 @@ logic [4:0] counter_delete, counter_delete_nxt;
 // the moving shape
 logic [3:0] x_center, x_center_nxt;
 logic [4:0] y_center, y_center_nxt;
-logic [2:0] shape, shape_nxt;
+logic [3*7-1:0] shape_list, shape_list_nxt;     // shape shift register
+logic [2:0] counter_shape, counter_shape_nxt;   // counter if go throygh 7 shapes
+logic [2:0] shape;                              // current shape
+assign shape = shape_list[20:18];
 logic [1:0] dirc, dirc_nxt;
 logic [3:0] b1_x, b2_x, b3_x;
 logic [4:0] b1_y, b2_y, b3_y;
@@ -189,7 +192,8 @@ always_comb begin
     counter_update_nxt = counter_update + 1;
     counter_stall_nxt = counter_stall;
     counter_delete_nxt = 5'b0;
-    shape_nxt = shape;
+    shape_list_nxt = shape_list;
+    counter_shape_nxt = counter_shape; 
     dirc_nxt = dirc;
     x_center_nxt = x_center;
     y_center_nxt = y_center;
@@ -207,7 +211,8 @@ always_comb begin
                 counter_update_nxt = 24'b0;
                 counter_stall_nxt = 22'b0;
                 counter_delete_nxt = 5'b0;
-                shape_nxt = 3'b0;
+                shape_list_nxt = shape_list;
+                counter_shape_nxt = 3'b0;
                 dirc_nxt = 2'b0;
                 x_center_nxt = 4'd4;
                 y_center_nxt = 5'd0;
@@ -328,7 +333,15 @@ always_comb begin
                         end
                     end
                 end
-                shape_nxt = (shape == 3'd6) ? 3'b0 : (shape + 1);
+                if (counter_shape == 3'd6) begin
+                    counter_shape_nxt = 3'd0;
+                    shape_list_nxt = {shape_list[11:9], shape_list[5:3], shape_list[8:6],
+                                      shape_list[20:18], shape_list[2:0], shape_list[14:12],shape_list[17:15]};
+                end
+                else begin
+                    counter_shape_nxt = counter_shape + 1;
+                    shape_list_nxt = {shape_list[17:0], shape_list[20:18]};
+                end
                 dirc_nxt = 2'b0;
                 x_center_nxt = 4'd4;
                 y_center_nxt = 5'b0;
@@ -361,7 +374,8 @@ always_comb begin
             counter_update_nxt = counter_update + 1;
             state_nxt = state;
             counter_stall_nxt = counter_stall;
-            shape_nxt = shape;
+            shape_list_nxt = shape_list;
+            counter_shape_nxt = counter_shape;
             dirc_nxt = dirc;
             x_center_nxt = x_center;
             y_center_nxt = y_center;
@@ -388,7 +402,8 @@ always_ff @(posedge i_clk or negedge i_rst_n) begin
         counter_update <= 24'b0;
         counter_stall <= 22'b0;
         counter_delete <= 5'b0;
-        shape <= 3'b0;
+        shape_list <= {3'd0, 3'd1, 3'd2, 3'd3, 3'd4, 3'd5, 3'd6};
+        counter_shape <= 3'b0;
         dirc <= 2'b0;
         x_center <= 4'd4;
         y_center <= 5'd0;
@@ -407,7 +422,8 @@ always_ff @(posedge i_clk or negedge i_rst_n) begin
         counter_update <= counter_update_nxt;
         counter_stall <= counter_stall_nxt;
         counter_delete <= counter_delete_nxt;
-        shape <= shape_nxt;
+        shape_list <= shape_list_nxt;
+        counter_shape <= counter_shape_nxt;
         dirc <= dirc_nxt;
         x_center <= x_center_nxt;
         y_center <= y_center_nxt;
