@@ -203,6 +203,7 @@ Game game0(
     .o_vga_r(VGA_R),
 	.o_vga_g(VGA_G),
 	.o_vga_b(VGA_B),
+	.o_score({ddd, ccc})
 );
 
 //-----------------------------debug-----------------------------

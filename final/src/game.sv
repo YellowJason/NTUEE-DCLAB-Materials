@@ -7,7 +7,8 @@ module Game(
     input [7:0] i_key,
     output [7:0] o_vga_r,
     output [7:0] o_vga_g,
-    output [7:0] o_vga_b
+    output [7:0] o_vga_b,
+    output [7:0] o_score
 );
 
 integer i;
@@ -55,8 +56,13 @@ ColorDecoder dec0(
     .b(b_dec)
 );
 
+// score
+logic [9:0] score, score_nxt;
+logic [2:0] delete_count, delete_count_nxt;
+assign o_score = score[7:0];
+
 // update counter
-logic [23:0] counter_update, counter_update_nxt;
+logic [24:0] counter_update, counter_update_nxt;
 
 // stall counter
 logic [21:0] counter_stall, counter_stall_nxt;
@@ -195,6 +201,8 @@ always_comb begin
     shape_list_nxt = shape_list;
     counter_shape_nxt = counter_shape; 
     dirc_nxt = dirc;
+    score_nxt = score;
+    delete_count_nxt = delete_count;
     x_center_nxt = x_center;
     y_center_nxt = y_center;
     y_low_nxt = y_low;
@@ -221,7 +229,6 @@ always_comb begin
             else begin
                 state_nxt = S_IDLE;
             end
-            counter_update_nxt = 24'b0;
         end
         S_WAIT: begin
             counter_stall_nxt = 22'b0;
@@ -260,7 +267,7 @@ always_comb begin
                 end
                 default: begin
                     x_center_nxt = x_center;
-                    state_nxt = (counter_update == ~24'b0) ? S_END : S_WAIT;
+                    state_nxt = (counter_update >= {1'b0, ~24'b0}) ? S_END : S_WAIT;
                 end
             endcase
         end
@@ -292,7 +299,7 @@ always_comb begin
             // stall time
             if (counter_stall == ~22'b0) begin
                 if (y_low == 5'd0) state_nxt = S_IDLE;
-                else               state_nxt = (counter_update == ~24'b0) ? S_END : S_WAIT;
+                else               state_nxt = (counter_update >= {1'b0, ~24'b0}) ? S_END : S_WAIT;
             end
             else begin
                 state_nxt = state;
@@ -302,6 +309,7 @@ always_comb begin
             // falling
             if (y_center == y_low) begin
                 state_nxt = S_DELE;
+                delete_count_nxt = 3'b0;
                 blocks_nxt[x_center][y_low] = shape+1;
                 blocks_nxt[b1_x_low][b1_y_low] = shape+1;
                 blocks_nxt[b2_x_low][b2_y_low] = shape+1;
@@ -313,11 +321,12 @@ always_comb begin
                 y_center_nxt = y_center + 1;
                 y_low_nxt = y_low;
             end
+            counter_update_nxt = 25'b0;
             counter_stall_nxt = 22'b0;
         end
         S_DELE: begin
             if (counter_delete == 5'd19) begin
-                // new shape
+                // deletion
                 state_nxt = S_STAL;
                 counter_delete_nxt = 5'd0;
                 if((blocks[0][counter_delete] != 0) && (blocks[1][counter_delete] != 0) &&
@@ -325,6 +334,7 @@ always_comb begin
                    (blocks[4][counter_delete] != 0) && (blocks[5][counter_delete] != 0) && 
                    (blocks[6][counter_delete] != 0) && (blocks[7][counter_delete] != 0) &&
                    (blocks[8][counter_delete] != 0) && (blocks[9][counter_delete] != 0)) begin
+                    delete_count_nxt = delete_count + 1;
                     for (i=0; i<10; i++) begin
                         for (j=0; j<20; j++) begin
                             if (j == 0) blocks_nxt[i][j] = 3'b0;
@@ -333,6 +343,12 @@ always_comb begin
                         end
                     end
                 end
+                // score update
+                score_nxt = (delete_count_nxt == 3'd4) ? (score + 10'd7) :
+                            (delete_count_nxt == 3'd3) ? (score + 10'd5) :
+                            (delete_count_nxt == 3'd2) ? (score + 10'd3) :
+                            (delete_count_nxt == 3'd1) ? (score + 10'd1) : score;
+                // new shape
                 if (counter_shape == 3'd6) begin
                     counter_shape_nxt = 3'd0;
                     shape_list_nxt = {shape_list[11:9], shape_list[5:3], shape_list[8:6],
@@ -348,6 +364,7 @@ always_comb begin
                 y_low_nxt = 5'b0;
             end
             else begin
+                // deletion
                 state_nxt = S_DELE;
                 counter_delete_nxt = counter_delete + 1;
                 if((blocks[0][counter_delete] != 0) && (blocks[1][counter_delete] != 0) &&
@@ -355,6 +372,7 @@ always_comb begin
                    (blocks[4][counter_delete] != 0) && (blocks[5][counter_delete] != 0) && 
                    (blocks[6][counter_delete] != 0) && (blocks[7][counter_delete] != 0) &&
                    (blocks[8][counter_delete] != 0) && (blocks[9][counter_delete] != 0)) begin
+                    delete_count_nxt = delete_count + 1;
                     for (i=0; i<10; i++) begin
                         for (j=0; j<20; j++) begin
                             if (j == 0) blocks_nxt[i][j] = 3'b0;
@@ -377,6 +395,8 @@ always_comb begin
             shape_list_nxt = shape_list;
             counter_shape_nxt = counter_shape;
             dirc_nxt = dirc;
+            score_nxt = score;
+            delete_count_nxt = delete_count;
             x_center_nxt = x_center;
             y_center_nxt = y_center;
             y_low_nxt = y_low;
@@ -405,6 +425,8 @@ always_ff @(posedge i_clk or negedge i_rst_n) begin
         shape_list <= {3'd0, 3'd1, 3'd2, 3'd3, 3'd4, 3'd5, 3'd6};
         counter_shape <= 3'b0;
         dirc <= 2'b0;
+        score <= 10'b0;
+        delete_count <= 3'b0;
         x_center <= 4'd4;
         y_center <= 5'd0;
         y_low <= 5'd0;
@@ -425,6 +447,8 @@ always_ff @(posedge i_clk or negedge i_rst_n) begin
         shape_list <= shape_list_nxt;
         counter_shape <= counter_shape_nxt;
         dirc <= dirc_nxt;
+        score <= score_nxt;
+        delete_count <= delete_count_nxt;
         x_center <= x_center_nxt;
         y_center <= y_center_nxt;
         y_low <= y_low_nxt;
