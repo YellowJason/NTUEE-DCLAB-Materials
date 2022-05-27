@@ -31,9 +31,10 @@ assign o_vga_b = vga_b;
 
 // keyboard in
 parameter up = 8'h75;
-parameter down = 8'h72;
+parameter down = 8'h29;
 parameter right = 8'h74;
 parameter left = 8'h6b;
+parameter speed = 8'h72;
 
 // use 10*20 3'b registers store every blocks' color
 logic [2:0] blocks [0:9][0:19];
@@ -195,7 +196,7 @@ always_comb begin
         end
     end
     state_nxt = state;
-    counter_update_nxt = counter_update + 1;
+    counter_update_nxt = (i_key == speed) ? (counter_update + 5) : (counter_update + 1);
     counter_stall_nxt = counter_stall;
     counter_delete_nxt = 5'b0;
     shape_list_nxt = shape_list;
@@ -252,7 +253,7 @@ always_comb begin
                     end
                     else begin
                         x_center_nxt = x_center;
-                        state_nxt = state;
+                        state_nxt = S_WAIT;
                     end
                 end
                 left: begin
@@ -262,7 +263,7 @@ always_comb begin
                     end
                     else begin
                         x_center_nxt = x_center;
-                        state_nxt = state;
+                        state_nxt = S_WAIT;
                     end
                 end
                 default: begin

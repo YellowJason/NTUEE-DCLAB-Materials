@@ -14,6 +14,8 @@ parameter up = 8'h75;
 parameter down = 8'h72;
 parameter right = 8'h74;
 parameter left = 8'h6b;
+parameter enter = 8'h5a;
+parameter space = 8'h29;
 
 logic [7:0] data_pre, data_curr;
 logic [3:0] counter;
@@ -51,7 +53,8 @@ always_ff @(negedge i_ps2_clk or negedge i_rst_n) begin
 end
 
 logic update;
-assign update = (data_curr==up) || (data_curr==down) || (data_curr==right) || (data_curr==left);
+assign update = (data_curr==up) || (data_curr==down) || (data_curr==right) || (data_curr==left) || 
+                (data_curr==enter) || (data_curr==space);
 
 always_ff @(posedge flag or negedge i_rst_n) begin
     if (!i_rst_n) begin
