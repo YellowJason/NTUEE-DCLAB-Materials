@@ -59,8 +59,13 @@ ColorDecoder dec0(
 
 // score
 logic [9:0] score, score_nxt;
+logic [20:0] score_7_hex;
 logic [2:0] delete_count, delete_count_nxt;
 assign o_score = score[7:0];
+ScoreDecoder score_decoder(
+	.score(score),
+	.score_7_hex(score_7_hex)
+);
 
 // update counter
 logic [24:0] counter_update, counter_update_nxt;
@@ -167,10 +172,148 @@ always_comb begin
             vga_b_n = b_dec;
         end
     end
+    else if ((x >= 9'd80) && (x < 9'd200) && (y >= 9'd40) && (y < 9'd110)) begin
+        vga_g_n = 8'd50;
+        vga_b_n = 8'd50;
+        // boundary
+        if (x == 9'd120 || x == 9'd160) begin
+            vga_r_n = 8'd50;
+        end
+        // first bit
+        // corner
+        else if (x>=9'd160 && x<9'd168 && y>=9'd40 && y<9'd50) begin
+            vga_r_n = (score_7_hex[0] || score_7_hex[5]) ? 8'd255 : 8'd50;
+        end
+        else if (x>=9'd192 && x<9'd200 && y>=9'd40 && y<9'd50) begin
+            vga_r_n = (score_7_hex[0] || score_7_hex[1]) ? 8'd255 : 8'd50;
+        end
+        else if (x>=9'd160 && x<9'd168 && y>=9'd70 && y<9'd80) begin
+            vga_r_n = (score_7_hex[4] || score_7_hex[5] || score_7_hex[6]) ? 8'd255 : 8'd50;
+        end
+        else if (x>=9'd192 && x<9'd200 && y>=9'd70 && y<9'd80) begin
+            vga_r_n = (score_7_hex[1] || score_7_hex[2] || score_7_hex[6]) ? 8'd255 : 8'd50;
+        end
+        else if (x>=9'd160 && x<9'd168 && y>=9'd100 && y<9'd110) begin
+            vga_r_n = (score_7_hex[3] || score_7_hex[4]) ? 8'd255 : 8'd50;
+        end
+        else if (x>=9'd192 && x<9'd200 && y>=9'd100 && y<9'd110) begin
+            vga_r_n = (score_7_hex[2] || score_7_hex[3]) ? 8'd255 : 8'd50;
+        end
+        // edge
+        else if (x >= 9'd160 && x<9'd200 && y >= 9'd40 && y<9'd50) begin
+            vga_r_n = score_7_hex[0] ? 8'd255 : 8'd50;
+        end
+        else if (x>=9'd192 && x<9'd200 && y>=9'd50 && y<9'd70) begin
+            vga_r_n = score_7_hex[1] ? 8'd255 : 8'd50;
+        end
+        else if (x>=9'd192 && x<9'd200 && y>=9'd80 && y<9'd100) begin
+            vga_r_n = score_7_hex[2] ? 8'd255 : 8'd50;
+        end
+        else if (x>=9'd160 && x<9'd200 && y>=9'd100 && y<9'd110) begin
+            vga_r_n = score_7_hex[3] ? 8'd255 : 8'd50;
+        end
+        else if (x>=9'd160 && x<9'd168 && y>=9'd80 && y<9'd100) begin
+            vga_r_n = score_7_hex[4] ? 8'd255 : 8'd50;
+        end
+        else if (x>=9'd160 && x<9'd168 && y>=9'd50 && y<9'd70) begin
+            vga_r_n = score_7_hex[5] ? 8'd255 : 8'd50;
+        end
+        else if (x>=9'd160 && x<9'd200 && y>=9'd70 && y<9'd80) begin
+            vga_r_n = score_7_hex[6] ? 8'd255 : 8'd50;
+        end
+        // second bit
+        // corner
+        else if (x>=9'd120 && x<9'd128 && y>=9'd40 && y<9'd50) begin
+            vga_r_n = (score_7_hex[7] || score_7_hex[12]) ? 8'd255 : 8'd50;
+        end
+        else if (x>=9'd152 && x<9'd160 && y>=9'd40 && y<9'd50) begin
+            vga_r_n = (score_7_hex[7] || score_7_hex[8]) ? 8'd255 : 8'd50;
+        end
+        else if (x>=9'd120 && x<9'd128 && y>=9'd70 && y<9'd80) begin
+            vga_r_n = (score_7_hex[11] || score_7_hex[12] || score_7_hex[13]) ? 8'd255 : 8'd50;
+        end
+        else if (x>=9'd152 && x<9'd160 && y>=9'd70 && y<9'd80) begin
+            vga_r_n = (score_7_hex[8] || score_7_hex[9] || score_7_hex[13]) ? 8'd255 : 8'd50;
+        end
+        else if (x>=9'd120 && x<9'd128 && y>=9'd100 && y<9'd110) begin
+            vga_r_n = (score_7_hex[10] || score_7_hex[11]) ? 8'd255 : 8'd50;
+        end
+        else if (x>=9'd152 && x<9'd160 && y>=9'd100 && y<9'd110) begin
+            vga_r_n = (score_7_hex[9] || score_7_hex[10]) ? 8'd255 : 8'd50;
+        end
+        // edge
+        else if (x >= 9'd120 && x<9'd160 && y >= 9'd40 && y<9'd50) begin
+            vga_r_n = score_7_hex[7] ? 8'd255 : 8'd50;
+        end
+        else if (x>=9'd152 && x<9'd160 && y>=9'd50 && y<9'd70) begin
+            vga_r_n = score_7_hex[8] ? 8'd255 : 8'd50;
+        end
+        else if (x>=9'd152 && x<9'd160 && y>=9'd80 && y<9'd100) begin
+            vga_r_n = score_7_hex[9] ? 8'd255 : 8'd50;
+        end
+        else if (x>=9'd120 && x<9'd160 && y>=9'd100 && y<9'd110) begin
+            vga_r_n = score_7_hex[10] ? 8'd255 : 8'd50;
+        end
+        else if (x>=9'd120 && x<9'd128 && y>=9'd80 && y<9'd100) begin
+            vga_r_n = score_7_hex[11] ? 8'd255 : 8'd50;
+        end
+        else if (x>=9'd120 && x<9'd128 && y>=9'd50 && y<9'd70) begin
+            vga_r_n = score_7_hex[12] ? 8'd255 : 8'd50;
+        end
+        else if (x>=9'd120 && x<9'd160 && y>=9'd70 && y<9'd80) begin
+            vga_r_n = score_7_hex[13] ? 8'd255 : 8'd50;
+        end
+        // third bit
+        // corner
+        else if (x>=9'd80 && x<9'd88 && y>=9'd40 && y<9'd50) begin
+            vga_r_n = (score_7_hex[14] || score_7_hex[19]) ? 8'd255 : 8'd50;
+        end
+        else if (x>=9'd112 && x<9'd120 && y>=9'd40 && y<9'd50) begin
+            vga_r_n = (score_7_hex[14] || score_7_hex[15]) ? 8'd255 : 8'd50;
+        end
+        else if (x>=9'd80 && x<9'd88 && y>=9'd70 && y<9'd80) begin
+            vga_r_n = (score_7_hex[18] || score_7_hex[19] || score_7_hex[20]) ? 8'd255 : 8'd50;
+        end
+        else if (x>=9'd112 && x<9'd120 && y>=9'd70 && y<9'd80) begin
+            vga_r_n = (score_7_hex[15] || score_7_hex[16] || score_7_hex[20]) ? 8'd255 : 8'd50;
+        end
+        else if (x>=9'd80 && x<9'd88 && y>=9'd100 && y<9'd110) begin
+            vga_r_n = (score_7_hex[17] || score_7_hex[18]) ? 8'd255 : 8'd50;
+        end
+        else if (x>=9'd112 && x<9'd120 && y>=9'd100 && y<9'd110) begin
+            vga_r_n = (score_7_hex[16] || score_7_hex[17]) ? 8'd255 : 8'd50;
+        end
+        // edge
+        else if (x>=9'd80 && x<9'd120 && y>=9'd40 && y<9'd50) begin
+            vga_r_n = score_7_hex[14] ? 8'd255 : 8'd50;
+        end
+        else if (x>=9'd112 && x<9'd120 && y>=9'd50 && y<9'd70) begin
+            vga_r_n = score_7_hex[15] ? 8'd255 : 8'd50;
+        end
+        else if (x>=9'd112 && x<9'd120 && y>=9'd80 && y<9'd100) begin
+            vga_r_n = score_7_hex[16] ? 8'd255 : 8'd50;
+        end
+        else if (x>=9'd80 && x<9'd120 && y>=9'd100 && y<9'd110) begin
+            vga_r_n = score_7_hex[17] ? 8'd255 : 8'd50;
+        end
+        else if (x>=9'd80 && x<9'd88 && y>=9'd80 && y<9'd100) begin
+            vga_r_n = score_7_hex[18] ? 8'd255 : 8'd50;
+        end
+        else if (x>=9'd80 && x<9'd88 && y>=9'd50 && y<9'd70) begin
+            vga_r_n = score_7_hex[19] ? 8'd255 : 8'd50;
+        end
+        else if (x>=9'd80 && x<9'd120 && y>=9'd70 && y<9'd80) begin
+            vga_r_n = score_7_hex[20] ? 8'd255 : 8'd50;
+        end
+        // background
+        else begin
+            vga_r_n = 8'd50;
+        end
+    end
     else begin
-        vga_r_n = 8'd20;
-        vga_g_n = 8'd20;
-        vga_b_n = 8'd20;
+        vga_r_n = 8'd50;
+        vga_g_n = 8'd50;
+        vga_b_n = 8'd50;
     end
 end
 
@@ -223,6 +366,8 @@ always_comb begin
                 shape_list_nxt = shape_list;
                 counter_shape_nxt = 3'b0;
                 dirc_nxt = 2'b0;
+                score_nxt = 10'b0;
+                delete_count_nxt = 3'b0;
                 x_center_nxt = 4'd4;
                 y_center_nxt = 5'd0;
                 y_low_nxt = 5'd0;
@@ -248,7 +393,7 @@ always_comb begin
                 end
                 right: begin
                     if (right_enable) begin
-                        x_center_nxt = x_center + 1;
+                        x_center_nxt = x_center + 1'b1;
                         state_nxt = S_EVAL;
                     end
                     else begin
@@ -258,7 +403,7 @@ always_comb begin
                 end
                 left: begin
                     if (left_enable) begin
-                        x_center_nxt = x_center - 1;
+                        x_center_nxt = x_center - 1'b1;
                         state_nxt = S_EVAL;
                     end
                     else begin
@@ -718,6 +863,78 @@ always_comb begin
             b3_y = center_y+1;
         end
     endcase
+end
+
+endmodule
+
+module ScoreDecoder (
+	input        [9:0] score,
+	output logic [20:0] score_7_hex
+);
+
+/* The layout of seven segment display, 1: dark
+ *    00
+ *   5  1
+ *    66
+ *   4  2
+ *    33
+ */
+parameter D0 = ~7'b1000000;
+parameter D1 = ~7'b1111001;
+parameter D2 = ~7'b0100100;
+parameter D3 = ~7'b0110000;
+parameter D4 = ~7'b0011001;
+parameter D5 = ~7'b0010010;
+parameter D6 = ~7'b0000010;
+parameter D7 = ~7'b1011000;
+parameter D8 = ~7'b0000000;
+parameter D9 = ~7'b0010000;
+
+logic [3:0] first, second, third;
+assign third = score / 10'd100;
+assign second = (score - third*10'd100) / 10'd10;
+assign first = score - third*10'd100 - second*10'd10;
+
+always_comb begin
+	case(first)
+		4'h0: score_7_hex[6:0] = D0;
+		4'h1: score_7_hex[6:0] = D1;
+		4'h2: score_7_hex[6:0] = D2;
+		4'h3: score_7_hex[6:0] = D3;
+		4'h4: score_7_hex[6:0] = D4;
+		4'h5: score_7_hex[6:0] = D5;
+		4'h6: score_7_hex[6:0] = D6;
+		4'h7: score_7_hex[6:0] = D7;
+		4'h8: score_7_hex[6:0] = D8;
+		4'h9: score_7_hex[6:0] = D9;
+        default: score_7_hex[6:0] = D0;
+	endcase
+    case(second)
+		4'h0: score_7_hex[13:7] = D0;
+		4'h1: score_7_hex[13:7] = D1;
+		4'h2: score_7_hex[13:7] = D2;
+		4'h3: score_7_hex[13:7] = D3;
+		4'h4: score_7_hex[13:7] = D4;
+		4'h5: score_7_hex[13:7] = D5;
+		4'h6: score_7_hex[13:7] = D6;
+		4'h7: score_7_hex[13:7] = D7;
+		4'h8: score_7_hex[13:7] = D8;
+		4'h9: score_7_hex[13:7] = D9;
+        default: score_7_hex[13:7] = D0;
+	endcase
+    case(third)
+		4'h0: score_7_hex[20:14] = D0;
+		4'h1: score_7_hex[20:14] = D1;
+		4'h2: score_7_hex[20:14] = D2;
+		4'h3: score_7_hex[20:14] = D3;
+		4'h4: score_7_hex[20:14] = D4;
+		4'h5: score_7_hex[20:14] = D5;
+		4'h6: score_7_hex[20:14] = D6;
+		4'h7: score_7_hex[20:14] = D7;
+		4'h8: score_7_hex[20:14] = D8;
+		4'h9: score_7_hex[20:14] = D9;
+        default: score_7_hex[20:14] = D0;
+	endcase
 end
 
 endmodule
