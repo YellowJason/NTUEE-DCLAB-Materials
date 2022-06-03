@@ -945,6 +945,24 @@ end
 
 endmodule
 
+module shape_show_box (
+    input [2:0] shape,
+    output logic [15:0] shape_show
+);
+    always_comb begin
+        case(shape)
+            0: shape_show = 16'b0000_0011_0110_0000;
+            1: shape_show = 16'b0000_0110_0011_0000;
+            2: shape_show = 16'b0000_0111_0010_0000;
+            3: shape_show = 16'b0000_0000_1111_0000;
+            4: shape_show = 16'b0000_0111_0100_0000;
+            5: shape_show = 16'b0000_0111_0001_0000;
+            6: shape_show = 16'b0000_0110_0110_0000;
+            7: shape_show = 16'b0000_0000_0000_0000;
+        endcase
+    end
+endmodule
+
 module ScoreDecoder (
 	input        [9:0] score,
 	output logic [20:0] score_7_hex
