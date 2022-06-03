@@ -145,14 +145,24 @@ assign in_low = (x_block == x_center && y_block == y_low) ||
                   (x_block == b3_x_low && y_block == b3_y_low);
 
 // text of hold
-hold_text = (x==9'd138 && y>=9'd130 && y<9'd150) || (x>=9'd138 && x<9'd210 && y==9'd140) || (x==9'd156 && y>=9'd130 && y<9'd150) //H
-          ||(x==9'd156 && y>=9'd130 && y<9'd150) || (x>=9'd156 && x<9'd174 && y==9'd130) || (x>=9'd156 && x<9'd174 && y==9'd150) || (x==9'd174 && y>=9'd130 && y<9'd150) //O
-          ||(x==9'd174 && y>=9'd130 && y<9'd150) || (x>=9'd176 && x<9'd192 && y==9'd150) //L
-          ||(x==9'd192 && y>=9'd130 && y<9'd150) || (x>=9'd192 && x<9'd210 && y==5*(x-192)/18+130) || (x>=9'd192 && x<9'd210 && y==-5*(x-192)/18+150) || (x==9'd210 && y>=9'd135 && y<9'd145); //D
+logic hold_text;
+assign hold_text = (x==9'd138 && y>=9'd130 && y<9'd150) || (x>=9'd138 && x<9'd210 && y==9'd140) || (x==9'd156 && y>=9'd130 && y<9'd150) //H
+                 ||(x==9'd156 && y>=9'd130 && y<9'd150) || (x>=9'd156 && x<9'd174 && y==9'd130) || (x>=9'd156 && x<9'd174 && y==9'd150) || (x==9'd174 && y>=9'd130 && y<9'd150) //O
+                 ||(x==9'd174 && y>=9'd130 && y<9'd150) || (x>=9'd176 && x<9'd192 && y==9'd150) //L
+                 ||(x==9'd192 && y>=9'd130 && y<9'd150) || (x>=9'd192 && x<9'd210 && y==5*(x-192)/18+130) || (x>=9'd192 && x<9'd210 && y==-5*(x-192)/18+150) || (x==9'd210 && y>=9'd135 && y<9'd145); //D
+// show hold shape
+logic [1:0] x_hold, y_hold;
+logic [15:0] shape_show;
+assign x_hold = (x-138) / 18;
+assign y_hold = (y-160) / 20;
+shape_show_box show0(
+    .shape(shape_hold),
+    .shape_show(shape_show)
+);
 
 // showing
 always_comb begin
-    // hold text boundary
+    // hold text
     if ((x==9'd156 || x==9'd174 || x==9'd192) && (y>=9'd130 && y<9'd150)) begin
         vga_r_n = 8'd50;
         vga_g_n = 8'd50;
@@ -163,17 +173,31 @@ always_comb begin
         vga_g_n = 8'd255;
         vga_b_n = 8'd255;
     end
+    // hold block
     else if ((x >= 9'd138) && (x <= 9'd210) && (y >= 9'd160) && (y <= 9'd240)) begin
-        // hold block boundary
         if (((x-138)%18 == 0) || ((y-160)%20 == 0)) begin
             vga_r_n = 8'd255;
             vga_g_n = 8'd255;
             vga_b_n = 8'd255;
         end
         else begin
-            vga_r_n = 8'd50;
-            vga_g_n = 8'd50;
-            vga_b_n = 8'd50;
+            if (shape_show[y_hold*4 + x_hold]) begin
+                case(shape_hold)
+                    0: {vga_r_n, vga_g_n, vga_b_n} = {8'd255, 8'd20,  8'd20 };
+                    1: {vga_r_n, vga_g_n, vga_b_n} = {8'd20,  8'd255, 8'd20 };
+                    2: {vga_r_n, vga_g_n, vga_b_n} = {8'd20,  8'd20,  8'd255};
+                    3: {vga_r_n, vga_g_n, vga_b_n} = {8'd20,  8'd255, 8'd255};
+                    4: {vga_r_n, vga_g_n, vga_b_n} = {8'd255, 8'd20,  8'd255};
+                    5: {vga_r_n, vga_g_n, vga_b_n} = {8'd255, 8'd255, 8'd20 };
+                    6: {vga_r_n, vga_g_n, vga_b_n} = {8'd255, 8'd100, 8'd0  };
+                    7: {vga_r_n, vga_g_n, vga_b_n} = {8'd20,  8'd20,  8'd20 };
+                endcase
+            end
+            else begin
+                vga_r_n = 8'd20;
+                vga_g_n = 8'd20;
+                vga_b_n = 8'd20;
+            end
         end
     end
     else if ((x >= 9'd230) && (x <= 9'd410) && (y >= 9'd40) && (y <= 9'd440)) begin
@@ -951,13 +975,13 @@ module shape_show_box (
 );
     always_comb begin
         case(shape)
-            0: shape_show = 16'b0000_0011_0110_0000;
-            1: shape_show = 16'b0000_0110_0011_0000;
-            2: shape_show = 16'b0000_0111_0010_0000;
-            3: shape_show = 16'b0000_0000_1111_0000;
-            4: shape_show = 16'b0000_0111_0100_0000;
-            5: shape_show = 16'b0000_0111_0001_0000;
-            6: shape_show = 16'b0000_0110_0110_0000;
+            0: shape_show = 16'b0000_0110_0011_0000; //z
+            1: shape_show = 16'b0000_0011_0110_0000; //s
+            2: shape_show = 16'b0000_0010_0111_0000; //t
+            3: shape_show = 16'b0000_1111_0000_0000; //i
+            4: shape_show = 16'b0000_0100_0111_0000; //j
+            5: shape_show = 16'b0000_0001_0111_0000; //l
+            6: shape_show = 16'b0000_0110_0110_0000; //o
             7: shape_show = 16'b0000_0000_0000_0000;
         endcase
     end
