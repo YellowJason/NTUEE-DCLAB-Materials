@@ -35,6 +35,7 @@ parameter down = 8'h29;
 parameter right = 8'h74;
 parameter left = 8'h6b;
 parameter speed = 8'h72;
+parameter hold = 8'h5a;
 
 // use 10*20 3'b registers store every blocks' color
 logic [2:0] blocks [0:9][0:19];
@@ -81,8 +82,8 @@ logic [3:0] x_center, x_center_nxt;
 logic [4:0] y_center, y_center_nxt;
 logic [3*7-1:0] shape_list, shape_list_nxt;     // shape shift register
 logic [2:0] counter_shape, counter_shape_nxt;   // counter if go throygh 7 shapes
-logic [2:0] shape;                              // current shape
-assign shape = shape_list[20:18];
+logic [2:0] shape, shape_nxt;                              // current shape
+// assign shape = shape_list[20:18];
 logic [1:0] dirc, dirc_nxt;
 logic [3:0] b1_x, b2_x, b3_x;
 logic [4:0] b1_y, b2_y, b3_y;
@@ -98,6 +99,9 @@ ShapeDecoder shape0(
     .b2_y(b2_y),
     .b3_y(b3_y)
 );
+
+// hold shape
+logic [2:0] shape_hold, shape_hold_nxt;
 
 // if current coordinate in the moving shape
 logic in_shape;
@@ -340,9 +344,11 @@ always_comb begin
     end
     state_nxt = state;
     counter_update_nxt = (i_key == speed) ? (counter_update + 5) : (counter_update + 1);
-    counter_stall_nxt = counter_stall;
+    counter_stall_nxt = 22'd0;
     counter_delete_nxt = 5'b0;
     shape_list_nxt = shape_list;
+    shape_nxt = shape;
+    shape_hold_nxt = shape_hold;
     counter_shape_nxt = counter_shape; 
     dirc_nxt = dirc;
     score_nxt = score;
@@ -394,7 +400,9 @@ always_comb begin
                 right: begin
                     if (right_enable) begin
                         x_center_nxt = x_center + 1'b1;
-                        state_nxt = S_EVAL;
+                        state_nxt = S_STAL;
+                        counter_stall_nxt = 22'b0;
+                        y_low_nxt = y_center;
                     end
                     else begin
                         x_center_nxt = x_center;
@@ -404,11 +412,45 @@ always_comb begin
                 left: begin
                     if (left_enable) begin
                         x_center_nxt = x_center - 1'b1;
-                        state_nxt = S_EVAL;
+                        state_nxt = S_STAL;
+                        counter_stall_nxt = 22'b0;
+                        y_low_nxt = y_center;
                     end
                     else begin
                         x_center_nxt = x_center;
                         state_nxt = S_WAIT;
+                    end
+                end
+                hold: begin
+                    // new shape
+                    if (shape_hold == 3'd7) begin
+                        state_nxt = S_STAL;
+                        shape_hold_nxt = shape;
+                        if (counter_shape == 3'd6) begin
+                            counter_shape_nxt = 3'd0;
+                            shape_list_nxt = {shape_list[11:9], shape_list[5:3], shape_list[8:6],
+                                            shape_list[20:18], shape_list[2:0], shape_list[14:12],shape_list[17:15]};
+                            shape_nxt = shape_list[11:9];
+                        end
+                        else begin
+                            counter_shape_nxt = counter_shape + 1;
+                            shape_list_nxt = {shape_list[17:0], shape_list[20:18]};
+                            shape_nxt = shape_list[17:15];
+                        end
+                        dirc_nxt = 2'b0;
+                        x_center_nxt = 4'd4;
+                        y_center_nxt = 5'b0;
+                        y_low_nxt = 5'b0;
+                    end
+                    else begin
+                        // use hold shape
+                        state_nxt = S_STAL;
+                        shape_nxt = shape_hold;
+                        shape_hold_nxt = shape;
+                        dirc_nxt = 2'b0;
+                        x_center_nxt = 4'd4;
+                        y_center_nxt = 5'b0;
+                        y_low_nxt = 5'b0;
                     end
                 end
                 default: begin
@@ -456,10 +498,10 @@ always_comb begin
             if (y_center == y_low) begin
                 state_nxt = S_DELE;
                 delete_count_nxt = 3'b0;
-                blocks_nxt[x_center][y_low] = shape+1;
-                blocks_nxt[b1_x_low][b1_y_low] = shape+1;
-                blocks_nxt[b2_x_low][b2_y_low] = shape+1;
-                blocks_nxt[b3_x_low][b3_y_low] = shape+1;
+                blocks_nxt[x_center][y_center] = shape+1;
+                blocks_nxt[b1_x][b1_y] = shape+1;
+                blocks_nxt[b2_x][b2_y] = shape+1;
+                blocks_nxt[b3_x][b3_y] = shape+1;
             end
             else begin
                 state_nxt = S_WAIT;
@@ -499,10 +541,12 @@ always_comb begin
                     counter_shape_nxt = 3'd0;
                     shape_list_nxt = {shape_list[11:9], shape_list[5:3], shape_list[8:6],
                                       shape_list[20:18], shape_list[2:0], shape_list[14:12],shape_list[17:15]};
+                    shape_nxt = shape_list[11:9];
                 end
                 else begin
                     counter_shape_nxt = counter_shape + 1;
                     shape_list_nxt = {shape_list[17:0], shape_list[20:18]};
+                    shape_nxt = shape_list[17:15];
                 end
                 dirc_nxt = 2'b0;
                 x_center_nxt = 4'd4;
@@ -569,6 +613,8 @@ always_ff @(posedge i_clk or negedge i_rst_n) begin
         counter_stall <= 22'b0;
         counter_delete <= 5'b0;
         shape_list <= {3'd0, 3'd1, 3'd2, 3'd3, 3'd4, 3'd5, 3'd6};
+        shape <= 3'd0;
+        shape_hold <= 3'd7;
         counter_shape <= 3'b0;
         dirc <= 2'b0;
         score <= 10'b0;
@@ -591,6 +637,8 @@ always_ff @(posedge i_clk or negedge i_rst_n) begin
         counter_stall <= counter_stall_nxt;
         counter_delete <= counter_delete_nxt;
         shape_list <= shape_list_nxt;
+        shape <= shape_nxt;
+        shape_hold <= shape_hold_nxt;
         counter_shape <= counter_shape_nxt;
         dirc <= dirc_nxt;
         score <= score_nxt;
