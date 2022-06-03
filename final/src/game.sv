@@ -144,9 +144,17 @@ assign in_low = (x_block == x_center && y_block == y_low) ||
                   (x_block == b2_x_low && y_block == b2_y_low) ||
                   (x_block == b3_x_low && y_block == b3_y_low);
 
+// text of hold
+hold_text = ;
+
 // showing
 always_comb begin
-    if ((x >= 9'd230) && (x <= 9'd410) && (y >= 9'd40) && (y <= 9'd440)) begin
+    if (hold_text) begin
+        vga_r_n = 8'd255;
+        vga_g_n = 8'd255;
+        vga_b_n = 8'd255;
+    end
+    else if ((x >= 9'd230) && (x <= 9'd410) && (y >= 9'd40) && (y <= 9'd440)) begin
         // block boundary
         if (((x-230)%18 == 0) || ((y-40)%20 == 0)) begin
             vga_r_n = 8'd255;
