@@ -82,7 +82,7 @@ logic [3:0] x_center, x_center_nxt;
 logic [4:0] y_center, y_center_nxt;
 logic [3*7-1:0] shape_list, shape_list_nxt;     // shape shift register
 logic [2:0] counter_shape, counter_shape_nxt;   // counter if go throygh 7 shapes
-logic [2:0] shape, shape_nxt;                              // current shape
+logic [2:0] shape, shape_nxt;                   // current shape
 // assign shape = shape_list[20:18];
 logic [1:0] dirc, dirc_nxt;
 logic [3:0] b1_x, b2_x, b3_x;
@@ -176,35 +176,35 @@ always_comb begin
             vga_b_n = b_dec;
         end
     end
-    else if ((x >= 9'd80) && (x < 9'd200) && (y >= 9'd40) && (y < 9'd110)) begin
+    else if ((x >= 9'd110) && (x < 9'd200) && (y >= 9'd40) && (y < 9'd110)) begin
         vga_g_n = 8'd50;
         vga_b_n = 8'd50;
         // boundary
-        if (x == 9'd120 || x == 9'd160) begin
+        if (x == 9'd140 || x == 9'd170) begin
             vga_r_n = 8'd50;
         end
         // first bit
         // corner
-        else if (x>=9'd160 && x<9'd168 && y>=9'd40 && y<9'd50) begin
+        else if (x>=9'd170 && x<9'd178 && y>=9'd40 && y<9'd50) begin
             vga_r_n = (score_7_hex[0] || score_7_hex[5]) ? 8'd255 : 8'd50;
         end
         else if (x>=9'd192 && x<9'd200 && y>=9'd40 && y<9'd50) begin
             vga_r_n = (score_7_hex[0] || score_7_hex[1]) ? 8'd255 : 8'd50;
         end
-        else if (x>=9'd160 && x<9'd168 && y>=9'd70 && y<9'd80) begin
+        else if (x>=9'd170 && x<9'd178 && y>=9'd70 && y<9'd80) begin
             vga_r_n = (score_7_hex[4] || score_7_hex[5] || score_7_hex[6]) ? 8'd255 : 8'd50;
         end
         else if (x>=9'd192 && x<9'd200 && y>=9'd70 && y<9'd80) begin
             vga_r_n = (score_7_hex[1] || score_7_hex[2] || score_7_hex[6]) ? 8'd255 : 8'd50;
         end
-        else if (x>=9'd160 && x<9'd168 && y>=9'd100 && y<9'd110) begin
+        else if (x>=9'd170 && x<9'd178 && y>=9'd100 && y<9'd110) begin
             vga_r_n = (score_7_hex[3] || score_7_hex[4]) ? 8'd255 : 8'd50;
         end
         else if (x>=9'd192 && x<9'd200 && y>=9'd100 && y<9'd110) begin
             vga_r_n = (score_7_hex[2] || score_7_hex[3]) ? 8'd255 : 8'd50;
         end
         // edge
-        else if (x >= 9'd160 && x<9'd200 && y >= 9'd40 && y<9'd50) begin
+        else if (x >= 9'd170 && x<9'd200 && y >= 9'd40 && y<9'd50) begin
             vga_r_n = score_7_hex[0] ? 8'd255 : 8'd50;
         end
         else if (x>=9'd192 && x<9'd200 && y>=9'd50 && y<9'd70) begin
@@ -213,100 +213,100 @@ always_comb begin
         else if (x>=9'd192 && x<9'd200 && y>=9'd80 && y<9'd100) begin
             vga_r_n = score_7_hex[2] ? 8'd255 : 8'd50;
         end
-        else if (x>=9'd160 && x<9'd200 && y>=9'd100 && y<9'd110) begin
+        else if (x>=9'd170 && x<9'd200 && y>=9'd100 && y<9'd110) begin
             vga_r_n = score_7_hex[3] ? 8'd255 : 8'd50;
         end
-        else if (x>=9'd160 && x<9'd168 && y>=9'd80 && y<9'd100) begin
+        else if (x>=9'd170 && x<9'd178 && y>=9'd80 && y<9'd100) begin
             vga_r_n = score_7_hex[4] ? 8'd255 : 8'd50;
         end
-        else if (x>=9'd160 && x<9'd168 && y>=9'd50 && y<9'd70) begin
+        else if (x>=9'd170 && x<9'd178 && y>=9'd50 && y<9'd70) begin
             vga_r_n = score_7_hex[5] ? 8'd255 : 8'd50;
         end
-        else if (x>=9'd160 && x<9'd200 && y>=9'd70 && y<9'd80) begin
+        else if (x>=9'd170 && x<9'd200 && y>=9'd70 && y<9'd80) begin
             vga_r_n = score_7_hex[6] ? 8'd255 : 8'd50;
         end
         // second bit
         // corner
-        else if (x>=9'd120 && x<9'd128 && y>=9'd40 && y<9'd50) begin
+        else if (x>=9'd140 && x<9'd148 && y>=9'd40 && y<9'd50) begin
             vga_r_n = (score_7_hex[7] || score_7_hex[12]) ? 8'd255 : 8'd50;
         end
-        else if (x>=9'd152 && x<9'd160 && y>=9'd40 && y<9'd50) begin
+        else if (x>=9'd162 && x<9'd170 && y>=9'd40 && y<9'd50) begin
             vga_r_n = (score_7_hex[7] || score_7_hex[8]) ? 8'd255 : 8'd50;
         end
-        else if (x>=9'd120 && x<9'd128 && y>=9'd70 && y<9'd80) begin
+        else if (x>=9'd140 && x<9'd148 && y>=9'd70 && y<9'd80) begin
             vga_r_n = (score_7_hex[11] || score_7_hex[12] || score_7_hex[13]) ? 8'd255 : 8'd50;
         end
-        else if (x>=9'd152 && x<9'd160 && y>=9'd70 && y<9'd80) begin
+        else if (x>=9'd162 && x<9'd170 && y>=9'd70 && y<9'd80) begin
             vga_r_n = (score_7_hex[8] || score_7_hex[9] || score_7_hex[13]) ? 8'd255 : 8'd50;
         end
-        else if (x>=9'd120 && x<9'd128 && y>=9'd100 && y<9'd110) begin
+        else if (x>=9'd140 && x<9'd148 && y>=9'd100 && y<9'd110) begin
             vga_r_n = (score_7_hex[10] || score_7_hex[11]) ? 8'd255 : 8'd50;
         end
-        else if (x>=9'd152 && x<9'd160 && y>=9'd100 && y<9'd110) begin
+        else if (x>=9'd162 && x<9'd170 && y>=9'd100 && y<9'd110) begin
             vga_r_n = (score_7_hex[9] || score_7_hex[10]) ? 8'd255 : 8'd50;
         end
         // edge
-        else if (x >= 9'd120 && x<9'd160 && y >= 9'd40 && y<9'd50) begin
+        else if (x >= 9'd140 && x<9'd170 && y >= 9'd40 && y<9'd50) begin
             vga_r_n = score_7_hex[7] ? 8'd255 : 8'd50;
         end
-        else if (x>=9'd152 && x<9'd160 && y>=9'd50 && y<9'd70) begin
+        else if (x>=9'd162 && x<9'd170 && y>=9'd50 && y<9'd70) begin
             vga_r_n = score_7_hex[8] ? 8'd255 : 8'd50;
         end
-        else if (x>=9'd152 && x<9'd160 && y>=9'd80 && y<9'd100) begin
+        else if (x>=9'd162 && x<9'd170 && y>=9'd80 && y<9'd100) begin
             vga_r_n = score_7_hex[9] ? 8'd255 : 8'd50;
         end
-        else if (x>=9'd120 && x<9'd160 && y>=9'd100 && y<9'd110) begin
+        else if (x>=9'd140 && x<9'd170 && y>=9'd100 && y<9'd110) begin
             vga_r_n = score_7_hex[10] ? 8'd255 : 8'd50;
         end
-        else if (x>=9'd120 && x<9'd128 && y>=9'd80 && y<9'd100) begin
+        else if (x>=9'd140 && x<9'd148 && y>=9'd80 && y<9'd100) begin
             vga_r_n = score_7_hex[11] ? 8'd255 : 8'd50;
         end
-        else if (x>=9'd120 && x<9'd128 && y>=9'd50 && y<9'd70) begin
+        else if (x>=9'd140 && x<9'd148 && y>=9'd50 && y<9'd70) begin
             vga_r_n = score_7_hex[12] ? 8'd255 : 8'd50;
         end
-        else if (x>=9'd120 && x<9'd160 && y>=9'd70 && y<9'd80) begin
+        else if (x>=9'd140 && x<9'd170 && y>=9'd70 && y<9'd80) begin
             vga_r_n = score_7_hex[13] ? 8'd255 : 8'd50;
         end
         // third bit
         // corner
-        else if (x>=9'd80 && x<9'd88 && y>=9'd40 && y<9'd50) begin
+        else if (x>=9'd110 && x<9'd118 && y>=9'd40 && y<9'd50) begin
             vga_r_n = (score_7_hex[14] || score_7_hex[19]) ? 8'd255 : 8'd50;
         end
-        else if (x>=9'd112 && x<9'd120 && y>=9'd40 && y<9'd50) begin
+        else if (x>=9'd132 && x<9'd140 && y>=9'd40 && y<9'd50) begin
             vga_r_n = (score_7_hex[14] || score_7_hex[15]) ? 8'd255 : 8'd50;
         end
-        else if (x>=9'd80 && x<9'd88 && y>=9'd70 && y<9'd80) begin
+        else if (x>=9'd110 && x<9'd118 && y>=9'd70 && y<9'd80) begin
             vga_r_n = (score_7_hex[18] || score_7_hex[19] || score_7_hex[20]) ? 8'd255 : 8'd50;
         end
-        else if (x>=9'd112 && x<9'd120 && y>=9'd70 && y<9'd80) begin
+        else if (x>=9'd132 && x<9'd140 && y>=9'd70 && y<9'd80) begin
             vga_r_n = (score_7_hex[15] || score_7_hex[16] || score_7_hex[20]) ? 8'd255 : 8'd50;
         end
-        else if (x>=9'd80 && x<9'd88 && y>=9'd100 && y<9'd110) begin
+        else if (x>=9'd110 && x<9'd118 && y>=9'd100 && y<9'd110) begin
             vga_r_n = (score_7_hex[17] || score_7_hex[18]) ? 8'd255 : 8'd50;
         end
-        else if (x>=9'd112 && x<9'd120 && y>=9'd100 && y<9'd110) begin
+        else if (x>=9'd132 && x<9'd140 && y>=9'd100 && y<9'd110) begin
             vga_r_n = (score_7_hex[16] || score_7_hex[17]) ? 8'd255 : 8'd50;
         end
         // edge
-        else if (x>=9'd80 && x<9'd120 && y>=9'd40 && y<9'd50) begin
+        else if (x>=9'd110 && x<9'd140 && y>=9'd40 && y<9'd50) begin
             vga_r_n = score_7_hex[14] ? 8'd255 : 8'd50;
         end
-        else if (x>=9'd112 && x<9'd120 && y>=9'd50 && y<9'd70) begin
+        else if (x>=9'd132 && x<9'd140 && y>=9'd50 && y<9'd70) begin
             vga_r_n = score_7_hex[15] ? 8'd255 : 8'd50;
         end
-        else if (x>=9'd112 && x<9'd120 && y>=9'd80 && y<9'd100) begin
+        else if (x>=9'd132 && x<9'd140 && y>=9'd80 && y<9'd100) begin
             vga_r_n = score_7_hex[16] ? 8'd255 : 8'd50;
         end
-        else if (x>=9'd80 && x<9'd120 && y>=9'd100 && y<9'd110) begin
+        else if (x>=9'd110 && x<9'd140 && y>=9'd100 && y<9'd110) begin
             vga_r_n = score_7_hex[17] ? 8'd255 : 8'd50;
         end
-        else if (x>=9'd80 && x<9'd88 && y>=9'd80 && y<9'd100) begin
+        else if (x>=9'd110 && x<9'd118 && y>=9'd80 && y<9'd100) begin
             vga_r_n = score_7_hex[18] ? 8'd255 : 8'd50;
         end
-        else if (x>=9'd80 && x<9'd88 && y>=9'd50 && y<9'd70) begin
+        else if (x>=9'd110 && x<9'd118 && y>=9'd50 && y<9'd70) begin
             vga_r_n = score_7_hex[19] ? 8'd255 : 8'd50;
         end
-        else if (x>=9'd80 && x<9'd120 && y>=9'd70 && y<9'd80) begin
+        else if (x>=9'd110 && x<9'd140 && y>=9'd70 && y<9'd80) begin
             vga_r_n = score_7_hex[20] ? 8'd255 : 8'd50;
         end
         // background
