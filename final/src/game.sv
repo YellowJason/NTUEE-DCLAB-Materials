@@ -145,14 +145,36 @@ assign in_low = (x_block == x_center && y_block == y_low) ||
                   (x_block == b3_x_low && y_block == b3_y_low);
 
 // text of hold
-hold_text = ;
+hold_text = (x==9'd138 && y>=9'd130 && y<9'd150) || (x>=9'd138 && x<9'd210 && y==9'd140) || (x==9'd156 && y>=9'd130 && y<9'd150) //H
+          ||(x==9'd156 && y>=9'd130 && y<9'd150) || (x>=9'd156 && x<9'd174 && y==9'd130) || (x>=9'd156 && x<9'd174 && y==9'd150) || (x==9'd174 && y>=9'd130 && y<9'd150) //O
+          ||(x==9'd174 && y>=9'd130 && y<9'd150) || (x>=9'd176 && x<9'd192 && y==9'd150) //L
+          ||(x==9'd192 && y>=9'd130 && y<9'd150) || (x>=9'd192 && x<9'd210 && y==5*(x-192)/18+130) || (x>=9'd192 && x<9'd210 && y==-5*(x-192)/18+150) || (x==9'd210 && y>=9'd135 && y<9'd145); //D
 
 // showing
 always_comb begin
-    if (hold_text) begin
+    // hold text boundary
+    if ((x==9'd156 || x==9'd174 || x==9'd192) && (y>=9'd130 && y<9'd150)) begin
+        vga_r_n = 8'd50;
+        vga_g_n = 8'd50;
+        vga_b_n = 8'd50;
+    end
+    else if (hold_text) begin
         vga_r_n = 8'd255;
         vga_g_n = 8'd255;
         vga_b_n = 8'd255;
+    end
+    else if ((x >= 9'd138) && (x <= 9'd210) && (y >= 9'd160) && (y <= 9'd240)) begin
+        // hold block boundary
+        if (((x-138)%18 == 0) || ((y-160)%20 == 0)) begin
+            vga_r_n = 8'd255;
+            vga_g_n = 8'd255;
+            vga_b_n = 8'd255;
+        end
+        else begin
+            vga_r_n = 8'd50;
+            vga_g_n = 8'd50;
+            vga_b_n = 8'd50;
+        end
     end
     else if ((x >= 9'd230) && (x <= 9'd410) && (y >= 9'd40) && (y <= 9'd440)) begin
         // block boundary
