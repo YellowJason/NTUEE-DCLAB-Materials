@@ -1,5 +1,5 @@
 Fitter report for DE2_115
-Fri May 20 17:08:05 2022
+Fri May 27 13:30:06 2022
 Quartus II 64-Bit Version 15.0.0 Build 145 04/22/2015 SJ Full Version
 
 
@@ -71,7 +71,7 @@ agreement for further details.
 +----------------------------------------------------------------------------------+
 ; Fitter Summary                                                                   ;
 +------------------------------------+---------------------------------------------+
-; Fitter Status                      ; Successful - Fri May 20 17:08:05 2022       ;
+; Fitter Status                      ; Successful - Fri May 27 13:30:06 2022       ;
 ; Quartus II 64-Bit Version          ; 15.0.0 Build 145 04/22/2015 SJ Full Version ;
 ; Revision Name                      ; DE2_115                                     ;
 ; Top-level Entity Name              ; DE2_115                                     ;
@@ -156,12 +156,12 @@ agreement for further details.
 ; Number detected on machine ; 12          ;
 ; Maximum allowed            ; 6           ;
 ;                            ;             ;
-; Average used               ; 2.17        ;
+; Average used               ; 2.10        ;
 ; Maximum used               ; 6           ;
 ;                            ;             ;
 ; Usage by Processor         ; % Time Used ;
 ;     Processor 1            ; 100.0%      ;
-;     Processors 2-6         ;  23.4%      ;
+;     Processors 2-6         ;  22.0%      ;
 ;     Processors 7-12        ;   0.0%      ;
 +----------------------------+-------------+
 
@@ -4433,26 +4433,26 @@ Warning (15705): Ignored locations or region assignments to the following nodes
     Warning (15706): Node "HSMC_TX_D_N[8]" is assigned to location or region, but does not exist in design
     Warning (15706): Node "HSMC_TX_D_N[9]" is assigned to location or region, but does not exist in design
     Warning (15706): Node "OTG_DREQ[0]" is assigned to location or region, but does not exist in design
-Info (171121): Fitter preparation operations ending: elapsed time is 00:00:28
+Info (171121): Fitter preparation operations ending: elapsed time is 00:00:26
 Info (14896): Fitter has disabled Advanced Physical Optimization because it is not supported for the current family.
 Info (170189): Fitter placement preparation operations beginning
-Info (170190): Fitter placement preparation operations ending: elapsed time is 00:00:09
+Info (170190): Fitter placement preparation operations ending: elapsed time is 00:00:07
 Info (170191): Fitter placement operations beginning
 Info (170137): Fitter placement was successful
-Info (170192): Fitter placement operations ending: elapsed time is 00:00:19
+Info (170192): Fitter placement operations ending: elapsed time is 00:00:17
 Info (170193): Fitter routing operations beginning
 Info (170195): Router estimated average interconnect usage is 10% of the available device resources
     Info (170196): Router estimated peak interconnect usage is 34% of the available device resources in the region that extends from location X34_Y24 to location X45_Y36
-Info (170194): Fitter routing operations ending: elapsed time is 00:00:18
+Info (170194): Fitter routing operations ending: elapsed time is 00:00:16
 Info (170199): The Fitter performed an Auto Fit compilation.  Optimizations were skipped to reduce compilation time.
     Info (170201): Optimizations that may affect the design's routability were skipped
     Info (170200): Optimizations that may affect the design's timing were skipped
-Info (11888): Total time spent on timing analysis during the Fitter is 15.06 seconds.
+Info (11888): Total time spent on timing analysis during the Fitter is 12.87 seconds.
 Info (334003): Started post-fitting delay annotation
 Info (334004): Delay annotation completed successfully
 Info (334003): Started post-fitting delay annotation
 Info (334004): Delay annotation completed successfully
-Info (11218): Fitter post-fit operations ending: elapsed time is 00:00:11
+Info (11218): Fitter post-fit operations ending: elapsed time is 00:00:09
 Warning (171167): Found invalid Fitter assignments. See the Ignored Assignments panel in the Fitter Compilation Report for more information.
 Warning (169177): 163 pins must meet Altera requirements for 3.3-, 3.0-, and 2.5-V interfaces. For more information, refer to AN 447: Interfacing Cyclone IV E Devices with 3.3/3.0/2.5-V LVTTL/LVCMOS I/O Systems.
     Info (169178): Pin CLOCK2_50 uses I/O standard 3.3-V LVTTL at AG14
@@ -4762,10 +4762,10 @@ Warning (169064): Following 141 pins have no output enable or a GND or VCC outpu
     Info (169065): Pin EX_IO[6] has a permanently disabled output enable
 Info (144001): Generated suppressed messages file C:/Users/ASUS/Desktop/bonus_quartus/output_files/DE2_115.fit.smsg
 Info: Quartus II 64-Bit Fitter was successful. 0 errors, 83 warnings
-    Info: Peak virtual memory: 6307 megabytes
-    Info: Processing ended: Fri May 20 17:08:10 2022
-    Info: Elapsed time: 00:02:00
-    Info: Total CPU time (on all processors): 00:03:20
+    Info: Peak virtual memory: 6339 megabytes
+    Info: Processing ended: Fri May 27 13:30:10 2022
+    Info: Elapsed time: 00:01:50
+    Info: Total CPU time (on all processors): 00:03:01
 
 
 +----------------------------+
