@@ -195,6 +195,7 @@ vga vga0(
 	.o_vga_clk(VGA_CLK)
 );
 
+/*
 logic [7:0] o_score;
 Game game0(
 	.i_clk(CLK_25M),
@@ -206,44 +207,20 @@ Game game0(
     .o_vga_r(VGA_R),
 	.o_vga_g(VGA_G),
 	.o_vga_b(VGA_B),
-	.o_score(o_score)
+	// .o_score(o_score)
 );
-
-//-----------------------------debug-----------------------------
-/*
-logic [26:0] counter_CLK_25M, counter_CLK_65M, counter_CLOCK_50;
-// assign ccc = counter_CLK_25M[26:23];
-// assign bbb = counter_CLOCK_50[26:23];
-// assign ddd = counter_CLK_65M[26:23];
-
-always_ff @(negedge CLK_25M or negedge KEY[3]) begin
-	if (!KEY[3]) begin
-		counter_CLK_25M <= 27'b0;
-	end
-	else begin
-		counter_CLK_25M <= counter_CLK_25M + 1;
-	end
-end
-
-always_ff @(negedge CLK_65M or negedge KEY[3]) begin
-	if (!KEY[3]) begin
-		counter_CLK_65M <= 27'b0;
-	end
-	else begin
-		counter_CLK_65M <= counter_CLK_65M + 1;
-	end
-end
-
-always_ff @(negedge CLOCK_50 or negedge KEY[3]) begin
-	if (!KEY[3]) begin
-		counter_CLOCK_50 <= 27'b0;
-	end
-	else begin
-		counter_CLOCK_50 <= counter_CLOCK_50 + 1;
-	end
-end
 */
-//---------------------------------------------------------------
+Top top0(
+	.i_clk(CLK_25M),
+    .i_rst_n(KEY[3]),
+    .x(x),
+    .y(y),
+	.i_key_1(keyboard_down),
+	.i_key_2(keyboard_down_2),
+    .o_vga_r(VGA_R),
+	.o_vga_g(VGA_G),
+	.o_vga_b(VGA_B),
+);
 
 // 7 hex decoder
 SevenHexDecoder seven_dec0(
