@@ -104,17 +104,152 @@ always_comb begin
     end
 end
 
+// text of TETRIS
+logic text_T1, text_E, text_T2, text_R, text_I, text_S;
+assign text_T1 = (x>=9'd55 && x<=9'd135 && y>=9'd80 && y<=9'd100) || (x>=9'd85 && x<=9'd105 && y>=9'd100 && y<=9'd180);
+assign text_E  = (x>=9'd145 && x<=9'd165 && y>=9'd80 && y<=9'd180) || (x>=9'd165 && x<=9'd225 && y>=9'd80 && y<=9'd100)
+               ||(x>=9'd165 && x<=9'd225 && y>=9'd120 && y<=9'd140) || (x>=9'd165 && x<=9'd225 && y>=9'd160 && y<=9'd180);
+assign text_T2 = (x>=9'd235 && x<=9'd315 && y>=9'd80 && y<=9'd100) || (x>=9'd265 && x<=9'd285 && y>=9'd100 && y<=9'd180);
+assign text_R  = (x>=9'd325 && x<=9'd345 && y>=9'd80 && y<=9'd180) || (x>=9'd345 && x<=9'd385 && y>=9'd80 && y<=9'd100)
+               ||(x>=9'd385 && x<=9'd405 && y>=9'd100 && y<=9'd120) || (x>=9'd345 && x<=9'd385 && y>=9'd120 && y<=9'd140)
+               ||(x>=9'd365 && x<=9'd385 && y>=9'd140 && y<=9'd160) || (x>=9'd385 && x<=9'd405 && y>=9'd160 && y<=9'd180);
+assign text_I  = (x>=9'd425 && x<=9'd485 && y>=9'd80 && y<=9'd100) || (x>=9'd445 && x<=9'd465 && y>=9'd100 && y<=9'd160)
+               ||(x>=9'd415 && x<=9'd495 && y>=9'd160 && y<=9'd180);
+assign text_S  = (x>=9'd525 && x<=9'd585 && y>=9'd80 && y<=9'd100) || (x>=9'd505 && x<=9'd525 && y>=9'd80 && y<=9'd140)
+               ||(x>=9'd525 && x<=9'd585 && y>=9'd120 && y<=9'd140) || (x>=9'd565 && x<=9'd585 && y>=9'd140 && y<=9'd180)
+               ||(x>=9'd505 && x<=9'd565 && y>=9'd160 && y<=9'd180);
+
+// text of 1P, 2P, and boundaries
+logic text_1P, text_2P, boundary1, boundary2;
+assign text_1P = (x>=9'd285 && x<=9'd290 && y>=9'd230 && y<=9'd240) || (x>=9'd290 && x<=9'd300 && y>=9'd230 && y<=9'd280)
+               ||(x>=9'd280 && x<=9'd310 && y>=9'd280 && y<=9'd290) || (x>=9'd330 && x<=9'd340 && y>=9'd230 && y<=9'd290)
+               ||(x>=9'd340 && x<=9'd350 && y>=9'd230 && y<=9'd240) || (x>=9'd350 && x<=9'd360 && y>=9'd240 && y<=9'd250)
+               ||(x>=9'd340 && x<=9'd350 && y>=9'd250 && y<=9'd260);
+assign text_2P = (x>=9'd280 && x<=9'd300 && y>=9'd330 && y<=9'd340) || (x>=9'd300 && x<=9'd310 && y>=9'd330 && y<=9'd365)
+               ||(x>=9'd280 && x<=9'd300 && y>=9'd355 && y<=9'd365) || (x>=9'd280 && x<=9'd290 && y>=9'd365 && y<=9'd390)
+               ||(x>=9'd290 && x<=9'd310 && y>=9'd380 && y<=9'd390) || (x>=9'd330 && x<=9'd340 && y>=9'd330 && y<=9'd390)
+               ||(x>=9'd340 && x<=9'd350 && y>=9'd330 && y<=9'd340) || (x>=9'd350 && x<=9'd360 && y>=9'd340 && y<=9'd350)
+               ||(x>=9'd340 && x<=9'd350 && y>=9'd350 && y<=9'd360);
+assign boundary1 = (x>=9'd255 && x<=9'd260 && y>=9'd220 && y<=9'd300) || (x>=9'd260 && x<=9'd380 && y>=9'd220 && y<=9'd225)
+                 ||(x>=9'd380 && x<=9'd385 && y>=9'd220 && y<=9'd300) || (x>=9'd260 && x<=9'd380 && y>=9'd295 && y<=9'd300);
+assign boundary2 = (x>=9'd255 && x<=9'd260 && y>=9'd320 && y<=9'd400) || (x>=9'd260 && x<=9'd380 && y>=9'd320 && y<=9'd325)
+                 ||(x>=9'd380 && x<=9'd385 && y>=9'd320 && y<=9'd400) || (x>=9'd260 && x<=9'd380 && y>=9'd395 && y<=9'd400);
+
 // home page
 always_comb begin
     if (mode == 1'b0) begin
-        vga_r_n = 8'd255;
-        vga_g_n = 8'd255;
-        vga_b_n = 8'd20;
+        if (text_T1) begin
+            vga_r_n = 8'd255;
+            vga_g_n = 8'd255;
+            vga_b_n = 8'd255;
+        end
+        else if (text_E) begin
+            vga_r_n = 8'd255;
+            vga_g_n = 8'd255;
+            vga_b_n = 8'd255;
+        end
+        else if (text_T2) begin
+            vga_r_n = 8'd255;
+            vga_g_n = 8'd255;
+            vga_b_n = 8'd255;
+        end
+        else if (text_R) begin
+            vga_r_n = 8'd255;
+            vga_g_n = 8'd255;
+            vga_b_n = 8'd255;
+        end
+        else if (text_I) begin
+            vga_r_n = 8'd255;
+            vga_g_n = 8'd255;
+            vga_b_n = 8'd255;
+        end
+        else if (text_S) begin
+            vga_r_n = 8'd255;
+            vga_g_n = 8'd255;
+            vga_b_n = 8'd255;
+        end
+        else if (text_1P) begin
+            vga_r_n = 8'd255;
+            vga_g_n = 8'd255;
+            vga_b_n = 8'd255;
+        end
+        else if (text_2P) begin
+            vga_r_n = 8'd255;
+            vga_g_n = 8'd255;
+            vga_b_n = 8'd255;
+        end
+        else if (boundary1) begin
+            vga_r_n = 8'd255;
+            vga_g_n = 8'd255;
+            vga_b_n = 8'd255;
+        end
+        else if (boundary2) begin
+            vga_r_n = 8'd255;
+            vga_g_n = 8'd255;
+            vga_b_n = 8'd255;
+        end
+        else begin
+            vga_r_n = 8'd255;
+            vga_g_n = 8'd255;
+            vga_b_n = 8'd20;
+        end
     end
     else begin
-        vga_r_n = 8'd20;
-        vga_g_n = 8'd20;
-        vga_b_n = 8'd255;
+        if (text_T1) begin
+            vga_r_n = 8'd255;
+            vga_g_n = 8'd255;
+            vga_b_n = 8'd255;
+        end
+        else if (text_E) begin
+            vga_r_n = 8'd255;
+            vga_g_n = 8'd255;
+            vga_b_n = 8'd255;
+        end
+        else if (text_T2) begin
+            vga_r_n = 8'd255;
+            vga_g_n = 8'd255;
+            vga_b_n = 8'd255;
+        end
+        else if (text_R) begin
+            vga_r_n = 8'd255;
+            vga_g_n = 8'd255;
+            vga_b_n = 8'd255;
+        end
+        else if (text_I) begin
+            vga_r_n = 8'd255;
+            vga_g_n = 8'd255;
+            vga_b_n = 8'd255;
+        end
+        else if (text_S) begin
+            vga_r_n = 8'd255;
+            vga_g_n = 8'd255;
+            vga_b_n = 8'd255;
+        end
+        else if (text_1P) begin
+            vga_r_n = 8'd255;
+            vga_g_n = 8'd255;
+            vga_b_n = 8'd255;
+        end
+        else if (text_2P) begin
+            vga_r_n = 8'd255;
+            vga_g_n = 8'd255;
+            vga_b_n = 8'd255;
+        end
+        else if (boundary1) begin
+            vga_r_n = 8'd255;
+            vga_g_n = 8'd255;
+            vga_b_n = 8'd255;
+        end
+        else if (boundary2) begin
+            vga_r_n = 8'd255;
+            vga_g_n = 8'd255;
+            vga_b_n = 8'd255;
+        end
+        else begin
+            vga_r_n = 8'd20;
+            vga_g_n = 8'd20;
+            vga_b_n = 8'd255;
+        end
     end
 end
 
