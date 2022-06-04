@@ -425,7 +425,7 @@ always_comb begin
                 counter_stall_nxt = 22'b0;
                 counter_delete_nxt = 5'b0;
                 shape_list_nxt = shape_list;
-                shape_hold_nxt = 3'b0;
+                shape_hold_nxt = 3'd7;
                 counter_shape_nxt = 3'b0;
                 dirc_nxt = 2'b0;
                 score_nxt = 10'b0;
