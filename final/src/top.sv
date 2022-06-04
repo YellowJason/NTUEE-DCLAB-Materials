@@ -74,9 +74,16 @@ Game_2 game1(
 logic [7:0] vga_r, vga_r_n, vga_g, vga_g_n, vga_b, vga_b_n;
 always_comb begin
     if (state == S_1P) begin
-        o_vga_r = r_1;
-        o_vga_g = g_1;
-        o_vga_b = b_1;
+        if (x >= 10'd100 && x < 10'd500) begin
+            o_vga_r = r_1;
+            o_vga_g = g_1;
+            o_vga_b = b_1;
+        end
+        else begin
+            o_vga_r = 8'd50;
+            o_vga_g = 8'd50;
+            o_vga_b = 8'd50;
+        end
     end
     else if (state == S_2P) begin
         if (x > 10'd320) begin

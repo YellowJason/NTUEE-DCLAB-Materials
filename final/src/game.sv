@@ -159,8 +159,8 @@ assign hold_text = (x==10'd131 && y>=10'd130 && y<10'd150) || (x>=10'd131 && x<1
 logic [2:0] shape_hold, shape_hold_nxt;
 logic [1:0] x_hold, y_hold;
 logic [15:0] shape_show;
-assign x_hold = (x-129) / 18;
-assign y_hold = (y-160) / 20;
+assign x_hold = (x-10'd129) / 10'd18;
+assign y_hold = (y-10'd160) / 10'd20;
 shape_show_box show0(
     .shape(shape_hold),
     .shape_show(shape_show)
@@ -171,8 +171,8 @@ logic [2:0] shape_next;
 logic [1:0] x_next, y_next;
 logic [15:0] shape_show_2;
 assign shape_next = (counter_shape == 3'd6) ? shape_list[11:9] : shape_list[17:15];
-assign x_next = (x-129) / 18;
-assign y_next = (y-280) / 20;
+assign x_next = (x-10'd129) / 10'd18;
+assign y_next = (y-10'd280) / 10'd20;
 shape_show_box show1(
     .shape(shape_next),
     .shape_show(shape_show_2)
@@ -200,7 +200,7 @@ always_comb begin
     end
     // hold block
     else if ((x >= 10'd129) && (x <= 10'd201) && (y >= 10'd160) && (y <= 10'd240)) begin
-        if (((x-129)%18 == 0) || ((y-160)%20 == 0)) begin
+        if (((x-10'd129)%10'd18 == 0) || ((y-10'd160)%10'd20 == 0)) begin
             vga_r_n = 8'd255;
             vga_g_n = 8'd255;
             vga_b_n = 8'd255;
@@ -238,7 +238,7 @@ always_comb begin
     end
     // next block
     else if ((x >= 10'd129) && (x <= 10'd201) && (y >= 10'd280) && (y <= 10'd360)) begin
-        if (((x-129)%18 == 0) || ((y-280)%20 == 0)) begin
+        if (((x-10'd129)%10'd18 == 0) || ((y-10'd280)%10'd20 == 0)) begin
             vga_r_n = 8'd255;
             vga_g_n = 8'd255;
             vga_b_n = 8'd255;
@@ -266,7 +266,7 @@ always_comb begin
     // game area
     else if ((x >= 10'd230) && (x <= 10'd410) && (y >= 10'd40) && (y <= 10'd440)) begin
         // block boundary
-        if (((x-230)%18 == 0) || ((y-40)%20 == 0)) begin
+        if (((x-10'd230)%10'd18 == 0) || ((y-10'd40)%10'd20 == 0)) begin
             vga_r_n = 8'd255;
             vga_g_n = 8'd255;
             vga_b_n = 8'd255;
@@ -584,9 +584,11 @@ always_comb begin
         end
         S_EVAL: begin
             if ((blocks[x_center][y_center] != 3'b0) ||
-                (blocks[b1_x][b1_y] != 3'b0) || (blocks[b2_x][b2_y] != 3'b0) || (blocks[b3_x][b3_y] != 3'b0) ||
-                (x_center > 4'd9) || (b1_x > 4'd9) || (b2_x > 4'd9) || (b3_x > 4'd9) ||
-                (y_center > 5'd19) || (b1_y > 5'd19) || (b2_y > 5'd19) || (b3_y > 5'd19)) begin
+                (blocks[b1_x][b1_y] != 3'b0) || (blocks[b2_x][b2_y] != 3'b0) || (blocks[b3_x][b3_y] != 3'b0)) begin
+                dirc_nxt = dirc - 1;
+            end
+            else if ((x_center > 4'd9) || (b1_x > 4'd9) || (b2_x > 4'd9) || (b3_x > 4'd9) ||
+                     (y_center > 5'd19) || (b1_y > 5'd19) || (b2_y > 5'd19) || (b3_y > 5'd19)) begin
                 dirc_nxt = dirc - 1;
             end
             else begin
