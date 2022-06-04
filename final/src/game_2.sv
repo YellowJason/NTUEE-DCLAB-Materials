@@ -5,10 +5,11 @@ module Game_2(
     input [9:0] x,
     input [9:0] y,
     input [7:0] i_key,
+    output [2:0] o_state,
+    // output [7:0] o_score
     output [7:0] o_vga_r,
     output [7:0] o_vga_g,
     output [7:0] o_vga_b
-    // output [7:0] o_score
 );
 
 integer i;
@@ -22,6 +23,7 @@ parameter S_END  = 3'b011; // evaluate if the block reach bottom
 parameter S_DELE = 3'b100; // delete full rows
 parameter S_IDLE = 3'b101; // state before start
 logic [2:0] state, state_nxt;
+assign o_state = state;
 
 // output buffer
 logic [7:0] vga_r, vga_r_n, vga_g, vga_g_n, vga_b, vga_b_n;
@@ -457,7 +459,7 @@ always_comb begin
     state_nxt = state;
     counter_update_nxt = (i_key == speed) ? (counter_update + 5) : (counter_update + 1);
     counter_stall_nxt = 22'd0;
-    counter_delete_nxt = 5'b0;
+    counter_delete_nxt = counter_delete;
     shape_list_nxt = shape_list;
     shape_nxt = shape;
     shape_hold_nxt = shape_hold;
@@ -498,12 +500,12 @@ always_comb begin
         S_WAIT: begin
             counter_stall_nxt = 22'b0;
             y_center_nxt = y_center;
-            y_low_nxt = y_low;
             case(i_key)
                 up: begin
                     x_center_nxt = x_center;
                     dirc_nxt = dirc + 1;
                     state_nxt = S_EVAL;
+                    y_low_nxt = y_center;
                 end
                 down: begin
                     x_center_nxt = x_center;
@@ -585,7 +587,6 @@ always_comb begin
             state_nxt = S_STAL;
             counter_stall_nxt = 22'b0;
             // reset the lowest to current position
-            y_low_nxt = y_center;
         end
         S_STAL: begin
             counter_stall_nxt = counter_stall + 1;
@@ -617,6 +618,7 @@ always_comb begin
             end
             counter_update_nxt = 25'b0;
             counter_stall_nxt = 22'b0;
+            counter_delete_nxt = 5'd0;
         end
         S_DELE: begin
             if (counter_delete == 5'd19) begin

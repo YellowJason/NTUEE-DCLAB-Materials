@@ -195,21 +195,6 @@ vga vga0(
 	.o_vga_clk(VGA_CLK)
 );
 
-/*
-logic [7:0] o_score;
-Game game0(
-	.i_clk(CLK_25M),
-    .i_rst_n(KEY[3]),
-	.i_start(key0down),
-    .x(x),
-    .y(y),
-	.i_key(keyboard_down),
-    .o_vga_r(VGA_R),
-	.o_vga_g(VGA_G),
-	.o_vga_b(VGA_B),
-	// .o_score(o_score)
-);
-*/
 Top top0(
 	.i_clk(CLK_25M),
     .i_rst_n(KEY[3]),
@@ -217,6 +202,8 @@ Top top0(
     .y(y),
 	.i_key_1(keyboard_down),
 	.i_key_2(keyboard_down_2),
+	.state_1(aaa),
+    .state_2(bbb),
     .o_vga_r(VGA_R),
 	.o_vga_g(VGA_G),
 	.o_vga_b(VGA_B),
@@ -234,12 +221,12 @@ SevenHexDecoder seven_dec1(
  	.o_seven_one(HEX2)
 );
 SevenHexDecoder seven_dec2(
-	.i_hex(keyboard_down_2[3:0]),
+	.i_hex(aaa),
  	.o_seven_ten(HEX5),
  	.o_seven_one(HEX4)
 );
 SevenHexDecoder seven_dec3(
-	.i_hex(keyboard_down_2[7:4]),
+	.i_hex(bbb),
  	.o_seven_ten(HEX7),
  	.o_seven_one(HEX6)
 );
