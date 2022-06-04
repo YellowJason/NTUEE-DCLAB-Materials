@@ -11,6 +11,8 @@ module Keyboard2(
 );
 
 // keys we want to detect
+parameter esc = 8'h76;
+
 parameter up = 8'h75;
 parameter down = 8'h72;
 parameter right = 8'h74;
@@ -64,10 +66,10 @@ end
 
 logic update;
 assign update = (data_curr==up) || (data_curr==down) || (data_curr==right) || (data_curr==left) || 
-                (data_curr==enter) || (data_curr==space);
+                (data_curr==enter) || (data_curr==space) || (data_curr==esc);
 logic update_2;
 assign update_2 = (data_curr==w) || (data_curr==a) || (data_curr==s) || (data_curr==d) || 
-                  (data_curr==shift) || (data_curr==ctrl);
+                  (data_curr==shift) || (data_curr==ctrl) || (data_curr==esc);
 
 always_ff @(posedge flag or negedge i_rst_n) begin
     if (!i_rst_n) begin
