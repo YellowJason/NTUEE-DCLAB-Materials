@@ -1,4 +1,4 @@
-module Game(
+module Game_2(
     input i_clk,
     input i_rst_n,
     input i_start,
@@ -30,12 +30,12 @@ assign o_vga_g = vga_g;
 assign o_vga_b = vga_b;
 
 // keyboard in
-parameter up = 8'h75;
-parameter down = 8'h29;
-parameter right = 8'h74;
-parameter left = 8'h6b;
-parameter speed = 8'h72;
-parameter hold = 8'h5a;
+parameter up = 8'h1d;
+parameter down = 8'h14;
+parameter right = 8'h23;
+parameter left = 8'h1c;
+parameter speed = 8'h1b;
+parameter hold = 8'h12;
 parameter esc = 8'h76;
 
 // use 10*20 3'b registers store every blocks' color
