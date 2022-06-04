@@ -160,6 +160,13 @@ shape_show_box show0(
     .shape_show(shape_show)
 );
 
+// text of next
+logic next_text;
+assign next_text = (x==9'd131 && y>=9'd250 && y<9'd270) || (x>=9'd131 && x<9'd145 && y==10*(x-131)/7+250) || (x==9'd145 && y>=9'd250 && y<9'd270) //N
+                 ||(x==9'd149 && y>=9'd250 && y<9'd270) || (x>=9'd149 && x<9'd163 && y==9'd250) || (x>=9'd149 && x<9'd163 && y==9'd260) || (x>=9'd149 && x<9'd163 && y==9'd270) //E
+                 ||(x>=9'd167 && x<9'd181 && y==10*(x-167)/7+250) || (x>=9'd167 && x<9'd181 && y==270-10*(x-167)/7) //X
+                 ||(x>=9'd185 && x<9'd199 && y==9'd250) || (x==9'd192 && y>=9'd250 && y<9'd270); //T
+
 // showing
 always_comb begin
     // hold text
@@ -198,6 +205,30 @@ always_comb begin
                 vga_g_n = 8'd20;
                 vga_b_n = 8'd20;
             end
+        end
+    end
+    // next text
+    else if (((x>9'd145 && x<9'd149) || (x>9'd163 && x<9'd167) || (x>9'd181 && x<9'd185)) && (y>=9'd250 && y<9'd270)) begin
+        vga_r_n = 8'd50;
+        vga_g_n = 8'd50;
+        vga_b_n = 8'd50;
+    end
+    else if (next_text) begin
+        vga_r_n = 8'd255;
+        vga_g_n = 8'd255;
+        vga_b_n = 8'd255;
+    end
+    // next block
+    else if ((x >= 9'd129) && (x <= 9'd201) && (y >= 9'd280) && (y <= 9'd360)) begin
+        if (((x-129)%18 == 0) || ((y-280)%20 == 0)) begin
+            vga_r_n = 8'd255;
+            vga_g_n = 8'd255;
+            vga_b_n = 8'd255;
+        end
+        else begin
+            vga_r_n = 8'd20;
+            vga_g_n = 8'd20;
+            vga_b_n = 8'd20;
         end
     end
     else if ((x >= 9'd230) && (x <= 9'd410) && (y >= 9'd40) && (y <= 9'd440)) begin
