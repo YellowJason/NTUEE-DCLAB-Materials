@@ -137,119 +137,60 @@ assign boundary2 = (x>=9'd255 && x<=9'd260 && y>=9'd320 && y<=9'd400) || (x>=9'd
 
 // home page
 always_comb begin
-    if (mode == 1'b0) begin
-        if (text_T1) begin
-            vga_r_n = 8'd255;
-            vga_g_n = 8'd255;
-            vga_b_n = 8'd255;
-        end
-        else if (text_E) begin
-            vga_r_n = 8'd255;
-            vga_g_n = 8'd255;
-            vga_b_n = 8'd255;
-        end
-        else if (text_T2) begin
-            vga_r_n = 8'd255;
-            vga_g_n = 8'd255;
-            vga_b_n = 8'd255;
-        end
-        else if (text_R) begin
-            vga_r_n = 8'd255;
-            vga_g_n = 8'd255;
-            vga_b_n = 8'd255;
-        end
-        else if (text_I) begin
-            vga_r_n = 8'd255;
-            vga_g_n = 8'd255;
-            vga_b_n = 8'd255;
-        end
-        else if (text_S) begin
-            vga_r_n = 8'd255;
-            vga_g_n = 8'd255;
-            vga_b_n = 8'd255;
-        end
-        else if (text_1P) begin
-            vga_r_n = 8'd255;
-            vga_g_n = 8'd255;
-            vga_b_n = 8'd255;
-        end
-        else if (text_2P) begin
-            vga_r_n = 8'd255;
-            vga_g_n = 8'd255;
-            vga_b_n = 8'd255;
-        end
-        else if (boundary1) begin
-            vga_r_n = 8'd255;
-            vga_g_n = 8'd255;
-            vga_b_n = 8'd255;
-        end
-        else if (boundary2) begin
-            vga_r_n = 8'd255;
-            vga_g_n = 8'd255;
-            vga_b_n = 8'd255;
-        end
-        else begin
-            vga_r_n = 8'd255;
-            vga_g_n = 8'd255;
-            vga_b_n = 8'd20;
-        end
+    if (text_T1) begin
+        vga_r_n = 8'd255;
+        vga_g_n = 8'd255;
+        vga_b_n = 8'd255;
+    end
+    else if (text_E) begin
+        vga_r_n = 8'd255;
+        vga_g_n = 8'd255;
+        vga_b_n = 8'd255;
+    end
+    else if (text_T2) begin
+        vga_r_n = 8'd255;
+        vga_g_n = 8'd255;
+        vga_b_n = 8'd255;
+    end
+    else if (text_R) begin
+        vga_r_n = 8'd255;
+        vga_g_n = 8'd255;
+        vga_b_n = 8'd255;
+    end
+    else if (text_I) begin
+        vga_r_n = 8'd255;
+        vga_g_n = 8'd255;
+        vga_b_n = 8'd255;
+    end
+    else if (text_S) begin
+        vga_r_n = 8'd255;
+        vga_g_n = 8'd255;
+        vga_b_n = 8'd255;
+    end
+    else if (text_1P) begin
+        vga_r_n = 8'd255;
+        vga_g_n = 8'd255;
+        vga_b_n = 8'd255;
+    end
+    else if (text_2P) begin
+        vga_r_n = 8'd255;
+        vga_g_n = 8'd255;
+        vga_b_n = 8'd255;
+    end
+    else if ((mode==1'b0) && boundary1) begin
+        vga_r_n = 8'd255;
+        vga_g_n = 8'd255;
+        vga_b_n = 8'd255;
+    end
+    else if ((mode==1'b1) && boundary2) begin
+        vga_r_n = 8'd255;
+        vga_g_n = 8'd255;
+        vga_b_n = 8'd255;
     end
     else begin
-        if (text_T1) begin
-            vga_r_n = 8'd255;
-            vga_g_n = 8'd255;
-            vga_b_n = 8'd255;
-        end
-        else if (text_E) begin
-            vga_r_n = 8'd255;
-            vga_g_n = 8'd255;
-            vga_b_n = 8'd255;
-        end
-        else if (text_T2) begin
-            vga_r_n = 8'd255;
-            vga_g_n = 8'd255;
-            vga_b_n = 8'd255;
-        end
-        else if (text_R) begin
-            vga_r_n = 8'd255;
-            vga_g_n = 8'd255;
-            vga_b_n = 8'd255;
-        end
-        else if (text_I) begin
-            vga_r_n = 8'd255;
-            vga_g_n = 8'd255;
-            vga_b_n = 8'd255;
-        end
-        else if (text_S) begin
-            vga_r_n = 8'd255;
-            vga_g_n = 8'd255;
-            vga_b_n = 8'd255;
-        end
-        else if (text_1P) begin
-            vga_r_n = 8'd255;
-            vga_g_n = 8'd255;
-            vga_b_n = 8'd255;
-        end
-        else if (text_2P) begin
-            vga_r_n = 8'd255;
-            vga_g_n = 8'd255;
-            vga_b_n = 8'd255;
-        end
-        else if (boundary1) begin
-            vga_r_n = 8'd255;
-            vga_g_n = 8'd255;
-            vga_b_n = 8'd255;
-        end
-        else if (boundary2) begin
-            vga_r_n = 8'd255;
-            vga_g_n = 8'd255;
-            vga_b_n = 8'd255;
-        end
-        else begin
-            vga_r_n = 8'd20;
-            vga_g_n = 8'd20;
-            vga_b_n = 8'd255;
-        end
+        vga_r_n = 8'd50;
+        vga_g_n = 8'd50;
+        vga_b_n = 8'd50;
     end
 end
 
