@@ -162,11 +162,13 @@ Debounce deb2(
 // keyboard
 logic key_finish;
 logic [7:0] keyboard_down;
+logic [7:0] keyboard_down_2;
 Keyboard2 keyboard0(
     .i_rst_n(KEY[3]),
     .i_data(PS2_DAT),
     .i_ps2_clk(PS2_CLK),
     .o_data(keyboard_down),
+	.o_data_2(keyboard_down_2)
 );
 
 logic CLK_25M, CLK_65M;
@@ -193,6 +195,7 @@ vga vga0(
 	.o_vga_clk(VGA_CLK)
 );
 
+logic [7:0] o_score;
 Game game0(
 	.i_clk(CLK_25M),
     .i_rst_n(KEY[3]),
@@ -203,7 +206,7 @@ Game game0(
     .o_vga_r(VGA_R),
 	.o_vga_g(VGA_G),
 	.o_vga_b(VGA_B),
-	.o_score({ddd, ccc})
+	.o_score(o_score)
 );
 
 //-----------------------------debug-----------------------------
@@ -254,12 +257,12 @@ SevenHexDecoder seven_dec1(
  	.o_seven_one(HEX2)
 );
 SevenHexDecoder seven_dec2(
-	.i_hex(ccc),
+	.i_hex(keyboard_down_2[3:0]),
  	.o_seven_ten(HEX5),
  	.o_seven_one(HEX4)
 );
 SevenHexDecoder seven_dec3(
-	.i_hex(ddd),
+	.i_hex(keyboard_down_2[7:4]),
  	.o_seven_ten(HEX7),
  	.o_seven_one(HEX6)
 );
