@@ -2,10 +2,13 @@ module Game(
     input i_clk,
     input i_rst_n,
     input i_start,
+    input i_stop,
     input [9:0] x,
     input [9:0] y,
     input [7:0] i_key,
     output [2:0] o_state,
+    output logic [2:0] o_delete,
+    output logic o_finish,
     // output [7:0] o_score
     output [7:0] o_vga_r,
     output [7:0] o_vga_g,
@@ -16,12 +19,12 @@ integer i;
 integer j;
 
 // states
-parameter S_WAIT = 3'b000; // Wait key action
-parameter S_EVAL = 3'b001; // evaluate if the key is workable
-parameter S_STAL = 3'b010; // stall a little time after update
-parameter S_END  = 3'b011; // evaluate if the block reach bottom
-parameter S_DELE = 3'b100; // delete full rows
-parameter S_IDLE = 3'b101; // state before start
+parameter S_IDLE = 3'd0; // state before start
+parameter S_WAIT = 3'd1; // Wait key action
+parameter S_EVAL = 3'd2; // evaluate if the key is workable
+parameter S_STAL = 3'd3; // stall a little time after update
+parameter S_END  = 3'd4; // evaluate if the block reach bottom
+parameter S_DELE = 3'd5; // delete full rows
 logic [2:0] state, state_nxt;
 assign o_state = state;
 
@@ -65,6 +68,8 @@ ColorDecoder dec0(
 logic [9:0] score, score_nxt;
 logic [20:0] score_7_hex;
 logic [2:0] delete_count, delete_count_nxt;
+logic [2:0] o_delete_nxt;
+logic o_finish_nxt;
 // assign o_score = score[7:0];
 ScoreDecoder score_decoder(
 	.score(score),
@@ -467,6 +472,8 @@ always_comb begin
     dirc_nxt = dirc;
     score_nxt = score;
     delete_count_nxt = delete_count;
+    o_delete_nxt = 3'b0;
+    o_finish_nxt = 1'b0;
     x_center_nxt = x_center;
     y_center_nxt = y_center;
     y_low_nxt = y_low;
@@ -489,6 +496,7 @@ always_comb begin
                 dirc_nxt = 2'b0;
                 score_nxt = 10'b0;
                 delete_count_nxt = 3'b0;
+                o_delete_nxt = 3'b0;
                 x_center_nxt = 4'd4;
                 y_center_nxt = 5'd0;
                 y_low_nxt = 5'd0;
@@ -594,8 +602,14 @@ always_comb begin
             y_low_nxt = (down_valid) ? (y_low + 1) : y_low;
             // stall time
             if (counter_stall == ~22'b0) begin
-                if (y_low == 5'd0) state_nxt = S_IDLE;
-                else               state_nxt = (counter_update >= {1'b0, ~24'b0}) ? S_END : S_WAIT;
+                if (y_low == 5'd0) begin
+                    state_nxt = S_IDLE;
+                    o_finish_nxt = 1'b1;
+                end
+                else begin
+                    state_nxt = (counter_update >= {1'b0, ~24'b0}) ? S_END : S_WAIT;
+                    o_finish_nxt = 1'b0;
+                end
             end
             else begin
                 state_nxt = state;
@@ -625,12 +639,15 @@ always_comb begin
                 // deletion
                 state_nxt = S_STAL;
                 counter_delete_nxt = 5'd0;
+                delete_count_nxt = delete_count;
+                o_delete_nxt = delete_count;
                 if((blocks[0][counter_delete] != 0) && (blocks[1][counter_delete] != 0) &&
                    (blocks[2][counter_delete] != 0) && (blocks[3][counter_delete] != 0) &&
                    (blocks[4][counter_delete] != 0) && (blocks[5][counter_delete] != 0) && 
                    (blocks[6][counter_delete] != 0) && (blocks[7][counter_delete] != 0) &&
                    (blocks[8][counter_delete] != 0) && (blocks[9][counter_delete] != 0)) begin
                     delete_count_nxt = delete_count + 1;
+                    o_delete_nxt = delete_count + 1;
                     for (i=0; i<10; i++) begin
                         for (j=0; j<20; j++) begin
                             if (j == 0) blocks_nxt[i][j] = 3'b0;
@@ -665,6 +682,7 @@ always_comb begin
                 // deletion
                 state_nxt = S_DELE;
                 counter_delete_nxt = counter_delete + 1;
+                delete_count_nxt = delete_count;
                 if((blocks[0][counter_delete] != 0) && (blocks[1][counter_delete] != 0) &&
                    (blocks[2][counter_delete] != 0) && (blocks[3][counter_delete] != 0) &&
                    (blocks[4][counter_delete] != 0) && (blocks[5][counter_delete] != 0) && 
@@ -727,6 +745,8 @@ always_ff @(posedge i_clk or negedge i_rst_n) begin
         dirc <= 2'b0;
         score <= 10'b0;
         delete_count <= 3'b0;
+        o_delete <= 3'b0;
+        o_finish <= 1'b0;
         x_center <= 4'd4;
         y_center <= 5'd0;
         y_low <= 5'd0;
@@ -740,7 +760,7 @@ always_ff @(posedge i_clk or negedge i_rst_n) begin
                 blocks[i][j] <= blocks_nxt[i][j];
             end
         end
-        state <= (i_key == esc) ? S_IDLE : state_nxt;
+        state <= (i_stop) ? S_IDLE : state_nxt;
         counter_update <= counter_update_nxt;
         counter_stall <= counter_stall_nxt;
         counter_delete <= counter_delete_nxt;
@@ -751,6 +771,8 @@ always_ff @(posedge i_clk or negedge i_rst_n) begin
         dirc <= dirc_nxt;
         score <= score_nxt;
         delete_count <= delete_count_nxt;
+        o_delete <= o_delete_nxt;
+        o_finish <= o_finish_nxt;
         x_center <= x_center_nxt;
         y_center <= y_center_nxt;
         y_low <= y_low_nxt;

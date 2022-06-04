@@ -33,17 +33,23 @@ assign x_game_2 = x + 9'd105;
 
 // control signal
 logic start, start_nxt;
+logic stop, stop_nxt;
 
 // 2 game module
 logic [7:0] r_1, g_1, b_1, r_2, g_2, b_2;
+logic [2:0] delete_1, delete_2;
+logic finish_1, finish_2;
 Game game0(
 	.i_clk(i_clk),
     .i_rst_n(i_rst_n),
 	.i_start(start),
+    .i_stop(stop),
     .x(x_game_1),
     .y(y),
 	.i_key(i_key_1),
     .o_state(state_1),
+    .o_delete(delete_1),
+    .o_finish(finish_1),
     .o_vga_r(r_1),
 	.o_vga_g(g_1),
 	.o_vga_b(b_1),
@@ -52,10 +58,13 @@ Game_2 game1(
 	.i_clk(i_clk),
     .i_rst_n(i_rst_n),
 	.i_start(start),
+    .i_stop(stop),
     .x(x_game_2),
     .y(y),
 	.i_key(i_key_2),
     .o_state(state_2),
+    .o_delete(delete_2),
+    .o_finish(finish_2),
     .o_vga_r(r_2),
 	.o_vga_g(g_2),
 	.o_vga_b(b_2),
@@ -114,13 +123,14 @@ always_comb begin
     state_nxt = state;
     mode_nxt = mode;
     start_nxt = start;
+    stop_nxt = stop;
     // finite state machine
     case(state)
         S_IDLE: begin
             if (i_key_1 == down)    mode_nxt = 1'b1;
             else if (i_key_1 == up) mode_nxt = 1'b0;
             else                    mode_nxt = mode;
-
+            
             if (i_key_1 == enter) begin
                 start_nxt = 1'b1;
                 state_nxt = mode ? S_2P : S_1P;
@@ -129,15 +139,32 @@ always_comb begin
                 start_nxt = 1'b0;
                 state_nxt = S_IDLE;
             end
+            stop_nxt = 1'b0;
         end
         S_1P: begin
-            if (i_key_1 == esc) state_nxt = S_IDLE;
-            else                state_nxt = state;
+            if (i_key_1 == esc) begin
+                state_nxt = S_IDLE;
+                stop_nxt = 1'b1;
+            end
+            else begin
+                state_nxt = state;
+                stop_nxt = 1'b0;
+            end
             start_nxt = 1'b0;
         end
         S_2P: begin
-            if (i_key_1 == esc) state_nxt = S_IDLE;
-            else                state_nxt = state;
+            if (i_key_1 == esc) begin
+                state_nxt = S_IDLE;
+                stop_nxt = 1'b1;
+            end
+            else if (finish_1 || finish_2) begin
+                state_nxt = state;
+                stop_nxt = 1'b1;
+            end
+            else begin
+                state_nxt = state;
+                stop_nxt = 1'b0;
+            end
             start_nxt = 1'b0;
         end
     endcase
@@ -148,6 +175,7 @@ always_ff @(posedge i_clk or negedge i_rst_n) begin
         state <= 2'b00;
         mode <= 1'b0;
         start <= 1'b0;
+        stop <= 1'b0;
         vga_r <= 8'd0;
         vga_g <= 8'd0;
         vga_b <= 8'd0;
@@ -156,6 +184,7 @@ always_ff @(posedge i_clk or negedge i_rst_n) begin
         state <= state_nxt;
         mode <= mode_nxt;
         start <= start_nxt;
+        stop <= stop_nxt;
         vga_r <= vga_r_n;
         vga_g <= vga_g_n;
         vga_b <= vga_b_n;
