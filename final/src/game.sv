@@ -100,9 +100,6 @@ ShapeDecoder shape0(
     .b3_y(b3_y)
 );
 
-// hold shape
-logic [2:0] shape_hold, shape_hold_nxt;
-
 // if current coordinate in the moving shape
 logic in_shape;
 assign in_shape = (x_block == x_center && y_block == y_center) ||
@@ -151,6 +148,7 @@ assign hold_text = (x==9'd131 && y>=9'd130 && y<9'd150) || (x>=9'd131 && x<9'd14
                  ||(x==9'd167 && y>=9'd130 && y<9'd150) || (x>=9'd167 && x<9'd181 && y==9'd150) //L
                  ||(x==9'd185 && y>=9'd130 && y<9'd150) || (x>=9'd185 && x<9'd199 && y==5*(x-185)/14+130) || (x>=9'd185 && x<9'd199 && y==150-5*(x-185)/14) || (x==9'd199 && y>=9'd135 && y<=9'd145); //D
 // show hold shape
+logic [2:0] shape_hold, shape_hold_nxt;
 logic [1:0] x_hold, y_hold;
 logic [15:0] shape_show;
 assign x_hold = (x-129) / 18;
@@ -158,6 +156,18 @@ assign y_hold = (y-160) / 20;
 shape_show_box show0(
     .shape(shape_hold),
     .shape_show(shape_show)
+);
+
+// next shape
+logic [2:0] shape_next;
+logic [1:0] x_next, y_next;
+logic [15:0] shape_show_2;
+assign shape_next = (counter_shape == 3'd6) ? shape_list[11:9] : shape_list[17:15];
+assign x_next = (x-129) / 18;
+assign y_next = (y-280) / 20;
+shape_show_box show1(
+    .shape(shape_next),
+    .shape_show(shape_show_2)
 );
 
 // text of next
@@ -226,9 +236,23 @@ always_comb begin
             vga_b_n = 8'd255;
         end
         else begin
-            vga_r_n = 8'd20;
-            vga_g_n = 8'd20;
-            vga_b_n = 8'd20;
+            if (shape_show_2[y_next*4 + x_next]) begin
+                case(shape_next)
+                    0: {vga_r_n, vga_g_n, vga_b_n} = {8'd255, 8'd20,  8'd20 };
+                    1: {vga_r_n, vga_g_n, vga_b_n} = {8'd20,  8'd255, 8'd20 };
+                    2: {vga_r_n, vga_g_n, vga_b_n} = {8'd20,  8'd20,  8'd255};
+                    3: {vga_r_n, vga_g_n, vga_b_n} = {8'd20,  8'd255, 8'd255};
+                    4: {vga_r_n, vga_g_n, vga_b_n} = {8'd255, 8'd20,  8'd255};
+                    5: {vga_r_n, vga_g_n, vga_b_n} = {8'd255, 8'd255, 8'd20 };
+                    6: {vga_r_n, vga_g_n, vga_b_n} = {8'd255, 8'd100, 8'd0  };
+                    7: {vga_r_n, vga_g_n, vga_b_n} = {8'd20,  8'd20,  8'd20 };
+                endcase
+            end
+            else begin
+                vga_r_n = 8'd20;
+                vga_g_n = 8'd20;
+                vga_b_n = 8'd20;
+            end
         end
     end
     else if ((x >= 9'd230) && (x <= 9'd410) && (y >= 9'd40) && (y <= 9'd440)) begin
