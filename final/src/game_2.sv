@@ -1,4 +1,4 @@
-module Game(
+module Game_2(
     input i_clk,
     input i_rst_n,
     input i_start,
@@ -35,12 +35,12 @@ assign o_vga_g = vga_g;
 assign o_vga_b = vga_b;
 
 // keyboard in
-parameter up = 8'h75;
-parameter down = 8'h29;
-parameter right = 8'h74;
-parameter left = 8'h6b;
-parameter speed = 8'h72;
-parameter hold = 8'h5a;
+parameter up = 8'h1d;
+parameter down = 8'h14;
+parameter right = 8'h23;
+parameter left = 8'h1c;
+parameter speed = 8'h1b;
+parameter hold = 8'h12;
 parameter esc = 8'h76;
 
 // use 10*20 3'b registers store every blocks' color
@@ -200,7 +200,7 @@ always_comb begin
     end
     // hold block
     else if ((x >= 10'd129) && (x <= 10'd201) && (y >= 10'd160) && (y <= 10'd240)) begin
-        if (((x-10'd129)%10'd18 == 0) || ((y-10'd160)%10'd20 == 0)) begin
+        if (((x-10'd129)%18 == 0) || ((y-10'd160)%20 == 0)) begin
             vga_r_n = 8'd255;
             vga_g_n = 8'd255;
             vga_b_n = 8'd255;
@@ -584,11 +584,9 @@ always_comb begin
         end
         S_EVAL: begin
             if ((blocks[x_center][y_center] != 3'b0) ||
-                (blocks[b1_x][b1_y] != 3'b0) || (blocks[b2_x][b2_y] != 3'b0) || (blocks[b3_x][b3_y] != 3'b0)) begin
-                dirc_nxt = dirc - 1;
-            end
-            else if ((x_center > 4'd9) || (b1_x > 4'd9) || (b2_x > 4'd9) || (b3_x > 4'd9) ||
-                     (y_center > 5'd19) || (b1_y > 5'd19) || (b2_y > 5'd19) || (b3_y > 5'd19)) begin
+                (blocks[b1_x][b1_y] != 3'b0) || (blocks[b2_x][b2_y] != 3'b0) || (blocks[b3_x][b3_y] != 3'b0) ||
+                (x_center > 4'd9) || (b1_x > 4'd9) || (b2_x > 4'd9) || (b3_x > 4'd9) ||
+                (y_center > 5'd19) || (b1_y > 5'd19) || (b2_y > 5'd19) || (b3_y > 5'd19)) begin
                 dirc_nxt = dirc - 1;
             end
             else begin

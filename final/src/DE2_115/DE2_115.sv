@@ -143,30 +143,32 @@ logic [3:0] aaa, bbb, ccc, ddd;
 Debounce deb0(
 	.i_in(KEY[0]),
 	.i_rst_n(KEY[3]),
-	.i_clk(CLK_12M),
+	.i_clk(CLK_25M),
 	.o_neg(key0down) 
 );
 Debounce deb1(
 	.i_in(KEY[1]),
 	.i_rst_n(KEY[3]),
-	.i_clk(CLK_12M),
+	.i_clk(CLK_25M),
 	.o_neg(key1down) 
 );
 Debounce deb2(
 	.i_in(KEY[2]),
 	.i_rst_n(KEY[3]),
-	.i_clk(CLK_12M),
+	.i_clk(CLK_25M),
 	.o_neg(key2down) 
 );
 
 // keyboard
 logic key_finish;
 logic [7:0] keyboard_down;
+logic [7:0] keyboard_down_2;
 Keyboard2 keyboard0(
     .i_rst_n(KEY[3]),
     .i_data(PS2_DAT),
     .i_ps2_clk(PS2_CLK),
     .o_data(keyboard_down),
+	.o_data_2(keyboard_down_2)
 );
 
 logic CLK_25M, CLK_65M;
@@ -193,52 +195,19 @@ vga vga0(
 	.o_vga_clk(VGA_CLK)
 );
 
-Game game0(
-	.i_clk(CLOCK_50),
+Top top0(
+	.i_clk(CLK_25M),
     .i_rst_n(KEY[3]),
     .x(x),
     .y(y),
-	.i_key(keyboard_down),
+	.i_key_1(keyboard_down),
+	.i_key_2(keyboard_down_2),
+	.state_1(aaa),
+    .state_2(bbb),
     .o_vga_r(VGA_R),
 	.o_vga_g(VGA_G),
 	.o_vga_b(VGA_B),
 );
-
-//-----------------------------debug-----------------------------
-/*
-logic [26:0] counter_CLK_25M, counter_CLK_65M, counter_CLOCK_50;
-// assign ccc = counter_CLK_25M[26:23];
-// assign bbb = counter_CLOCK_50[26:23];
-// assign ddd = counter_CLK_65M[26:23];
-
-always_ff @(negedge CLK_25M or negedge KEY[3]) begin
-	if (!KEY[3]) begin
-		counter_CLK_25M <= 27'b0;
-	end
-	else begin
-		counter_CLK_25M <= counter_CLK_25M + 1;
-	end
-end
-
-always_ff @(negedge CLK_65M or negedge KEY[3]) begin
-	if (!KEY[3]) begin
-		counter_CLK_65M <= 27'b0;
-	end
-	else begin
-		counter_CLK_65M <= counter_CLK_65M + 1;
-	end
-end
-
-always_ff @(negedge CLOCK_50 or negedge KEY[3]) begin
-	if (!KEY[3]) begin
-		counter_CLOCK_50 <= 27'b0;
-	end
-	else begin
-		counter_CLOCK_50 <= counter_CLOCK_50 + 1;
-	end
-end
-*/
-//---------------------------------------------------------------
 
 // 7 hex decoder
 SevenHexDecoder seven_dec0(
@@ -252,12 +221,12 @@ SevenHexDecoder seven_dec1(
  	.o_seven_one(HEX2)
 );
 SevenHexDecoder seven_dec2(
-	.i_hex(ccc),
+	.i_hex(aaa),
  	.o_seven_ten(HEX5),
  	.o_seven_one(HEX4)
 );
 SevenHexDecoder seven_dec3(
-	.i_hex(ddd),
+	.i_hex(bbb),
  	.o_seven_ten(HEX7),
  	.o_seven_one(HEX6)
 );
