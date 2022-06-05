@@ -63,7 +63,7 @@ Game_2 game1(
     .x(x_game_2),
     .y(y),
 	.i_key(i_key_2),
-    // .i_attack(delete_1),
+    .i_attack(delete_1),
     .o_state(state_2),
     .o_delete(delete_2),
     .o_finish(finish_2),

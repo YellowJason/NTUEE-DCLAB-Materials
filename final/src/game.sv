@@ -190,11 +190,19 @@ assign next_text = (x==10'd131 && y>=10'd250 && y<10'd270) || (x>=10'd131 && x<1
 // attack
 logic [2:0] attack_count, attack_count_nxt;
 logic [9:0] rand_attk, rand_attk_nxt; // empty position of garbage row
+logic [22:0] attack_bg_color, attack_bg_color_nxt;
 always_comb begin
     rand_attk_nxt = rand_attk;
+    // change background color
+    if (i_attack > 3'd1) attack_bg_color_nxt = ~23'b0;
+    else                 attack_bg_color_nxt = (attack_bg_color == 23'b0) ? 23'b0 : (attack_bg_color-1'b1);
+    // count how many garbage row
     if ((state == S_ATTK) && (attack_count > 3'd0)) begin
         attack_count_nxt = attack_count - 1;
         rand_attk_nxt = {rand_attk[6:0], rand_attk[9:7]};
+    end
+    else if (state == S_IDLE) begin
+        attack_count_nxt = 3'd0;
     end
     else if (i_attack != 3'd0) begin
         case(i_attack)
@@ -457,7 +465,7 @@ always_comb begin
         end
     end
     else begin
-        vga_r_n = 8'd50;
+        vga_r_n = 8'd50 + attack_bg_color[22:16];
         vga_g_n = 8'd50;
         vga_b_n = 8'd50;
     end
@@ -519,7 +527,6 @@ always_comb begin
                 dirc_nxt = 2'b0;
                 score_nxt = 10'b0;
                 delete_count_nxt = 3'b0;
-                attack_count_nxt = 3'd0;
                 o_delete_nxt = 3'b0;
                 x_center_nxt = 4'd4;
                 y_center_nxt = 5'd0;
@@ -684,8 +691,7 @@ always_comb begin
                     for (i=0; i<10; i++) begin
                         for (j=0; j<20; j++) begin
                             if (j == 0) blocks_nxt[i][j] = 3'b0;
-                            else if (j <= counter_delete) blocks_nxt[i][j] = blocks[i][j-1];
-                            else blocks_nxt[i][j] = blocks[i][j];
+                            else blocks_nxt[i][j] = blocks[i][j-1];
                         end
                     end
                 end
@@ -738,7 +744,7 @@ always_comb begin
             end
             else begin
                 // move moving shape
-                if (y_center != 0) begin
+                if ((y_center!=0) && (b1_y!=0) && (b2_y!=0) && (b3_y!=0)) begin
                     y_center_nxt = y_center-1;
                     y_low_nxt = y_center-1;
                 end
@@ -758,43 +764,18 @@ always_comb begin
             end
 
         end
-        default: begin
-            for (i=0; i<10; i++) begin
-                for (j=0; j<20; j++) begin
-                    blocks_nxt[i][j] = blocks[i][j];
-                end
-            end
-            counter_update_nxt = counter_update + 1;
-            state_nxt = state;
-            counter_stall_nxt = counter_stall;
-            shape_list_nxt = shape_list;
-            counter_shape_nxt = counter_shape;
-            dirc_nxt = dirc;
-            score_nxt = score;
-            delete_count_nxt = delete_count;
-            x_center_nxt = x_center;
-            y_center_nxt = y_center;
-            y_low_nxt = y_low;
-        end
     endcase
 end
 
 always_ff @(posedge i_clk or negedge i_rst_n) begin
     if (!i_rst_n) begin
-        for (i=0; i<20; i++) begin
-            blocks[0][i] <= 3'd0;
-            blocks[1][i] <= 3'd0;
-            blocks[2][i] <= 3'd0;
-            blocks[3][i] <= 3'd0;
-            blocks[4][i] <= 3'd0;
-            blocks[5][i] <= 3'd0;
-            blocks[6][i] <= 3'd0;
-            blocks[7][i] <= 3'd0;
-            blocks[8][i] <= 3'd0;
-            blocks[9][i] <= 3'd0;
+        for (i=0; i<10; i++) begin
+            for (j=0; j<20; j++) begin
+                blocks[i][j] <= 3'd0;
+            end
         end
         state <= S_IDLE;
-        counter_update <= 24'b0;
+        counter_update <= 25'b0;
         counter_stall <= 22'b0;
         counter_delete <= 5'b0;
         shape_list <= {3'd0, 3'd1, 3'd2, 3'd3, 3'd4, 3'd5, 3'd6};
@@ -811,6 +792,7 @@ always_ff @(posedge i_clk or negedge i_rst_n) begin
         y_low <= 5'd0;
         attack_count <= 3'd0;
         rand_attk <= 10'b1111111101;
+        attack_bg_color <= 23'b0;
         vga_r <= 8'b0;
         vga_g <= 8'b0;
         vga_b <= 8'b0;
@@ -839,6 +821,7 @@ always_ff @(posedge i_clk or negedge i_rst_n) begin
         y_low <= y_low_nxt;
         attack_count <= attack_count_nxt;
         rand_attk <= rand_attk_nxt;
+        attack_bg_color <= attack_bg_color_nxt;
         vga_r <= vga_r_n;
         vga_g <= vga_g_n;
         vga_b <= vga_b_n;
