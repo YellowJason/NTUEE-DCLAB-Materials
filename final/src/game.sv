@@ -213,7 +213,6 @@ always_comb begin
         endcase
     end
     else attack_count_nxt = attack_count;
-    
 end
 
 // showing
@@ -533,10 +532,20 @@ always_comb begin
                 y_low_nxt = 5'd0;
             end
             else begin
+                for (i=0; i<10; i++) begin
+                    for (j=0; j<20; j++) begin
+                        blocks_nxt[i][j] = blocks[i][j];
+                    end
+                end
                 state_nxt = S_IDLE;
             end
         end
         S_WAIT: begin
+            for (i=0; i<10; i++) begin
+                for (j=0; j<20; j++) begin
+                    blocks_nxt[i][j] = blocks[i][j];
+                end
+            end
             counter_stall_nxt = 22'b0;
             y_center_nxt = y_center;
             if (attack_count != 3'b0) begin
@@ -621,6 +630,11 @@ always_comb begin
             end
         end
         S_EVAL: begin
+            for (i=0; i<10; i++) begin
+                for (j=0; j<20; j++) begin
+                    blocks_nxt[i][j] = blocks[i][j];
+                end
+            end
             if ((blocks[x_center][y_center] != 3'b0) ||
                 (blocks[b1_x][b1_y] != 3'b0) || (blocks[b2_x][b2_y] != 3'b0) || (blocks[b3_x][b3_y] != 3'b0)) begin
                 dirc_nxt = dirc - 1;
@@ -637,6 +651,11 @@ always_comb begin
             // reset the lowest to current position
         end
         S_STAL: begin
+            for (i=0; i<10; i++) begin
+                for (j=0; j<20; j++) begin
+                    blocks_nxt[i][j] = blocks[i][j];
+                end
+            end
             counter_stall_nxt = counter_stall + 1;
             // calculate the lowest position
             y_low_nxt = (down_valid) ? (y_low + 1) : y_low;
@@ -657,6 +676,11 @@ always_comb begin
         end
         S_END: begin
             // falling
+            for (i=0; i<10; i++) begin
+                for (j=0; j<20; j++) begin
+                    blocks_nxt[i][j] = blocks[i][j];
+                end
+            end
             if (y_center == y_low) begin
                 state_nxt = S_DELE;
                 delete_count_nxt = 3'b0;
@@ -675,6 +699,11 @@ always_comb begin
             counter_delete_nxt = 5'd0;
         end
         S_DELE: begin
+            for (i=0; i<10; i++) begin
+                for (j=0; j<20; j++) begin
+                    blocks_nxt[i][j] = blocks[i][j];
+                end
+            end
             if (counter_delete == 5'd19) begin
                 // deletion
                 state_nxt = S_STAL;
@@ -739,10 +768,16 @@ always_comb begin
             end
         end
         S_ATTK: begin
+            for (i=0; i<10; i++) begin
+                for (j=0; j<20; j++) begin
+                    blocks_nxt[i][j] = blocks[i][j];
+                end
+            end
             if (attack_count == 3'd0) begin
                 state_nxt = S_STAL;
             end
             else begin
+                state_nxt = S_ATTK;
                 // move moving shape
                 if ((y_center!=0) && (b1_y!=0) && (b2_y!=0) && (b3_y!=0)) begin
                     y_center_nxt = y_center-1;
@@ -762,7 +797,6 @@ always_comb begin
                     blocks_nxt[i][19] = rand_attk[i] ? 3'd4 : 3'd0;
                 end
             end
-
         end
     endcase
 end
