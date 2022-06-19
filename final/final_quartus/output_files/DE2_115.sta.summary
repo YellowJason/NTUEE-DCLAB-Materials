@@ -1,0 +1,89 @@
+------------------------------------------------------------
+TimeQuest Timing Analyzer Summary
+------------------------------------------------------------
+
+Type  : Slow 1200mV 85C Model Setup 'comb_3|altpll_0|sd1|pll7|clk[0]'
+Slack : -3.605
+TNS   : -62.230
+
+Type  : Slow 1200mV 85C Model Hold 'comb_3|altpll_0|sd1|pll7|clk[0]'
+Slack : 0.401
+TNS   : 0.000
+
+Type  : Slow 1200mV 85C Model Minimum Pulse Width 'CLOCK_50'
+Slack : 9.819
+TNS   : 0.000
+
+Type  : Slow 1200mV 85C Model Minimum Pulse Width 'CLOCK2_50'
+Slack : 16.000
+TNS   : 0.000
+
+Type  : Slow 1200mV 85C Model Minimum Pulse Width 'CLOCK3_50'
+Slack : 16.000
+TNS   : 0.000
+
+Type  : Slow 1200mV 85C Model Minimum Pulse Width 'comb_3|altpll_0|sd1|pll7|clk[0]'
+Slack : 19.702
+TNS   : 0.000
+
+Type  : Slow 1200mV 85C Model Minimum Pulse Width 'AUD_BCLK'
+Slack : 78.790
+TNS   : 0.000
+
+Type  : Slow 1200mV 0C Model Setup 'comb_3|altpll_0|sd1|pll7|clk[0]'
+Slack : 0.667
+TNS   : 0.000
+
+Type  : Slow 1200mV 0C Model Hold 'comb_3|altpll_0|sd1|pll7|clk[0]'
+Slack : 0.352
+TNS   : 0.000
+
+Type  : Slow 1200mV 0C Model Minimum Pulse Width 'CLOCK_50'
+Slack : 9.799
+TNS   : 0.000
+
+Type  : Slow 1200mV 0C Model Minimum Pulse Width 'CLOCK2_50'
+Slack : 16.000
+TNS   : 0.000
+
+Type  : Slow 1200mV 0C Model Minimum Pulse Width 'CLOCK3_50'
+Slack : 16.000
+TNS   : 0.000
+
+Type  : Slow 1200mV 0C Model Minimum Pulse Width 'comb_3|altpll_0|sd1|pll7|clk[0]'
+Slack : 19.687
+TNS   : 0.000
+
+Type  : Slow 1200mV 0C Model Minimum Pulse Width 'AUD_BCLK'
+Slack : 78.790
+TNS   : 0.000
+
+Type  : Fast 1200mV 0C Model Setup 'comb_3|altpll_0|sd1|pll7|clk[0]'
+Slack : 18.946
+TNS   : 0.000
+
+Type  : Fast 1200mV 0C Model Hold 'comb_3|altpll_0|sd1|pll7|clk[0]'
+Slack : 0.180
+TNS   : 0.000
+
+Type  : Fast 1200mV 0C Model Minimum Pulse Width 'CLOCK_50'
+Slack : 9.400
+TNS   : 0.000
+
+Type  : Fast 1200mV 0C Model Minimum Pulse Width 'CLOCK2_50'
+Slack : 16.000
+TNS   : 0.000
+
+Type  : Fast 1200mV 0C Model Minimum Pulse Width 'CLOCK3_50'
+Slack : 16.000
+TNS   : 0.000
+
+Type  : Fast 1200mV 0C Model Minimum Pulse Width 'comb_3|altpll_0|sd1|pll7|clk[0]'
+Slack : 19.779
+TNS   : 0.000
+
+Type  : Fast 1200mV 0C Model Minimum Pulse Width 'AUD_BCLK'
+Slack : 79.000
+TNS   : 0.000
+
+------------------------------------------------------------

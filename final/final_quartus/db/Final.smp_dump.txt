@@ -1,0 +1,26 @@
+
+State Machine - |DE2_115|Top:top0|state
+Name state.S_IDLE state.S_2P state.S_1P 
+state.S_IDLE 0 0 0 
+state.S_1P 1 0 1 
+state.S_2P 1 1 0 
+
+State Machine - |DE2_115|Top:top0|Game_2:game1|state
+Name state.S_ATTK state.S_DELE state.S_END state.S_STAL state.S_EVAL state.S_WAIT state.S_IDLE 
+state.S_IDLE 0 0 0 0 0 0 0 
+state.S_WAIT 0 0 0 0 0 1 1 
+state.S_EVAL 0 0 0 0 1 0 1 
+state.S_STAL 0 0 0 1 0 0 1 
+state.S_END 0 0 1 0 0 0 1 
+state.S_DELE 0 1 0 0 0 0 1 
+state.S_ATTK 1 0 0 0 0 0 1 
+
+State Machine - |DE2_115|Top:top0|Game:game0|state
+Name state.S_ATTK state.S_DELE state.S_END state.S_STAL state.S_EVAL state.S_WAIT state.S_IDLE 
+state.S_IDLE 0 0 0 0 0 0 0 
+state.S_WAIT 0 0 0 0 0 1 1 
+state.S_EVAL 0 0 0 0 1 0 1 
+state.S_STAL 0 0 0 1 0 0 1 
+state.S_END 0 0 1 0 0 0 1 
+state.S_DELE 0 1 0 0 0 0 1 
+state.S_ATTK 1 0 0 0 0 0 1 
